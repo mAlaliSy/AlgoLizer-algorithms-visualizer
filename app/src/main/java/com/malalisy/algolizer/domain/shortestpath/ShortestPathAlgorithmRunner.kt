@@ -1,4 +1,7 @@
-package com.malalisy.algolizer.domain
+package com.malalisy.algolizer.domain.shortestpath
+
+import com.malalisy.algolizer.domain.AlgorithmRunner
+import java.util.*
 
 /**
  * An abstract class that has shared functionality between shortest path algorithms
@@ -26,12 +29,22 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
     lateinit var visitedCells: Array<Array<Boolean>>
 
     /**
+     * A list that contains the path from source to destination
+     */
+    lateinit var solution: List<Pair<Int, Int>>
+
+    /**
+     * The total cost from source to destination
+     */
+    var solutionCost: Int = -1
+
+    /**
      * Setup the algorithm with a problem (a grid that contains the source and the destination and
      * may be some obstacles)
      *
      * @param grid
      */
-    fun setup(grid: Array<Array<TileType>>) {
+    protected open fun setup(grid: Array<Array<TileType>>) {
         this.grid = grid
         isDone = false
         destinationReached = false
@@ -68,8 +81,8 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
      * @return the source node position, if no source node it return Pair(-1, -1)
      */
     fun findSource(): Pair<Int, Int> {
-        for (i in 0..grid.size) {
-            for (j in 0..grid[0].size) {
+        for (i in grid.indices) {
+            for (j in grid[0].indices) {
                 if (grid[i][j] == TileType.Source) {
                     return i to j
                 }
@@ -85,5 +98,31 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
         }
     }
 
+    /**
+     * Find the path by going backward using the parent
+     *
+     * @param node the node of destination
+     */
+    fun findPath(node: ShortestPathNode) {
+        val sol = mutableListOf<Pair<Int, Int>>()
+        var solCost = 0
+        var temp = node
+
+        val reversedSol: Stack<Pair<Int, Int>> = Stack()
+        while (temp.parent != null) {
+            reversedSol.push(temp.position)
+            solCost += temp.distance
+
+            temp = temp.parent!!
+        }
+        reversedSol.push(temp.position)
+
+        while (reversedSol.isNotEmpty()) {
+            sol.add(reversedSol.pop())
+        }
+
+        this.solution = sol
+        this.solutionCost = solCost
+    }
 
 }
