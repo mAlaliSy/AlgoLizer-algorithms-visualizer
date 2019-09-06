@@ -1,8 +1,10 @@
 package com.malalisy.algolizer.ui.views
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -21,6 +23,10 @@ class AlgoGridView @JvmOverloads constructor(
         const val DEFAULT_SOURCE_COLOR = 0x4CAF50
         const val DEFAULT_DESTINATION_COLOR = 0xD81B60
         const val DEFAULT_EMPTY_CELL_COLOR = 0xE0E0E0
+
+        const val DEFAULT_CELL_PADDING = 10
+        const val CELL_CORNER_RADIUS = 5f
+
     }
 
     /**
@@ -44,19 +50,19 @@ class AlgoGridView @JvmOverloads constructor(
     var bgColor = DEFAULT_BACKGROUND_COLOR
 
     /**
-     * A paint for drawing the background
-     */
-    val bgPaint: Paint
-
-    /**
-     * A paint for drawing the cells
+     * A paint for drawing cells
      */
     val cellPaint: Paint
 
     /**
+     * A paint for drawing empty cells
+     */
+    val emptyCellPaint: Paint
+
+    /**
      * A rect object to be reused for specifying grid cells bounds
      */
-    val cellRect: Rect
+    val cellRect: RectF
 
     /**
      * Number of rows in the grid
@@ -72,6 +78,11 @@ class AlgoGridView @JvmOverloads constructor(
      * The cell side size, as the cells will be a square
      */
     var cellSize: Int = 0
+
+    /**
+     * The cell inset padding
+     */
+    var cellPadding = DEFAULT_CELL_PADDING
 
     init {
 
@@ -112,7 +123,15 @@ class AlgoGridView @JvmOverloads constructor(
             )
 
             gridRows = typedArray.getInt(R.styleable.AlgoGridView_gridRows, 0)
-            gridColumns = typedArray.getInt(R.styleable.AlgoGridView_gridColoumns, 0)
+            gridColumns = typedArray.getInt(R.styleable.AlgoGridView_gridColumns, 0)
+
+            cellSize = typedArray.getDimensionPixelSize(R.styleable.AlgoGridView_cellSize, 0)
+
+            cellPadding =
+                typedArray.getDimensionPixelSize(
+                    R.styleable.AlgoGridView_cellPadding,
+                    DEFAULT_CELL_PADDING
+                )
 
             typedArray.recycle()
         }
@@ -122,19 +141,22 @@ class AlgoGridView @JvmOverloads constructor(
             style = Paint.Style.FILL
         }
 
-        bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        emptyCellPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
-            color = bgColor
+            color = emptyCellColor
         }
 
-        cellRect = Rect()
+        cellRect = RectF()
     }
 
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
-        cellSize = min(w / gridColumns, h / gridRows)
+        setMeasuredDimension(
+            gridColumns * cellSize + gridColumns * cellPadding,
+            gridRows * cellSize + gridRows * cellPadding
+        )
     }
 
     /**
@@ -175,5 +197,39 @@ class AlgoGridView @JvmOverloads constructor(
         colorsItems.clear()
         invalidate()
     }
+
+
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+        canvas?.let {
+            canvas.drawColor(bgColor)
+            drawBackgroundCells(canvas)
+
+
+        }
+    }
+
+    private fun drawBackgroundCells(canvas: Canvas) {
+        for (i in 0 until gridRows) {
+            for (j in 0 until gridColumns) {
+
+                cellRect.set(
+                    j * cellSize + (j + 1) * cellPadding / 2f,
+                    i * cellSize + (i + 1) * cellPadding / 2f,
+                    (j + 1) * cellSize + (j + 1) * cellPadding / 2f,
+                    (i + 1) * cellSize + (i + 1) * cellPadding / 2f
+                )
+
+                canvas.drawRoundRect(
+                    cellRect,
+                    CELL_CORNER_RADIUS,
+                    CELL_CORNER_RADIUS,
+                    emptyCellPaint
+                )
+
+            }
+        }
+    }
+
 
 }

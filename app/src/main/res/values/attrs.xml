@@ -7,7 +7,11 @@
         <attr name="blockCellColor" format="color" />
         <attr name="sourceCellColor" format="color" />
         <attr name="destinationCellColor" format="color" />
+
+        <attr name="cellSize" format="dimension" />
+        <attr name="cellPadding" format="dimension" />
+
         <attr name="gridRows" format="integer" />
-        <attr name="gridColoumns" format="integer" />
+        <attr name="gridColumns" format="integer" />
     </declare-styleable>
 </resources>
