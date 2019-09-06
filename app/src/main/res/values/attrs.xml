@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AlgoGridView">
+        <attr name="bgColor" format="color" />
+        <attr name="emptyCellColor" format="color" />
+        <attr name="visitedCellColor" format="color" />
+        <attr name="blockCellColor" format="color" />
+        <attr name="sourceCellColor" format="color" />
+        <attr name="destinationCellColor" format="color" />
+        <attr name="gridRows" format="integer" />
+        <attr name="gridColoumns" format="integer" />
+    </declare-styleable>
+</resources>
