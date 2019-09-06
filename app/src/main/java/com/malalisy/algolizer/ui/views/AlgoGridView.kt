@@ -7,7 +7,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import com.malalisy.algolizer.R
-import kotlin.math.min
 
 class AlgoGridView @JvmOverloads constructor(
     context: Context?,
@@ -178,6 +177,20 @@ class AlgoGridView @JvmOverloads constructor(
     }
 
     /**
+     * Animate the color of the cell at position (i, j) to be go back to an empty cell
+     *
+     * @param i the horizontal position of cell
+     * @param j the vertical position of cell
+     */
+    fun animateRemoveBlockCell(i: Int, j: Int) {
+        val oldIndex = colorsItems.indexOfFirst { it.i == i && it.j == j }
+        if(oldIndex != -1) {
+            colorsItems.removeAt(oldIndex)
+            animateRemoveCellsColor(blockColor, i to j)
+        }
+    }
+
+    /**
      * Animate the color of the cell at position (i, j) to be a visited color
      *
      * @param cells
@@ -215,6 +228,25 @@ class AlgoGridView @JvmOverloads constructor(
         )
 
         ValueAnimator.ofArgb(emptyCellColor, color).apply {
+            duration = animDuration.toLong()
+            addUpdateListener {
+                nColorItems.forEach { gridItem ->
+                    gridItem.color = it.animatedValue as Int
+                }
+                invalidate()
+            }
+        }.start()
+    }
+
+    private fun animateRemoveCellsColor(color: Int, vararg cells: Pair<Int, Int>) {
+        val nColorItems = Array(
+            cells.size
+        ) { GridColorItem(cells[it].first, cells[it].second, color) }
+        colorsItems.addAll(
+            nColorItems
+        )
+
+        ValueAnimator.ofArgb(color, emptyCellColor).apply {
             duration = animDuration.toLong()
             addUpdateListener {
                 nColorItems.forEach { gridItem ->
