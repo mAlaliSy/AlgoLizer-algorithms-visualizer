@@ -300,4 +300,18 @@ class AlgoGridView @JvmOverloads constructor(
         }
     }
 
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+
+        when (event?.action) {
+            MotionEvent.ACTION_DOWN or MotionEvent.ACTION_MOVE -> {
+                onGridCellSelected?.invoke(
+                    (event.y / (cellSize + cellPadding)).toInt(),
+                    (event.x / (cellSize + cellPadding)).toInt()
+                )
+            }
+        }
+
+        return true
+    }
 }
