@@ -1,10 +1,8 @@
 package com.malalisy.algolizer.ui.views
 
+import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.RectF
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -17,16 +15,17 @@ class AlgoGridView @JvmOverloads constructor(
     defStyle: Int = 0
 ) : View(context, attrs, defStyle) {
     companion object {
-        const val DEFAULT_BACKGROUND_COLOR = 0xFFFFFF
-        const val DEFAULT_VISITED_COLOR = 0x03A9F4
-        const val DEFAULT_BLOCK_COLOR = 0x3F3A3A
-        const val DEFAULT_SOURCE_COLOR = 0x4CAF50
-        const val DEFAULT_DESTINATION_COLOR = 0xD81B60
-        const val DEFAULT_EMPTY_CELL_COLOR = 0xE0E0E0
+        val DEFAULT_BACKGROUND_COLOR = Color.TRANSPARENT
+        val DEFAULT_VISITED_COLOR = Color.parseColor("#03A9F4")
+        val DEFAULT_BLOCK_COLOR = Color.parseColor("#3F3A3A")
+        val DEFAULT_SOURCE_COLOR = Color.parseColor("#4CAF50")
+        val DEFAULT_DESTINATION_COLOR = Color.parseColor("#D81B60")
+        val DEFAULT_EMPTY_CELL_COLOR = Color.parseColor("#E0E0E0")
 
-        const val DEFAULT_CELL_PADDING = 10
-        const val CELL_CORNER_RADIUS = 5f
+        val DEFAULT_CELL_PADDING = 10
+        val CELL_CORNER_RADIUS = 5f
 
+        val DEFAULT_ANIM_DURATION = 500
     }
 
     /**
@@ -84,6 +83,11 @@ class AlgoGridView @JvmOverloads constructor(
      */
     var cellPadding = DEFAULT_CELL_PADDING
 
+    /**
+     * Duration for cells color animation
+     */
+    var animDuration = DEFAULT_ANIM_DURATION
+
     init {
 
         /**
@@ -94,7 +98,7 @@ class AlgoGridView @JvmOverloads constructor(
 
             bgColor = typedArray.getColor(
                 R.styleable.AlgoGridView_bgColor,
-                DEFAULT_EMPTY_CELL_COLOR
+                DEFAULT_BACKGROUND_COLOR
             )
 
             emptyCellColor = typedArray.getColor(
@@ -133,6 +137,9 @@ class AlgoGridView @JvmOverloads constructor(
                     DEFAULT_CELL_PADDING
                 )
 
+            animDuration =
+                typedArray.getInt(R.styleable.AlgoGridView_animDuration, DEFAULT_ANIM_DURATION)
+
             typedArray.recycle()
         }
 
@@ -147,6 +154,7 @@ class AlgoGridView @JvmOverloads constructor(
         }
 
         cellRect = RectF()
+
     }
 
 
@@ -154,8 +162,8 @@ class AlgoGridView @JvmOverloads constructor(
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
         setMeasuredDimension(
-            gridColumns * cellSize + gridColumns * cellPadding,
-            gridRows * cellSize + gridRows * cellPadding
+            gridColumns * cellSize + (gridColumns + 1) * cellPadding,
+            gridRows * cellSize + (gridRows + 1) * cellPadding
         )
     }
 
@@ -166,7 +174,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
     fun animateBlockCell(i: Int, j: Int) {
-
+        animateCellColors(blockColor, i to j)
     }
 
     /**
@@ -175,7 +183,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param cells
      */
     fun animateVisitedCells(vararg cells: Pair<Int, Int>) {
-
+        animateCellColors(visitedColor, *cells)
     }
 
     /**
@@ -185,9 +193,37 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
     fun animateSourceCell(i: Int, j: Int) {
-
+        animateCellColors(sourceColor, i to j)
     }
 
+    /**
+     * Animate the color of the cell at position (i, j) to be a destination color
+     *
+     * @param i the horizontal position of cell
+     * @param j the vertical position of cell
+     */
+    fun animateDestinationCell(i: Int, j: Int) {
+        animateCellColors(destinationColor, i to j)
+    }
+
+    private fun animateCellColors(color: Int, vararg cells: Pair<Int, Int>) {
+        val nColorItems = Array(
+            cells.size
+        ) { GridColorItem(cells[it].first, cells[it].second, color) }
+        colorsItems.addAll(
+            nColorItems
+        )
+
+        ValueAnimator.ofArgb(emptyCellColor, color).apply {
+            duration = animDuration.toLong()
+            addUpdateListener {
+                nColorItems.forEach { gridItem ->
+                    gridItem.color = it.animatedValue as Int
+                }
+                invalidate()
+            }
+        }.start()
+    }
 
     /**
      * Clear the grid by setting the colors of every cell to be an empty cell
@@ -202,22 +238,38 @@ class AlgoGridView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas?.let {
+            /**
+             * First, draw the background of the grid
+             */
             canvas.drawColor(bgColor)
+
+            /**
+             * Draw the empty cells
+             */
             drawBackgroundCells(canvas)
 
+            /**
+             * Last, draw the cells (source, visited, block and destination)
+             */
+            drawCells(canvas)
 
         }
     }
 
+    /**
+     * Draw the empty cells placeholder
+     *
+     * @param canvas
+     */
     private fun drawBackgroundCells(canvas: Canvas) {
         for (i in 0 until gridRows) {
             for (j in 0 until gridColumns) {
 
                 cellRect.set(
-                    j * cellSize + (j + 1) * cellPadding / 2f,
-                    i * cellSize + (i + 1) * cellPadding / 2f,
-                    (j + 1) * cellSize + (j + 1) * cellPadding / 2f,
-                    (i + 1) * cellSize + (i + 1) * cellPadding / 2f
+                    j * cellSize + (j + 1) * cellPadding.toFloat(),
+                    i * cellSize + (i + 1) * cellPadding.toFloat(),
+                    (j + 1) * cellSize + (j + 1) * cellPadding.toFloat(),
+                    (i + 1) * cellSize + (i + 1) * cellPadding.toFloat()
                 )
 
                 canvas.drawRoundRect(
@@ -226,10 +278,26 @@ class AlgoGridView @JvmOverloads constructor(
                     CELL_CORNER_RADIUS,
                     emptyCellPaint
                 )
-
             }
         }
     }
 
+    /**
+     * Draw the cells in the colorsItems, that is: block, visited, source and destination cells
+     *
+     * @param canvas
+     */
+    private fun drawCells(canvas: Canvas) {
+        colorsItems.forEach {
+            cellRect.set(
+                it.j * cellSize + (it.j + 1) * cellPadding.toFloat(),
+                it.i * cellSize + (it.i + 1) * cellPadding.toFloat(),
+                (it.j + 1) * cellSize + (it.j + 1) * cellPadding.toFloat(),
+                (it.i + 1) * cellSize + (it.i + 1) * cellPadding.toFloat()
+            )
+            cellPaint.color = it.color
+            canvas.drawRoundRect(cellRect, CELL_CORNER_RADIUS, CELL_CORNER_RADIUS, cellPaint)
+        }
+    }
 
 }

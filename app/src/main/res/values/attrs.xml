@@ -13,5 +13,7 @@
 
         <attr name="gridRows" format="integer" />
         <attr name="gridColumns" format="integer" />
+
+        <attr name="animDuration" format="integer" />
     </declare-styleable>
 </resources>
