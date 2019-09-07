@@ -9,4 +9,7 @@
     <color name="red">#C85959</color>
     <color name="gray">#ddd</color>
     <color name="orange">#FF9800</color>
+
+    <color name="speedControllerPressedBackground">#999</color>
+    <color name="speedControllerBackground">#aaa</color>
 </resources>

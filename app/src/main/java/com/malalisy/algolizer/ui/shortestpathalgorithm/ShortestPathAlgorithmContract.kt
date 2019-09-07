@@ -22,5 +22,6 @@ interface ShortestPathAlgorithmContract {
         fun onForwardClicked()
         fun onPauseClicked()
         fun onViewPause()
+        fun onSpeedChanged(speed: Float)
     }
 }

@@ -42,6 +42,10 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         btnPlay.setOnClickListener { presenter.onPlayClicked() }
         btnPause.setOnClickListener { presenter.onPauseClicked() }
         btnForward.setOnClickListener { presenter.onForwardClicked() }
+        speedContorller.onSpeedChangeListener = {
+            presenter.onSpeedChanged(it)
+        }
+
     }
 
     override fun animateVisitedItems(vararg cells: Pair<Int, Int>) {

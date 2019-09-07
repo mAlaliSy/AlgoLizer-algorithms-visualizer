@@ -61,18 +61,18 @@
         android:id="@+id/controls"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="@color/emptyCellColor"
+        android:visibility="invisible"
         app:behavior_peekHeight="96dp"
+        app:cardBackgroundColor="@color/emptyCellColor"
         app:cardCornerRadius="10dp"
         app:cardElevation="8dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/controlsContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/controlsContainer">
+            android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btnPlay"
@@ -97,9 +97,9 @@
                 android:background="@drawable/red_rouned_bg"
                 android:padding="8dp"
                 android:src="@drawable/ic_pause"
+                android:visibility="invisible"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:visibility="invisible"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btnForward"
@@ -112,6 +112,18 @@
                 app:layout_constraintBottom_toBottomOf="@id/btnPlay"
                 app:layout_constraintStart_toEndOf="@id/btnPlay"
                 app:layout_constraintTop_toTopOf="@id/btnPlay" />
+
+            <com.malalisy.algolizer.ui.views.SpeedController
+                android:id="@+id/speedContorller"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginEnd="24dp"
+                android:background="?selectableItemBackgroundBorderless"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@id/btnPlay"
+                app:layout_constraintTop_toTopOf="@id/btnPlay"
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

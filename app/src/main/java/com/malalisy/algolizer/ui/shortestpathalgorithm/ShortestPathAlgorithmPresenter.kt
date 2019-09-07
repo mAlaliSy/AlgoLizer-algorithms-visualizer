@@ -6,8 +6,11 @@ import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.TileType
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
+
+
     companion object {
         const val SOLUTION_ANIMATION_DURATION = 100L
+        const val ALGORITHM_ANIMATION_BASE_SPEED = 200L
     }
 
     private var algorithmStarted = false
@@ -31,7 +34,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     private var isPlaying = false
 
-    private var algorithmRunningSpeed = 200L
+    private var algorithmRunningSpeed = ALGORITHM_ANIMATION_BASE_SPEED
 
     var handler = Handler()
 
@@ -154,5 +157,9 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     override fun onViewPause() {
         pause()
         handler.removeCallbacks(solutionAnimationRunnable)
+    }
+
+    override fun onSpeedChanged(speed: Float) {
+        algorithmRunningSpeed = (1.0f / speed * ALGORITHM_ANIMATION_BASE_SPEED).toLong()
     }
 }

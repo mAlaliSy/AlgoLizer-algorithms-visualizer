@@ -16,4 +16,11 @@
 
         <attr name="animDuration" format="integer" />
     </declare-styleable>
+
+
+    <declare-styleable name="SpeedController">
+        <attr name="maxSpeed" format="float" />
+        <attr name="minSpeed" format="float" />
+        <attr name="stepSize" format="float" />
+    </declare-styleable>
 </resources>
