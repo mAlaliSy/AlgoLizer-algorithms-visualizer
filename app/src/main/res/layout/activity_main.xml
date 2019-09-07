@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:name="androidx.navigation.fragment.NavHostFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:defaultNavHost="true"
+    app:navGraph="@navigation/main"
     tools:context=".MainActivity">
 
-    <com.malalisy.algolizer.ui.views.AlgoGridView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:emptyCellColor="@color/emptyCellColor"
-        app:cellSize="32dp"
-        app:gridRows="20"
-        app:gridColumns="10"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</fragment>
