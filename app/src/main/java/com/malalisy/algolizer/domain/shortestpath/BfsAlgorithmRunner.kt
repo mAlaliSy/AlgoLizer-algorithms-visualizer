@@ -16,7 +16,7 @@ import java.util.*
 class BfsAlgorithmRunner(grid: Array<Array<TileType>>, source: Pair<Int, Int>) :
     SingleSourceShortestPathAlgorithmRunner(grid, source) {
 
-    lateinit var queue: LinkedList<ShortestPathNode>
+    lateinit var queue: Queue<ShortestPathNode>
 
     init {
         setup(grid, source)
@@ -26,15 +26,21 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>, source: Pair<Int, Int>) :
         super.setup(grid)
 
         queue = LinkedList()
-        queue.push(ShortestPathNode(source.copy(), 0, null))
+        queue.add(ShortestPathNode(source.copy(), 0, null))
     }
 
 
-    override fun moveForward(): Pair<Int, Int> {
-        val node = queue.poll() ?: throw IllegalAccessError()
+    override fun moveForward(): Pair<Int, Int>? {
+        val node = queue.poll()
+        if (node == null){
+            isDone = true
+            return null
+        }
         for (h in horizontalDir.indices) {
             val i = node.position.first + verticalDir[h]
             val j = node.position.second + horizontalDir[h]
+            if (i >= grid.size || i < 0 || j >= grid[i].size || j < 0) continue
+
             val tile = grid[i][j]
 
             if (tile != TileType.Block && !visitedCells[i][j]) {
@@ -46,7 +52,7 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>, source: Pair<Int, Int>) :
 
                     findPath(newNode)
                 } else {
-                    queue.push(newNode)
+                    queue.add(newNode)
                 }
             }
         }

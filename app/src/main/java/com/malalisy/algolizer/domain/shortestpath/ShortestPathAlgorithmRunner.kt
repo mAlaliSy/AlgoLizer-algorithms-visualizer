@@ -61,7 +61,7 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
      *
      * @return the new
      */
-    abstract fun moveForward(): Pair<Int, Int>
+    abstract fun moveForward(): Pair<Int, Int>?
 
     /**
      * Move the algorithm execution forward with the number of steps as passed
@@ -69,7 +69,7 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
      * @param steps The number of execution steps to move.
      * @return The newly visited cells during the moves
      */
-    fun moveForward(steps: Int): Array<Pair<Int, Int>> {
+    fun moveForward(steps: Int): Array<Pair<Int, Int>?> {
         return Array(steps) {
             moveForward()
         }
