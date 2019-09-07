@@ -39,13 +39,14 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
             presenter.onItemSelected(i, j)
         }
 
+        /**
+         * Hook up event listeners with the presenter
+         */
         btnPlay.setOnClickListener { presenter.onPlayClicked() }
         btnPause.setOnClickListener { presenter.onPauseClicked() }
         btnForward.setOnClickListener { presenter.onForwardClicked() }
-        speedContorller.onSpeedChangeListener = {
-            presenter.onSpeedChanged(it)
-        }
-
+        speedContorller.onSpeedChangeListener = { presenter.onSpeedChanged(it) }
+        btnReplay.setOnClickListener { presenter.onRestartClick() }
     }
 
     override fun animateVisitedItems(vararg cells: Pair<Int, Int>) {
@@ -66,10 +67,6 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
 
     override fun animateDestinationItem(i: Int, j: Int) {
         algoGridView.animateDestinationCell(i, j)
-    }
-
-    override fun hideSourceLabel() {
-        showHideView(selectStartLabel, false)
     }
 
     override fun showHideControls(show: Boolean) {
@@ -93,6 +90,10 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         }
     }
 
+    override fun showHideSourceLabel(show: Boolean) {
+        showHideView(selectStartLabel, show)
+    }
+
     override fun showHideDestinationLabel(show: Boolean) {
         showHideView(selectDestinationLabel, show)
     }
@@ -110,23 +111,37 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         presenter.onViewPause()
     }
 
-    override fun showResultContainer(solutionFound: Boolean, solutionCost: Int) {
-        solutionInfoContainer.visibility = View.VISIBLE
-        if (solutionFound) {
-            solutionInfoContainer.setBackgroundResource(R.drawable.green_rounded_rect)
-            solutionCostLabel.setText(getString(R.string.solution_found, solutionCost))
+    override fun showHideResultContainer(show: Boolean, solutionFound: Boolean, solutionCost: Int) {
+        if (show) {
+            solutionInfoContainer.visibility = View.VISIBLE
+            if (solutionFound) {
+                solutionInfoContainer.setBackgroundResource(R.drawable.green_rounded_rect)
+                solutionCostLabel.setText(getString(R.string.solution_found, solutionCost))
+            } else {
+                solutionInfoContainer.setBackgroundResource(R.drawable.red_rounded_rect)
+                solutionCostLabel.setText(R.string.no_path_found)
+            }
+            solutionInfoContainer.scaleX = 0.5f
+            solutionInfoContainer.scaleY = 0.5f
+            ViewAnimator.animate(solutionInfoContainer)
+                .slideBottomIn()
+                .scale(1.0f)
+                .fadeIn()
+                .duration(500)
+                .start()
         } else {
-            solutionInfoContainer.setBackgroundResource(R.drawable.red_rounded_rect)
-            solutionCostLabel.setText(R.string.no_path_found)
+            ViewAnimator.animate(solutionInfoContainer)
+                .translationY(solutionInfoContainer.height.toFloat())
+                .scale(0.0f)
+                .fadeOut()
+                .duration(500)
+                .onStop { solutionInfoContainer.translationY = 0f }
+                .start()
         }
-        solutionInfoContainer.scaleX = 0.5f
-        solutionInfoContainer.scaleY = 0.5f
-        ViewAnimator.animate(solutionInfoContainer)
-            .slideBottomIn()
-            .scale(1.0f)
-            .fadeIn()
-            .duration(500)
-            .start()
+    }
+
+    override fun clearGrid() {
+        algoGridView.clearGrid(true)
     }
 
 }

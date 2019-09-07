@@ -7,9 +7,9 @@ import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.TileType
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
-
-
     companion object {
+
+
         const val SOLUTION_ANIMATION_DURATION = 100L
         const val ALGORITHM_ANIMATION_BASE_SPEED = 200L
     }
@@ -17,16 +17,14 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     private var algorithmStarted = false
 
     private var isDone = false
-    private val grid = Array(18) {
-        Array(10) {
-            TileType.Empty
-        }
-    }
+
+    private var grid = initGrid()
+
     private lateinit var source: Pair<Int, Int>
+
+
     private lateinit var shortestPatRunner: ShortestPathAlgorithmRunner
-
     private lateinit var view: ShortestPathAlgorithmContract.View
-
     private var sourcePlacement = false
 
     private var destinationPlacement = false
@@ -39,7 +37,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     var handler = Handler()
 
-
     private var moveForwardRunnable: Runnable = object : Runnable {
         override fun run() {
             moveForward()
@@ -49,6 +46,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     lateinit var solution: List<Pair<Int, Int>>
+
 
     var solutionCellIndex = 0
 
@@ -80,7 +78,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 source = i to j
                 sourcePlacement = false
                 destinationPlacement = true
-                view.hideSourceLabel()
+                view.showHideSourceLabel(false)
                 view.showHideDestinationLabel(true)
 
                 view.animateSourceItem(i, j)
@@ -128,11 +126,11 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 this.solution = shortestPatRunner.solution
                 solutionCellIndex = 1
                 view.showHideControls(false)
-                view.showResultContainer(true, shortestPatRunner.solutionCost)
+                view.showHideResultContainer(true, true, shortestPatRunner.solutionCost)
                 handler.postDelayed(solutionAnimationRunnable, SOLUTION_ANIMATION_DURATION)
             } else {
                 view.showHideControls(false)
-                view.showResultContainer(false)
+                view.showHideResultContainer(true, false)
             }
         }
     }
@@ -161,4 +159,26 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     override fun onSpeedChanged(speed: Float) {
         algorithmRunningSpeed = (1.0f / speed * ALGORITHM_ANIMATION_BASE_SPEED).toLong()
     }
+
+    override fun onRestartClick() {
+        reset()
+    }
+
+    private fun reset() {
+        view.showHideSourceLabel(true)
+        view.showHideResultContainer(false)
+        sourcePlacement = true
+        algorithmStarted = false
+        grid = initGrid()
+        view.clearGrid()
+        view.showHidePlayButton(true)
+        view.showHidePauseButton(false)
+    }
+
+    private fun initGrid(): Array<Array<TileType>> =
+        Array(18) {
+            Array(10) {
+                TileType.Empty
+            }
+        }
 }

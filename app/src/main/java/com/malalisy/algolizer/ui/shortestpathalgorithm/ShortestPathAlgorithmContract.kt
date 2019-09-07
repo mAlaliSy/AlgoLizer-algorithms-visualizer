@@ -8,11 +8,16 @@ interface ShortestPathAlgorithmContract {
         fun animateDestinationItem(i: Int, j: Int)
         fun animateSolutionCell(i: Int, j: Int)
         fun showHideDestinationLabel(show: Boolean)
-        fun hideSourceLabel()
+        fun showHideSourceLabel(show: Boolean)
         fun showHideControls(show: Boolean)
         fun showHidePlayButton(show: Boolean)
         fun showHidePauseButton(show: Boolean)
-        fun showResultContainer(solutionFound: Boolean, solutionCost: Int = 0)
+        fun showHideResultContainer(
+            show: Boolean,
+            solutionFound: Boolean = false,
+            solutionCost: Int = 0
+        )
+        fun clearGrid()
     }
 
     interface Presenter {
@@ -23,5 +28,6 @@ interface ShortestPathAlgorithmContract {
         fun onPauseClicked()
         fun onViewPause()
         fun onSpeedChanged(speed: Float)
+        fun onRestartClick()
     }
 }

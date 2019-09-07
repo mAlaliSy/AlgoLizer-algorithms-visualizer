@@ -3,6 +3,7 @@ package com.malalisy.algolizer.ui.views
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
+import android.os.Handler
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -26,12 +27,20 @@ class AlgoGridView @JvmOverloads constructor(
         val CELL_CORNER_RADIUS = 5f
 
         val DEFAULT_ANIM_DURATION = 500
+        val CLEAR_DURATION = 30L
     }
 
     /**
      * A list that stores the data for colored cells
      */
-    var colorsItems = mutableListOf<GridColorItem>()
+    private var colorsItems = mutableListOf<GridColorItem>()
+
+    /**
+     * Used to animate the clearance of grid
+     */
+    private var clearGridItems = mutableListOf<GridColorItem>()
+
+    private val clearHandler = Handler()
 
     /**
      * A callback for when the user touch and move through grid cells
@@ -52,17 +61,17 @@ class AlgoGridView @JvmOverloads constructor(
     /**
      * A paint for drawing cells
      */
-    val cellPaint: Paint
+    private val cellPaint: Paint
 
     /**
      * A paint for drawing empty cells
      */
-    val emptyCellPaint: Paint
+    private val emptyCellPaint: Paint
 
     /**
      * A rect object to be reused for specifying grid cells bounds
      */
-    val cellRect: RectF
+    private val cellRect: RectF
 
     /**
      * Number of rows in the grid
@@ -259,9 +268,47 @@ class AlgoGridView @JvmOverloads constructor(
      * Clear the grid by setting the colors of every cell to be an empty cell
      *
      */
-    fun clearGrid() {
-        colorsItems.clear()
-        invalidate()
+    private var clearRowIndex = 0
+    private var clearRunnable: Runnable = object : Runnable {
+        override fun run() {
+            if (clearRowIndex >= gridRows) {
+                colorsItems.clear()
+                clearGridItems.clear()
+                return
+            }
+            val newClearCells = mutableListOf<GridColorItem>()
+            for (i in 0..gridColumns) {
+                newClearCells.add(GridColorItem(clearRowIndex, i, Color.WHITE))
+            }
+            clearGridItems.addAll(newClearCells)
+
+            ValueAnimator.ofArgb(Color.WHITE, emptyCellColor).apply {
+                duration = 250
+                addUpdateListener { animator ->
+                    newClearCells.forEach {
+                        it.color = animator.animatedValue as Int
+                    }
+                    invalidate()
+                }
+                start()
+            }
+            clearRowIndex++
+            clearHandler.postDelayed(this, CLEAR_DURATION)
+        }
+
+    }
+
+    fun clearGrid(animate: Boolean) {
+        if (animate) {
+            clearRowIndex = 0
+            clearGridItems.clear()
+
+            clearHandler.postDelayed(clearRunnable, CLEAR_DURATION)
+
+        } else {
+            colorsItems.clear()
+            invalidate()
+        }
     }
 
 
@@ -282,6 +329,8 @@ class AlgoGridView @JvmOverloads constructor(
              * Last, draw the cells (source, visited, block and destination)
              */
             drawCells(canvas)
+
+            drawClearCells(canvas)
 
         }
     }
@@ -318,7 +367,26 @@ class AlgoGridView @JvmOverloads constructor(
      * @param canvas
      */
     private fun drawCells(canvas: Canvas) {
-        colorsItems.forEach {
+        drawCellColors(colorsItems, canvas)
+    }
+
+    /**
+     * Draw the effect of clearing the grid
+     *
+     * @param canvas
+     */
+    private fun drawClearCells(canvas: Canvas) {
+        drawCellColors(clearGridItems, canvas)
+    }
+
+    /**
+     * Draw a list of GridColorItem on a canvas
+     *
+     * @param list of GridColorItem
+     * @param canvas
+     */
+    private fun drawCellColors(list: List<GridColorItem>, canvas: Canvas) {
+        list.forEach {
             cellRect.set(
                 it.j * cellSize + (it.j + 1) * cellPadding.toFloat(),
                 it.i * cellSize + (it.i + 1) * cellPadding.toFloat(),
