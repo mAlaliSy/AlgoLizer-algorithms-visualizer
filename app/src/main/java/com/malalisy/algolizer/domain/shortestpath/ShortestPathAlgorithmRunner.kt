@@ -39,6 +39,11 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
     var solutionCost: Int = -1
 
     /**
+     * The visited cells in order by time they have been visited
+     */
+    var orderedVisitedCells = arrayListOf<Pair<Int, Int>>()
+
+    /**
      * Setup the algorithm with a problem (a grid that contains the source and the destination and
      * may be some obstacles)
      *
@@ -94,16 +99,18 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
 
     override fun run() {
         while (!isDone) {
-            moveForward()
+            moveForward()?.let {
+                orderedVisitedCells.add(it)
+            }
         }
     }
 
     /**
-     * Find the path by going backward using the parent
+     * Find the solution path by going backward using the parent
      *
      * @param node the node of destination
      */
-    fun findPath(node: ShortestPathNode) {
+    fun findSolution(node: ShortestPathNode) {
         val sol = mutableListOf<Pair<Int, Int>>()
         var temp = node
 

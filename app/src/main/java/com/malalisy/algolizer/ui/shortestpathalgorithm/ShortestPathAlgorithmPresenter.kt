@@ -5,6 +5,7 @@ import android.util.Log
 import com.malalisy.algolizer.domain.shortestpath.BfsAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.TileType
+import java.util.ArrayList
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
@@ -16,7 +17,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     private var algorithmStarted = false
 
-    private var isDone = false
+    private var isAlgorithmRunFinished = false
+    private lateinit var visitedOrdered: ArrayList<Pair<Int, Int>>
 
     private var grid = initGrid()
 
@@ -37,9 +39,15 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     var handler = Handler()
 
+    private var visitedIndex = 1
     private var moveForwardRunnable: Runnable = object : Runnable {
         override fun run() {
             moveForward()
+            if (visitedIndex == visitedOrdered.size) {
+                isPlaying = false
+                handleAlgorithmEnd()
+                return
+            }
             if (isPlaying)
                 handler.postDelayed(this, algorithmRunningSpeed)
         }
@@ -105,38 +113,43 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         view.showHidePlayButton(false)
         if (isPlaying) return
         isPlaying = true
+        if (!isAlgorithmRunFinished) {
+            shortestPatRunner.run()
+            if (shortestPatRunner.destinationReached)
+                this.solution = shortestPatRunner.solution
+            visitedOrdered = shortestPatRunner.orderedVisitedCells
+        }
         handler.postDelayed(moveForwardRunnable, algorithmRunningSpeed)
     }
 
-    private fun moveForward() {
-        val cell = shortestPatRunner.moveForward()
-        checkDone()
-        if (cell == null) return
-        if (grid[cell.first][cell.second] == TileType.Empty)
-            view.animateVisitedItems(cell)
-    }
-
-    private fun checkDone() {
-        if (shortestPatRunner.isDone) {
-            isDone = true
-            isPlaying = false
-            handler.removeCallbacks(moveForwardRunnable)
-
-            if (shortestPatRunner.destinationReached) {
-                this.solution = shortestPatRunner.solution
-                solutionCellIndex = 1
-                view.showHideControls(false)
-                view.showHideResultContainer(true, true, shortestPatRunner.solutionCost)
-                handler.postDelayed(solutionAnimationRunnable, SOLUTION_ANIMATION_DURATION)
-            } else {
-                view.showHideControls(false)
-                view.showHideResultContainer(true, false)
-            }
+    private fun handleAlgorithmEnd() {
+        if (shortestPatRunner.destinationReached) {
+            this.solution = shortestPatRunner.solution
+            solutionCellIndex = 1
+            view.showHideControls(false)
+            view.showHideResultContainer(true, true, shortestPatRunner.solutionCost)
+            handler.postDelayed(solutionAnimationRunnable, SOLUTION_ANIMATION_DURATION)
+        } else {
+            view.showHideControls(false)
+            view.showHideResultContainer(true, false)
         }
     }
 
     override fun onForwardClicked() {
+
         moveForward()
+    }
+
+    private fun moveForward() {
+        if (visitedIndex >= visitedOrdered.size) return
+        view.animateVisitedItems(visitedOrdered[visitedIndex])
+        visitedIndex++
+    }
+
+    private fun moveBackward() {
+        if (visitedIndex < 0) return
+        view.animateVisitedItems(visitedOrdered[visitedIndex])
+        visitedIndex--
     }
 
     override fun onPauseClicked() {
@@ -173,6 +186,10 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         view.clearGrid()
         view.showHidePlayButton(true)
         view.showHidePauseButton(false)
+
+        isAlgorithmRunFinished = false
+        visitedOrdered = arrayListOf()
+        visitedIndex = 1
     }
 
     private fun initGrid(): Array<Array<TileType>> =

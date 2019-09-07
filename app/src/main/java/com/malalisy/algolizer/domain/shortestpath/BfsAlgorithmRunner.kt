@@ -27,6 +27,7 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>, source: Pair<Int, Int>) :
 
         queue = LinkedList()
         queue.add(ShortestPathNode(source.copy(), 0, null))
+        visitedCells[source.first][source.second] = true
     }
 
 
@@ -50,7 +51,7 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>, source: Pair<Int, Int>) :
                     isDone = true
                     destinationReached = true
 
-                    findPath(newNode)
+                    findSolution(newNode)
                 } else {
                     queue.add(newNode)
                 }
