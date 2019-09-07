@@ -20,8 +20,8 @@
             android:layout_height="wrap_content"
             app:cellSize="32dp"
             app:emptyCellColor="@color/emptyCellColor"
-            app:gridColumns="5"
-            app:gridRows="10"
+            app:gridColumns="10"
+            app:gridRows="18"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

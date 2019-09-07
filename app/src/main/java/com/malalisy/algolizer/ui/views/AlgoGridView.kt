@@ -20,6 +20,7 @@ class AlgoGridView @JvmOverloads constructor(
         val DEFAULT_SOURCE_COLOR = Color.parseColor("#4CAF50")
         val DEFAULT_DESTINATION_COLOR = Color.parseColor("#D81B60")
         val DEFAULT_EMPTY_CELL_COLOR = Color.parseColor("#E0E0E0")
+        val DEFAULT_SOLUTION_CELL_COLOR = Color.parseColor("#FF9800")
 
         val DEFAULT_CELL_PADDING = 10
         val CELL_CORNER_RADIUS = 5f
@@ -45,6 +46,7 @@ class AlgoGridView @JvmOverloads constructor(
     var sourceColor = DEFAULT_SOURCE_COLOR
     var destinationColor = DEFAULT_DESTINATION_COLOR
     var emptyCellColor = DEFAULT_EMPTY_CELL_COLOR
+    var solutionColor = DEFAULT_SOLUTION_CELL_COLOR
     var bgColor = DEFAULT_BACKGROUND_COLOR
 
     /**
@@ -173,7 +175,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
     fun animateBlockCell(i: Int, j: Int) {
-        animateCellColors(blockColor, i to j)
+        animateCellColors(emptyCellColor, blockColor, i to j)
     }
 
     /**
@@ -184,9 +186,9 @@ class AlgoGridView @JvmOverloads constructor(
      */
     fun animateRemoveBlockCell(i: Int, j: Int) {
         val oldIndex = colorsItems.indexOfFirst { it.i == i && it.j == j }
-        if(oldIndex != -1) {
+        if (oldIndex != -1) {
             colorsItems.removeAt(oldIndex)
-            animateRemoveCellsColor(blockColor, i to j)
+            animateCellColors(blockColor, emptyCellColor, i to j)
         }
     }
 
@@ -196,7 +198,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param cells
      */
     fun animateVisitedCells(vararg cells: Pair<Int, Int>) {
-        animateCellColors(visitedColor, *cells)
+        animateCellColors(emptyCellColor, visitedColor, *cells)
     }
 
     /**
@@ -206,7 +208,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
     fun animateSourceCell(i: Int, j: Int) {
-        animateCellColors(sourceColor, i to j)
+        animateCellColors(emptyCellColor, sourceColor, i to j)
     }
 
     /**
@@ -216,10 +218,25 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
     fun animateDestinationCell(i: Int, j: Int) {
-        animateCellColors(destinationColor, i to j)
+        animateCellColors(emptyCellColor, destinationColor, i to j)
     }
 
-    private fun animateCellColors(color: Int, vararg cells: Pair<Int, Int>) {
+
+    /**
+     * Animate the color of the cell at position (i, j) to be a solution color
+     *
+     * @param i the horizontal position of cell
+     * @param j the vertical position of cell
+     */
+    fun animateSolutionCell(i: Int, j: Int) {
+        animateCellColors(visitedColor, solutionColor, i to j)
+    }
+
+    private fun animateCellColors(
+        startColor: Int,
+        color: Int,
+        vararg cells: Pair<Int, Int>
+    ) {
         val nColorItems = Array(
             cells.size
         ) { GridColorItem(cells[it].first, cells[it].second, color) }
@@ -227,26 +244,7 @@ class AlgoGridView @JvmOverloads constructor(
             nColorItems
         )
 
-        ValueAnimator.ofArgb(emptyCellColor, color).apply {
-            duration = animDuration.toLong()
-            addUpdateListener {
-                nColorItems.forEach { gridItem ->
-                    gridItem.color = it.animatedValue as Int
-                }
-                invalidate()
-            }
-        }.start()
-    }
-
-    private fun animateRemoveCellsColor(color: Int, vararg cells: Pair<Int, Int>) {
-        val nColorItems = Array(
-            cells.size
-        ) { GridColorItem(cells[it].first, cells[it].second, color) }
-        colorsItems.addAll(
-            nColorItems
-        )
-
-        ValueAnimator.ofArgb(color, emptyCellColor).apply {
+        ValueAnimator.ofArgb(startColor ?: emptyCellColor, color).apply {
             duration = animDuration.toLong()
             addUpdateListener {
                 nColorItems.forEach { gridItem ->
@@ -346,4 +344,5 @@ class AlgoGridView @JvmOverloads constructor(
 
         return true
     }
+
 }

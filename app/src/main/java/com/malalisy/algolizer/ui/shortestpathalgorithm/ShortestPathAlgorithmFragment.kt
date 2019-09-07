@@ -2,6 +2,7 @@ package com.malalisy.algolizer.ui.shortestpathalgorithm
 
 
 import android.os.Bundle
+import android.os.Handler
 import android.transition.AutoTransition
 import android.transition.TransitionManager
 import android.util.Log
@@ -20,6 +21,7 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
     val TAG = "ShortestPathAlgorithm"
 
     lateinit var presenter: ShortestPathAlgorithmContract.Presenter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -31,6 +33,7 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         super.onViewCreated(view, savedInstanceState)
         presenter = ShortestPathAlgorithmPresenter()
         presenter.setupView(this)
+
 
         algoGridView.onGridCellSelected = { i, j ->
             presenter.onItemSelected(i, j)
@@ -53,12 +56,12 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         algoGridView.animateSourceCell(i, j)
     }
 
-    override fun animateDestinationItem(i: Int, j: Int) {
-        algoGridView.animateDestinationCell(i, j)
+    override fun animateSolutionCell(i: Int, j: Int) {
+        algoGridView.animateSolutionCell(i, j)
     }
 
-    override fun showSolution(solution: List<Pair<Int, Int>>) {
-        Log.d(TAG, "Path Found")
+    override fun animateDestinationItem(i: Int, j: Int) {
+        algoGridView.animateDestinationCell(i, j)
     }
 
     override fun showNoPathFound() {

@@ -6,15 +6,21 @@ import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.TileType
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
-    private var isDone = false
+    companion object {
+        const val SOLUTION_ANIMATION_DURATION = 100L
+    }
 
-    private val grid = Array(10) {
-        Array(5) {
+    private var algorithmStarted = false
+
+    private var isDone = false
+    private val grid = Array(18) {
+        Array(10) {
             TileType.Empty
         }
     }
     private lateinit var source: Pair<Int, Int>
     private lateinit var shortestPatRunner: ShortestPathAlgorithmRunner
+
     private lateinit var view: ShortestPathAlgorithmContract.View
 
     private var sourcePlacement = false
@@ -25,9 +31,10 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     private var isPlaying = false
 
-    private var algorithmRunningSpeed = 300L
+    private var algorithmRunningSpeed = 200L
 
     var handler = Handler()
+
 
     private var moveForwardRunnable: Runnable = object : Runnable {
         override fun run() {
@@ -37,12 +44,29 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         }
     }
 
+    lateinit var solution: List<Pair<Int, Int>>
+
+    var solutionCellIndex = 0
+
+    private var solutionAnimationRunnable: Runnable = object : Runnable {
+        override fun run() {
+            view.animateSolutionCell(
+                solution[solutionCellIndex].first,
+                solution[solutionCellIndex].second
+            )
+            solutionCellIndex++
+            if (solutionCellIndex < solution.size - 1)
+                handler.postDelayed(this, SOLUTION_ANIMATION_DURATION)
+        }
+    }
+
     override fun setupView(view: ShortestPathAlgorithmContract.View) {
         this.view = view
         sourcePlacement = true
     }
 
     override fun onItemSelected(i: Int, j: Int) {
+        if (algorithmStarted) return
         if (i >= grid.size || i < 0 || j >= grid[0].size || j < 0) return
         if (grid[i][j] != TileType.Empty) return
 
@@ -74,6 +98,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     override fun onPlayClicked() {
+        algorithmStarted = true
         view.showHidePauseButton(true)
         view.showHidePlayButton(false)
         if (isPlaying) return
@@ -100,7 +125,10 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
             handler.removeCallbacks(moveForwardRunnable)
 
             if (shortestPatRunner.destinationReached) {
-                view.showSolution(shortestPatRunner.solution)
+                this.solution = shortestPatRunner.solution
+                solutionCellIndex = 1
+                // TODO: Hide controls and show the solution cost in a solution label
+                handler.postDelayed(solutionAnimationRunnable, SOLUTION_ANIMATION_DURATION)
             } else {
                 view.showNoPathFound()
             }
@@ -125,5 +153,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     override fun onViewPause() {
         pause()
+        handler.removeCallbacks(solutionAnimationRunnable)
     }
 }
