@@ -1,6 +1,7 @@
 package com.malalisy.algolizer.ui.shortestpathalgorithm
 
 import android.os.Handler
+import android.util.Log
 import com.malalisy.algolizer.domain.shortestpath.BfsAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.TileType
@@ -90,7 +91,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 destinationPlacement = false
                 blockPlacement = true
                 view.showHideDestinationLabel(false)
-                view.showControls()
+                view.showHideControls(true)
                 view.animateDestinationItem(i, j)
             }
             else -> {
@@ -110,15 +111,11 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     private fun moveForward() {
-        if (isDone) return
         val cell = shortestPatRunner.moveForward()
-        if (cell == null) {
-            isDone = true
-            return
-        }
+        checkDone()
+        if (cell == null) return
         if (grid[cell.first][cell.second] == TileType.Empty)
             view.animateVisitedItems(cell)
-        checkDone()
     }
 
     private fun checkDone() {
@@ -130,10 +127,12 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
             if (shortestPatRunner.destinationReached) {
                 this.solution = shortestPatRunner.solution
                 solutionCellIndex = 1
-                // TODO: Hide controls and show the solution cost in a solution label
+                view.showHideControls(false)
+                view.showResultContainer(true, shortestPatRunner.solutionCost)
                 handler.postDelayed(solutionAnimationRunnable, SOLUTION_ANIMATION_DURATION)
             } else {
-                view.showNoPathFound()
+                view.showHideControls(false)
+                view.showResultContainer(false)
             }
         }
     }

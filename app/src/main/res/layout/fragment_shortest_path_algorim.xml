@@ -55,6 +55,39 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/solutionInfoContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:background="@drawable/green_rounded_rect"
+            android:padding="24dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/solutionCostLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="@string/choose_destination"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btnReplay"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="24dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_refresh"
+                android:tint="@android:color/white" />
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.cardview.widget.CardView
@@ -119,11 +152,10 @@
                 android:layout_height="32dp"
                 android:layout_marginEnd="24dp"
                 android:background="?selectableItemBackgroundBorderless"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="@id/btnPlay"
-                app:layout_constraintTop_toTopOf="@id/btnPlay"
-                />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/btnPlay" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

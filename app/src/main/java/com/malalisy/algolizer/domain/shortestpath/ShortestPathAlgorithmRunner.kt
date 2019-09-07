@@ -105,14 +105,11 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
      */
     fun findPath(node: ShortestPathNode) {
         val sol = mutableListOf<Pair<Int, Int>>()
-        var solCost = 0
         var temp = node
 
         val reversedSol: Stack<Pair<Int, Int>> = Stack()
         while (temp.parent != null) {
             reversedSol.push(temp.position)
-            solCost += temp.distance
-
             temp = temp.parent!!
         }
         reversedSol.push(temp.position)
@@ -122,7 +119,7 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
         }
 
         this.solution = sol
-        this.solutionCost = solCost
+        this.solutionCost = node.distance
     }
 
 }

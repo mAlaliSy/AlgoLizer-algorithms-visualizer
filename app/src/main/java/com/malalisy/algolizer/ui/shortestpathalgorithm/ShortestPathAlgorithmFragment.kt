@@ -68,22 +68,29 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         algoGridView.animateDestinationCell(i, j)
     }
 
-    override fun showNoPathFound() {
-        Log.d(TAG, "NO Path Found")
-    }
-
     override fun hideSourceLabel() {
         showHideView(selectStartLabel, false)
     }
 
-    override fun showControls() {
-        ViewAnimator.animate(controls)
-            .slideBottomIn()
-            .fadeIn()
-            .duration(500)
-            .interpolator(AccelerateInterpolator())
-            .start()
-        controls.visibility = View.VISIBLE
+    override fun showHideControls(show: Boolean) {
+        if (show) {
+            ViewAnimator.animate(controls)
+                .slideBottomIn()
+                .fadeIn()
+                .duration(500)
+                .interpolator(AccelerateInterpolator())
+                .start()
+            controls.visibility = View.VISIBLE
+        } else {
+            ViewAnimator.animate(controls)
+                .translationY(controls.height.toFloat())
+                .fadeOut()
+                .duration(500)
+                .onStop {
+                    controls.translationY = 0.0f
+                    controls.visibility = View.INVISIBLE
+                }.start()
+        }
     }
 
     override fun showHideDestinationLabel(show: Boolean) {
@@ -101,6 +108,25 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
     override fun onPause() {
         super.onPause()
         presenter.onViewPause()
+    }
+
+    override fun showResultContainer(solutionFound: Boolean, solutionCost: Int) {
+        solutionInfoContainer.visibility = View.VISIBLE
+        if (solutionFound) {
+            solutionInfoContainer.setBackgroundResource(R.drawable.green_rounded_rect)
+            solutionCostLabel.setText(getString(R.string.solution_found, solutionCost))
+        } else {
+            solutionInfoContainer.setBackgroundResource(R.drawable.red_rounded_rect)
+            solutionCostLabel.setText(R.string.no_path_found)
+        }
+        solutionInfoContainer.scaleX = 0.5f
+        solutionInfoContainer.scaleY = 0.5f
+        ViewAnimator.animate(solutionInfoContainer)
+            .slideBottomIn()
+            .scale(1.0f)
+            .fadeIn()
+            .duration(500)
+            .start()
     }
 
 }

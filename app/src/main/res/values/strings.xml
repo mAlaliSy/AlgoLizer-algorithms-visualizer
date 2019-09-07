@@ -3,4 +3,6 @@
 
     <string name="choose_starting">Choose the starting point</string>
     <string name="choose_destination">Choose the destination point</string>
+    <string name="no_path_found">No path from source to destination found</string>
+    <string name="solution_found">Solution found with cost: %1$d</string>
 </resources>

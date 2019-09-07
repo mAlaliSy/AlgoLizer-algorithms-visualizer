@@ -9,10 +9,10 @@ interface ShortestPathAlgorithmContract {
         fun animateSolutionCell(i: Int, j: Int)
         fun showHideDestinationLabel(show: Boolean)
         fun hideSourceLabel()
-        fun showControls()
+        fun showHideControls(show: Boolean)
         fun showHidePlayButton(show: Boolean)
         fun showHidePauseButton(show: Boolean)
-        fun showNoPathFound()
+        fun showResultContainer(solutionFound: Boolean, solutionCost: Int = 0)
     }
 
     interface Presenter {
