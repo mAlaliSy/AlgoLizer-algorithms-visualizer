@@ -6,10 +6,11 @@ interface ShortestPathAlgorithmContract {
         fun animateBlockItem(i: Int, j: Int)
         fun animateSourceItem(i: Int, j: Int)
         fun animateDestinationItem(i: Int, j: Int)
-        fun hideDestinationLabel()
-        fun showDestinationLabel()
+        fun showHideDestinationLabel(show: Boolean)
         fun hideSourceLabel()
         fun showControls()
+        fun showHidePlayButton(show:Boolean)
+        fun showHidePauseButton(show: Boolean)
         fun showSolution(solution: List<Pair<Int, Int>>)
         fun showNoPathFound()
     }
@@ -19,5 +20,7 @@ interface ShortestPathAlgorithmContract {
         fun onItemSelected(i: Int, j: Int)
         fun onPlayClicked()
         fun onForwardClicked()
+        fun onPauseClicked()
+        fun onViewPause()
     }
 }

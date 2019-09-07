@@ -2,20 +2,24 @@ package com.malalisy.algolizer.ui.shortestpathalgorithm
 
 
 import android.os.Bundle
+import android.transition.AutoTransition
 import android.transition.TransitionManager
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import com.github.florent37.viewanimator.ViewAnimator
 
 import com.malalisy.algolizer.R
+import com.malalisy.algolizer.ui.BaseFragment
 import kotlinx.android.synthetic.main.fragment_shortest_path_algorim.*
 
-class ShortestPathAlgorithmFragment : Fragment(), ShortestPathAlgorithmContract.View {
+class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContract.View {
     val TAG = "ShortestPathAlgorithm"
-    lateinit var presenter: ShortestPathAlgorithmContract.Presenter
 
+    lateinit var presenter: ShortestPathAlgorithmContract.Presenter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,8 +29,6 @@ class ShortestPathAlgorithmFragment : Fragment(), ShortestPathAlgorithmContract.
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        TransitionManager.beginDelayedTransition(shortestPathAlgorithmContainer)
-
         presenter = ShortestPathAlgorithmPresenter()
         presenter.setupView(this)
 
@@ -35,7 +37,8 @@ class ShortestPathAlgorithmFragment : Fragment(), ShortestPathAlgorithmContract.
         }
 
         btnPlay.setOnClickListener { presenter.onPlayClicked() }
-        btnForward.setOnClickListener{presenter.onForwardClicked()}
+        btnPause.setOnClickListener { presenter.onPauseClicked() }
+        btnForward.setOnClickListener { presenter.onForwardClicked() }
     }
 
     override fun animateVisitedItems(vararg cells: Pair<Int, Int>) {
@@ -62,22 +65,35 @@ class ShortestPathAlgorithmFragment : Fragment(), ShortestPathAlgorithmContract.
         Log.d(TAG, "NO Path Found")
     }
 
-
-    override fun hideDestinationLabel() {
-        selectDestinationLabel.visibility = View.GONE
-    }
-
-    override fun showDestinationLabel() {
-        selectDestinationLabel.visibility = View.VISIBLE
-    }
-
     override fun hideSourceLabel() {
-        selectStartLabel.visibility = View.GONE
+        showHideView(selectStartLabel, false)
     }
 
     override fun showControls() {
+        ViewAnimator.animate(controls)
+            .slideBottomIn()
+            .fadeIn()
+            .duration(500)
+            .interpolator(AccelerateInterpolator())
+            .start()
         controls.visibility = View.VISIBLE
     }
 
+    override fun showHideDestinationLabel(show: Boolean) {
+        showHideView(selectDestinationLabel, show)
+    }
+
+    override fun showHidePlayButton(show: Boolean) {
+        showHideView(btnPlay, show)
+    }
+
+    override fun showHidePauseButton(show: Boolean) {
+        showHideView(btnPause, show)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        presenter.onViewPause()
+    }
 
 }

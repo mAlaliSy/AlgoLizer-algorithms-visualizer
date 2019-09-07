@@ -1,7 +1,8 @@
-package com.malalisy.algolizer
+package com.malalisy.algolizer.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.malalisy.algolizer.R
 
 class MainActivity : AppCompatActivity() {
 

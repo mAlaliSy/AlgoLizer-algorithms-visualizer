@@ -71,7 +71,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:id="@+id/controlsContainer">
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btnPlay"
@@ -85,6 +86,20 @@
                 android:src="@drawable/ic_play"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btnPause"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/red_rouned_bg"
+                android:padding="8dp"
+                android:src="@drawable/ic_pause"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="invisible"/>
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btnForward"

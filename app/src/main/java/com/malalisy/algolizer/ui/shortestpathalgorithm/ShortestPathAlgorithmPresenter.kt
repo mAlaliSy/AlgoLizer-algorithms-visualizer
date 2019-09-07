@@ -7,6 +7,7 @@ import com.malalisy.algolizer.domain.shortestpath.TileType
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     private var isDone = false
+
     private val grid = Array(10) {
         Array(5) {
             TileType.Empty
@@ -14,7 +15,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
     private lateinit var source: Pair<Int, Int>
     private lateinit var shortestPatRunner: ShortestPathAlgorithmRunner
-
     private lateinit var view: ShortestPathAlgorithmContract.View
 
     private var sourcePlacement = false
@@ -43,7 +43,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     override fun onItemSelected(i: Int, j: Int) {
-        if (i >= grid.size || j >= grid[0].size) return
+        if (i >= grid.size || i < 0 || j >= grid[0].size || j < 0) return
         if (grid[i][j] != TileType.Empty) return
 
         when {
@@ -53,7 +53,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 sourcePlacement = false
                 destinationPlacement = true
                 view.hideSourceLabel()
-                view.showDestinationLabel()
+                view.showHideDestinationLabel(true)
 
                 view.animateSourceItem(i, j)
                 shortestPatRunner = BfsAlgorithmRunner(grid, source)
@@ -62,7 +62,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 grid[i][j] = TileType.Destination
                 destinationPlacement = false
                 blockPlacement = true
-                view.hideDestinationLabel()
+                view.showHideDestinationLabel(false)
                 view.showControls()
                 view.animateDestinationItem(i, j)
             }
@@ -74,18 +74,17 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     override fun onPlayClicked() {
-        if (isPlaying) {
-            isPlaying = false
-        } else {
-            isPlaying = true
-            handler.postDelayed(moveForwardRunnable, algorithmRunningSpeed)
-        }
+        view.showHidePauseButton(true)
+        view.showHidePlayButton(false)
+        if (isPlaying) return
+        isPlaying = true
+        handler.postDelayed(moveForwardRunnable, algorithmRunningSpeed)
     }
 
     private fun moveForward() {
         if (isDone) return
         val cell = shortestPatRunner.moveForward()
-        if(cell == null){
+        if (cell == null) {
             isDone = true
             return
         }
@@ -112,4 +111,19 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         moveForward()
     }
 
+    override fun onPauseClicked() {
+        pause()
+    }
+
+    private fun pause() {
+        view.showHidePauseButton(false)
+        view.showHidePlayButton(true)
+        if (!isPlaying) return
+        isPlaying = false
+        handler.removeCallbacks(moveForwardRunnable)
+    }
+
+    override fun onViewPause() {
+        pause()
+    }
 }
