@@ -11,8 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
+import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.SeekBar
 import com.github.florent37.viewanimator.ViewAnimator
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 import com.malalisy.algolizer.R
 import com.malalisy.algolizer.ui.BaseFragment
@@ -23,6 +25,7 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
 
     lateinit var presenter: ShortestPathAlgorithmContract.Presenter
 
+    var bottomSheetDraggingOrExpanded = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,12 +39,27 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         presenter.setupView(this)
 
         algoGridView.onGridCellStartTouch = { i, j ->
-            presenter.onCellStartTouch(i, j)
+            if (!bottomSheetDraggingOrExpanded)
+                presenter.onCellStartTouch(i, j)
         }
 
-        algoGridView.onGridCellTouchMove = {i, j->
-            presenter.onCellTouchMove(i, j)
+        algoGridView.onGridCellTouchMove = { i, j ->
+            if (!bottomSheetDraggingOrExpanded)
+                presenter.onCellTouchMove(i, j)
         }
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(controls)
+        bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
+            override fun onSlide(p0: View, p1: Float) {
+                bottomSheetDraggingOrExpanded = true
+            }
+
+            override fun onStateChanged(view: View, state: Int) {
+                bottomSheetDraggingOrExpanded = state != BottomSheetBehavior.STATE_COLLAPSED
+            }
+
+        })
+
 
         /**
          * Hook up event listeners with the presenter
@@ -91,15 +109,16 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
             ViewAnimator.animate(controls)
                 .slideBottomIn()
                 .fadeIn()
-                .duration(500)
-                .interpolator(AccelerateInterpolator())
+                .duration(1000)
+                .interpolator(AnticipateOvershootInterpolator(2.0f))
                 .start()
             controls.visibility = View.VISIBLE
         } else {
             ViewAnimator.animate(controls)
                 .translationY(controls.height.toFloat())
                 .fadeOut()
-                .duration(500)
+                .duration(1000)
+                .interpolator(AnticipateOvershootInterpolator(2.0f))
                 .onStop {
                     controls.translationY = 0.0f
                     controls.visibility = View.INVISIBLE
@@ -141,17 +160,19 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
             solutionInfoContainer.scaleX = 0.5f
             solutionInfoContainer.scaleY = 0.5f
             ViewAnimator.animate(solutionInfoContainer)
+                .interpolator(AnticipateOvershootInterpolator(1.0f))
                 .slideBottomIn()
                 .scale(1.0f)
                 .fadeIn()
-                .duration(500)
+                .duration(1000)
                 .start()
         } else {
             ViewAnimator.animate(solutionInfoContainer)
                 .translationY(solutionInfoContainer.height.toFloat())
                 .scale(0.0f)
                 .fadeOut()
-                .duration(500)
+                .duration(1000)
+                .interpolator(AnticipateOvershootInterpolator(1.0f))
                 .onStop { solutionInfoContainer.translationY = 0f }
                 .start()
         }

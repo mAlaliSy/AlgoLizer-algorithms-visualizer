@@ -153,7 +153,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     override fun onForwardClicked() {
-
         moveForward()
     }
 
