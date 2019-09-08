@@ -202,6 +202,21 @@ class AlgoGridView @JvmOverloads constructor(
     }
 
     /**
+     * Animate the color of the cell at position (i, j) to be go back to an empty cell
+     *
+     * @param i the horizontal position of cell
+     * @param j the vertical position of cell
+     */
+
+    fun animateRemoveVisitedItems(i: Int, j: Int) {
+        val oldIndex = colorsItems.indexOfFirst { it.i == i && it.j == j }
+        if (oldIndex != -1) {
+            colorsItems.removeAt(oldIndex)
+            animateCellColors(visitedColor, emptyCellColor, i to j)
+        }
+    }
+
+    /**
      * Animate the color of the cell at position (i, j) to be a visited color
      *
      * @param cells
@@ -412,5 +427,6 @@ class AlgoGridView @JvmOverloads constructor(
 
         return true
     }
+
 
 }

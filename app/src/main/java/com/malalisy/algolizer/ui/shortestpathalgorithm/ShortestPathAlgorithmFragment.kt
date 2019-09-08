@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
+import android.widget.SeekBar
 import com.github.florent37.viewanimator.ViewAnimator
 
 import com.malalisy.algolizer.R
@@ -47,6 +48,19 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         btnForward.setOnClickListener { presenter.onForwardClicked() }
         speedContorller.onSpeedChangeListener = { presenter.onSpeedChanged(it) }
         btnReplay.setOnClickListener { presenter.onRestartClick() }
+        animationSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                if (p2)
+                    presenter.onAnimationSeekBarChanged(p1)
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+            }
+
+        })
     }
 
     override fun animateVisitedItems(vararg cells: Pair<Int, Int>) {
@@ -144,4 +158,24 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         algoGridView.clearGrid(true)
     }
 
+    override fun setAnimationSeekBarMaxValue(maxValue: Int) {
+        animationSeekBar.max = maxValue
+    }
+
+    override fun showHideAnimationSeekBar(show: Boolean) {
+        val animator = ViewAnimator.animate(animationSeekBar).duration(200)
+        if (show) {
+            animationSeekBar.visibility = View.VISIBLE
+            animator.fadeIn()
+        } else animator.fadeOut().onStop { animationSeekBar.visibility = View.INVISIBLE }
+        animator.start()
+    }
+
+    override fun setAnimationSeekBarValue(value: Int) {
+        animationSeekBar.progress = value
+    }
+
+    override fun animateRemoveVisitedItems(i: Int, j: Int) {
+        algoGridView.animateRemoveVisitedItems(i, j)
+    }
 }

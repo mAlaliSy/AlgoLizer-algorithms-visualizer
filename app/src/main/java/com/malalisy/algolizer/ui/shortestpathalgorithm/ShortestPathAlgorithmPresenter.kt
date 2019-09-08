@@ -10,25 +10,26 @@ import java.util.ArrayList
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
 
-
         const val SOLUTION_ANIMATION_DURATION = 100L
+
+
         const val ALGORITHM_ANIMATION_BASE_SPEED = 200L
     }
 
     private var algorithmStarted = false
 
     private var isAlgorithmRunFinished = false
-    private lateinit var visitedOrdered: ArrayList<Pair<Int, Int>>
 
+    private lateinit var visitedOrdered: ArrayList<Pair<Int, Int>>
     private var grid = initGrid()
 
     private lateinit var source: Pair<Int, Int>
 
-
     private lateinit var shortestPatRunner: ShortestPathAlgorithmRunner
+
+
     private lateinit var view: ShortestPathAlgorithmContract.View
     private var sourcePlacement = false
-
     private var destinationPlacement = false
 
     private var blockPlacement = false
@@ -40,6 +41,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     var handler = Handler()
 
     private var visitedIndex = 1
+
     private var moveForwardRunnable: Runnable = object : Runnable {
         override fun run() {
             moveForward()
@@ -52,11 +54,10 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 handler.postDelayed(this, algorithmRunningSpeed)
         }
     }
-
     lateinit var solution: List<Pair<Int, Int>>
 
-
     var solutionCellIndex = 0
+
 
     private var solutionAnimationRunnable: Runnable = object : Runnable {
         override fun run() {
@@ -114,12 +115,19 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         if (isPlaying) return
         isPlaying = true
         if (!isAlgorithmRunFinished) {
-            shortestPatRunner.run()
-            if (shortestPatRunner.destinationReached)
-                this.solution = shortestPatRunner.solution
-            visitedOrdered = shortestPatRunner.orderedVisitedCells
+            runAlgorithm()
         }
         handler.postDelayed(moveForwardRunnable, algorithmRunningSpeed)
+    }
+
+    private fun runAlgorithm() {
+        shortestPatRunner.run()
+        isAlgorithmRunFinished = true
+        if (shortestPatRunner.destinationReached)
+            this.solution = shortestPatRunner.solution
+        visitedOrdered = shortestPatRunner.orderedVisitedCells
+        view.setAnimationSeekBarMaxValue(visitedOrdered.size)
+        view.showHideAnimationSeekBar(true)
     }
 
     private fun handleAlgorithmEnd() {
@@ -141,14 +149,20 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     private fun moveForward() {
-        if (visitedIndex >= visitedOrdered.size) return
+        if (visitedIndex == visitedOrdered.size) handleAlgorithmEnd()
+        if (visitedIndex > visitedOrdered.size) return
         view.animateVisitedItems(visitedOrdered[visitedIndex])
+        view.setAnimationSeekBarValue(visitedIndex)
         visitedIndex++
     }
 
     private fun moveBackward() {
-        if (visitedIndex < 0) return
-        view.animateVisitedItems(visitedOrdered[visitedIndex])
+        if (visitedIndex < 0 || visitedIndex >= visitedOrdered.size) return
+        view.animateRemoveVisitedItems(
+            visitedOrdered[visitedIndex].first,
+            visitedOrdered[visitedIndex].second
+        )
+        view.setAnimationSeekBarValue(visitedIndex)
         visitedIndex--
     }
 
@@ -186,6 +200,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         view.clearGrid()
         view.showHidePlayButton(true)
         view.showHidePauseButton(false)
+        view.showHideAnimationSeekBar(false)
+        view.setAnimationSeekBarValue(0)
 
         isAlgorithmRunFinished = false
         visitedOrdered = arrayListOf()
@@ -198,4 +214,14 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 TileType.Empty
             }
         }
+
+    override fun onAnimationSeekBarChanged(value: Int) {
+        val animateTo: Int = if (value == 0) value + 1
+        else if (value == visitedOrdered.size) value - 1
+        else value
+        if (animateTo > visitedIndex)
+            while (visitedIndex < animateTo) moveForward()
+        else if (value < visitedIndex)
+            while (visitedIndex > animateTo) moveBackward()
+    }
 }
