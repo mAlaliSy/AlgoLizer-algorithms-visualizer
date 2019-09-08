@@ -43,9 +43,13 @@ class AlgoGridView @JvmOverloads constructor(
     private val clearHandler = Handler()
 
     /**
-     * A callback for when the user touch and move through grid cells
+     * A callback for when the user start to touch a grid cell
      */
-    var onGridCellSelected: ((i: Int, j: Int) -> Unit)? = null
+    var onGridCellStartTouch: ((i: Int, j: Int) -> Unit)? = null
+    /**
+     * A callback for when the user move his touch through grid cells
+     */
+    var onGridCellTouchMove: ((i: Int, j: Int) -> Unit)? = null
 
     /**
      * The colors of different type of cells
@@ -415,15 +419,27 @@ class AlgoGridView @JvmOverloads constructor(
 
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-
-        when (event?.action) {
-            MotionEvent.ACTION_DOWN or MotionEvent.ACTION_MOVE -> {
-                onGridCellSelected?.invoke(
-                    (event.y / (cellSize + cellPadding)).toInt(),
-                    (event.x / (cellSize + cellPadding)).toInt()
-                )
+        /**
+         * Discard clicks when clearing the grid
+         */
+        if (clearGridItems.size > 0) return true
+        event?.let {
+            val row = (it.y / (cellSize + cellPadding)).toInt()
+            val col = (it.x / (cellSize + cellPadding)).toInt()
+            when (it.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    onGridCellStartTouch?.invoke(
+                        row, col
+                    )
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    onGridCellTouchMove?.invoke(row, col)
+                }
+                else -> {
+                }
             }
         }
+
 
         return true
     }

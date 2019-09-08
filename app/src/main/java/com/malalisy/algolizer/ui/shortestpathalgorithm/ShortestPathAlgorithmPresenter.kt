@@ -29,19 +29,16 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
 
     private lateinit var view: ShortestPathAlgorithmContract.View
-    private var sourcePlacement = false
+    private var sourcePlacement = true
     private var destinationPlacement = false
-
     private var blockPlacement = false
 
     private var isPlaying = false
 
     private var algorithmRunningSpeed = ALGORITHM_ANIMATION_BASE_SPEED
-
     var handler = Handler()
 
     private var visitedIndex = 1
-
     private var moveForwardRunnable: Runnable = object : Runnable {
         override fun run() {
             moveForward()
@@ -54,11 +51,9 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 handler.postDelayed(this, algorithmRunningSpeed)
         }
     }
-    lateinit var solution: List<Pair<Int, Int>>
 
     var solutionCellIndex = 0
-
-
+    lateinit var solution: List<Pair<Int, Int>>
     private var solutionAnimationRunnable: Runnable = object : Runnable {
         override fun run() {
             view.animateSolutionCell(
@@ -73,10 +68,23 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     override fun setupView(view: ShortestPathAlgorithmContract.View) {
         this.view = view
-        sourcePlacement = true
     }
 
-    override fun onItemSelected(i: Int, j: Int) {
+    // To avoid placing blocks when touching a destination cell and moving
+    private var blocksPlacementStarted = false
+
+    override fun onCellStartTouch(i: Int, j: Int) {
+        handleGridSelection(i, j)
+    }
+
+    override fun onCellTouchMove(i: Int, j: Int) {
+        /**
+         * Enable moving event only when placing a block
+         */
+        if(!blocksPlacementStarted ) return
+        handleGridSelection(i, j)
+    }
+    private fun handleGridSelection(i: Int, j: Int) {
         if (algorithmStarted) return
         if (i >= grid.size || i < 0 || j >= grid[0].size || j < 0) return
         if (grid[i][j] != TileType.Empty) return
@@ -102,6 +110,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 view.animateDestinationItem(i, j)
             }
             else -> {
+                blocksPlacementStarted = true
                 grid[i][j] = TileType.Block
                 view.animateBlockItem(i, j)
             }
@@ -150,7 +159,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     private fun moveForward() {
         if (visitedIndex == visitedOrdered.size) handleAlgorithmEnd()
-        if (visitedIndex > visitedOrdered.size) return
+        if (visitedIndex >= visitedOrdered.size) return
         view.animateVisitedItems(visitedOrdered[visitedIndex])
         view.setAnimationSeekBarValue(visitedIndex)
         visitedIndex++
@@ -206,6 +215,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         isAlgorithmRunFinished = false
         visitedOrdered = arrayListOf()
         visitedIndex = 1
+
+        blocksPlacementStarted = false
     }
 
     private fun initGrid(): Array<Array<TileType>> =

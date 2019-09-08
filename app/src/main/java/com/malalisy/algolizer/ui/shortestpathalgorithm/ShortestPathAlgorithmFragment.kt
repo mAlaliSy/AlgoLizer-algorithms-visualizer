@@ -35,9 +35,12 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         presenter = ShortestPathAlgorithmPresenter()
         presenter.setupView(this)
 
+        algoGridView.onGridCellStartTouch = { i, j ->
+            presenter.onCellStartTouch(i, j)
+        }
 
-        algoGridView.onGridCellSelected = { i, j ->
-            presenter.onItemSelected(i, j)
+        algoGridView.onGridCellTouchMove = {i, j->
+            presenter.onCellTouchMove(i, j)
         }
 
         /**

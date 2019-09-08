@@ -28,7 +28,6 @@ interface ShortestPathAlgorithmContract {
 
     interface Presenter {
         fun setupView(view: View)
-        fun onItemSelected(i: Int, j: Int)
         fun onPlayClicked()
         fun onForwardClicked()
         fun onPauseClicked()
@@ -36,5 +35,7 @@ interface ShortestPathAlgorithmContract {
         fun onSpeedChanged(speed: Float)
         fun onRestartClick()
         fun onAnimationSeekBarChanged(value: Int)
+        fun onCellStartTouch(i: Int, j: Int)
+        fun onCellTouchMove(i: Int, j: Int)
     }
 }
