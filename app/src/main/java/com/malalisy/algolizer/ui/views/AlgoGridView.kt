@@ -1,9 +1,6 @@
 package com.malalisy.algolizer.ui.views
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ValueAnimator
+import android.animation.*
 import android.content.Context
 import android.graphics.*
 import android.os.Handler
@@ -12,6 +9,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import com.malalisy.algolizer.R
 
 class AlgoGridView @JvmOverloads constructor(
@@ -108,7 +106,7 @@ class AlgoGridView @JvmOverloads constructor(
     /**
      * Duration for cells color animation
      */
-    var animDuration = DEFAULT_ANIM_DURATION
+    var animDuration: Long = DEFAULT_ANIM_DURATION.toLong()
 
     init {
 
@@ -166,6 +164,7 @@ class AlgoGridView @JvmOverloads constructor(
 
             animDuration =
                 typedArray.getInt(R.styleable.AlgoGridView_animDuration, DEFAULT_ANIM_DURATION)
+                    .toLong()
 
             typedArray.recycle()
         }
@@ -220,30 +219,38 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
 
-    fun animateRemoveVisitedItems(i: Int, j: Int) {
+    fun animateRemoveVisitedItem(i: Int, j: Int) {
         if (colorsItems.removeAll { i == it.i && j == it.j }) {
             val item = GridColorItem(i, j, visitedColor, CELL_CORNER_RADIUS)
             colorsItems.add(item)
 
-            val colorAnimator =
-                ValueAnimator.ofArgb(visitedColor, transitionColor, emptyCellColor)
-            val radiusAnimator = ValueAnimator.ofFloat(CELL_CORNER_RADIUS, MAX_CELL_CORNER_RADIUS)
-            colorAnimator.addUpdateListener {
-                item.color = it.animatedValue as Int
-                invalidate()
-            }
-            radiusAnimator.addUpdateListener {
-                item.rectRadius = it.animatedValue as Float
-            }
-            AnimatorSet().apply {
-                duration = animDuration.toLong()
-                playTogether(colorAnimator, radiusAnimator)
-                interpolator = AccelerateInterpolator()
+
+            val colorProperty = PropertyValuesHolder.ofObject(
+                "color",
+                ArgbEvaluator(),
+                visitedColor,
+                transitionColor,
+                emptyCellColor
+            )
+            val radiusProperty =
+                PropertyValuesHolder.ofFloat("radius", CELL_CORNER_RADIUS, MAX_CELL_CORNER_RADIUS)
+
+            ValueAnimator().apply {
+                setValues(radiusProperty, colorProperty)
+                duration = animDuration
+                addUpdateListener {
+                    val colorValue = it.getAnimatedValue("color") as Int
+                    val radius = it.getAnimatedValue("radius") as Float
+                    item.rectRadius = radius
+                    item.color = colorValue
+                    invalidate()
+                }
                 addListener(object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator?) {
                         colorsItems.remove(item)
                     }
                 })
+                interpolator = AccelerateInterpolator()
             }.start()
         }
     }
@@ -291,22 +298,28 @@ class AlgoGridView @JvmOverloads constructor(
             nColorItems
         )
 
-        val colorAnimator = ValueAnimator.ofArgb(startColor, transitionColor, color)
-        val radiusAnimator = ValueAnimator.ofFloat(MAX_CELL_CORNER_RADIUS, CELL_CORNER_RADIUS)
-        colorAnimator.addUpdateListener {
-            nColorItems.forEach { gridItem ->
-                gridItem.color = it.animatedValue as Int
+        val colorProperty = PropertyValuesHolder.ofObject(
+            "color",
+            ArgbEvaluator(),
+            startColor,
+            transitionColor,
+            color
+        )
+        val radiusProperty =
+            PropertyValuesHolder.ofFloat("radius", MAX_CELL_CORNER_RADIUS, CELL_CORNER_RADIUS)
+
+        ValueAnimator().apply {
+            setValues(radiusProperty, colorProperty)
+            duration = animDuration
+            addUpdateListener {
+                val colorValue = it.getAnimatedValue("color") as Int
+                val radius = it.getAnimatedValue("radius") as Float
+                nColorItems.forEach { gridItem ->
+                    gridItem.rectRadius = radius
+                    gridItem.color = colorValue
+                }
+                invalidate()
             }
-            invalidate()
-        }
-        radiusAnimator.addUpdateListener {
-            nColorItems.forEach { gridItem ->
-                gridItem.rectRadius = it.animatedValue as Float
-            }
-        }
-        AnimatorSet().apply {
-            duration = animDuration.toLong()
-            playTogether(colorAnimator, radiusAnimator)
             interpolator = AccelerateInterpolator()
         }.start()
     }

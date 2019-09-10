@@ -2,6 +2,7 @@ package com.malalisy.algolizer.domain.shortestpath
 
 import com.malalisy.algolizer.domain.AlgorithmRunner
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * An abstract class that has shared functionality between shortest path algorithms
@@ -41,7 +42,7 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
     /**
      * The visited cells in order by time they have been visited
      */
-    var orderedVisitedCells = arrayListOf<Pair<Int, Int>>()
+    var orderedVisitedCells:MutableList<Pair<Int, Int>> = ArrayList()
 
     /**
      * Setup the algorithm with a problem (a grid that contains the source and the destination and
@@ -103,6 +104,7 @@ abstract class ShortestPathAlgorithmRunner : AlgorithmRunner() {
                 orderedVisitedCells.add(it)
             }
         }
+        orderedVisitedCells = orderedVisitedCells.subList(1, orderedVisitedCells.size)
     }
 
     /**

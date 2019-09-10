@@ -8,45 +8,40 @@ import java.util.ArrayList
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
-
         const val SOLUTION_ANIMATION_DURATION = 150L
-
-        const val ALGORITHM_ANIMATION_BASE_SPEED = 200L
+        const val ALGORITHM_ANIMATION_BASE_TIME = 200L
     }
 
-    private var algorithmStarted = false
-
-    private var isAlgorithmRunFinished = false
-
-    private lateinit var visitedOrdered: ArrayList<Pair<Int, Int>>
+    // Store weather the algorithm has run for the current problem
+    private var algorithmCompleted = false
+    // Visited cells in order of the time they were visited
+    private lateinit var visitedOrdered: List<Pair<Int, Int>>
+    // The grid of the problem
     private var grid = initGrid()
-
+    // The source node
     private lateinit var source: Pair<Int, Int>
-
-    private lateinit var shortestPatRunner: ShortestPathAlgorithmRunner
-
+    // Shortest path algorithm runner
+    private lateinit var shortestPathRunner: ShortestPathAlgorithmRunner
 
     private lateinit var view: ShortestPathAlgorithmContract.View
+
+    // Determine the current state, weather the start/destination and others has been placed
     private var sourcePlacement = true
     private var destinationPlacement = false
     private var blockPlacement = false
 
     private var isPlaying = false
 
-    private var algorithmRunningSpeed = ALGORITHM_ANIMATION_BASE_SPEED
+    // Algorithm step latency
+    private var algorithmStepTime = ALGORITHM_ANIMATION_BASE_TIME
     var handler = Handler()
 
     private var visitedIndex = 0
     private var moveForwardRunnable: Runnable = object : Runnable {
         override fun run() {
-            moveForward()
-            if (visitedIndex == visitedOrdered.size) {
-                isPlaying = false
-                handleAlgorithmAnimationEnd()
-                return
-            }
+            moveForward(visitedIndex + 1)
             if (isPlaying)
-                handler.postDelayed(this, algorithmRunningSpeed)
+                handler.postDelayed(this, algorithmStepTime)
         }
     }
 
@@ -59,7 +54,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 solution[solutionCellIndex].second
             )
             solutionCellIndex++
-            if (solutionCellIndex < solution.size - 2)
+            if (solutionCellIndex < solution.size - 1)
                 handler.postDelayed(this, SOLUTION_ANIMATION_DURATION)
         }
     }
@@ -83,8 +78,14 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         handleGridSelection(i, j)
     }
 
+    /**
+     * Handle touching a cell on vertical i and horizontal j
+     *
+     * @param i
+     * @param j
+     */
     private fun handleGridSelection(i: Int, j: Int) {
-        if (algorithmStarted) return
+        if (algorithmCompleted) return
         if (i >= grid.size || i < 0 || j >= grid[0].size || j < 0) return
         if (grid[i][j] != TileType.Empty) return
 
@@ -98,7 +99,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 view.showHideDestinationLabel(true)
 
                 view.animateSourceItem(i, j)
-                shortestPatRunner = BfsAlgorithmRunner(grid, source)
+                shortestPathRunner = BfsAlgorithmRunner(grid, source)
             }
             destinationPlacement -> {
                 grid[i][j] = TileType.Destination
@@ -117,31 +118,45 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     override fun onPlayClicked() {
-        algorithmStarted = true
         view.showHidePauseButton(true)
         view.showHidePlayButton(false)
         if (isPlaying) return
         isPlaying = true
-        if (!isAlgorithmRunFinished) {
+        /**
+         * Check if the algorithm has been run on the current grid and the solution was found
+         */
+        if (!algorithmCompleted) {
             runAlgorithm()
         }
-        handler.postDelayed(moveForwardRunnable, algorithmRunningSpeed)
+        // Play/Resume the algorithm animation on visited cells
+        handler.postDelayed(moveForwardRunnable, algorithmStepTime)
     }
 
+    /**
+     * Run the algorithm on the current grid,
+     * get the visited cells in order of time they where visited
+     *
+     */
     private fun runAlgorithm() {
-        shortestPatRunner.run()
-        isAlgorithmRunFinished = true
-        visitedOrdered = shortestPatRunner.orderedVisitedCells
+        shortestPathRunner.run()
+        algorithmCompleted = true
+        visitedOrdered = shortestPathRunner.orderedVisitedCells
         view.setAnimationSeekBarMaxValue(visitedOrdered.size)
         view.showHideAnimationSeekBar(true)
     }
 
+    /**
+     * Handle reaching the end of visited cells animation,
+     * if a solution was found, it tells the view to animate the solution cells and displays its cost
+     * if no solution was found, it tells the view to display a proper message
+     *
+     */
     private fun handleAlgorithmAnimationEnd() {
-        if (shortestPatRunner.destinationReached) {
-            this.solution = shortestPatRunner.solution
+        if (shortestPathRunner.destinationReached) {
+            this.solution = shortestPathRunner.solution
             solutionCellIndex = 1
             view.showHideControls(false)
-            view.showHideResultContainer(true, true, shortestPatRunner.solutionCost)
+            view.showHideResultContainer(true, true, shortestPathRunner.solutionCost)
             handler.postDelayed(solutionAnimationRunnable, SOLUTION_ANIMATION_DURATION)
         } else {
             view.showHideControls(false)
@@ -150,33 +165,56 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     override fun onForwardClicked() {
-        moveForward()
+        if (!algorithmCompleted)
+            runAlgorithm()
+        moveForward(visitedIndex + 1)
     }
 
-    private fun moveForward() {
-        visitedIndex++
+    /**
+     * Move a single step forward on the algorithm execution by animating the next visited cell
+     *
+     */
+    private fun moveForward(newIndex: Int) {
+        // Check if we reached to the end of visited cells, if so, display the result
         if (visitedIndex >= visitedOrdered.size) {
+            isPlaying = false
             handleAlgorithmAnimationEnd()
             return
         }
-        view.animateVisitedItems(visitedOrdered[visitedIndex])
+        val cells = mutableListOf<Pair<Int, Int>>()
+        while (visitedIndex < newIndex && visitedIndex < visitedOrdered.size) {
+            cells.add(visitedOrdered[visitedIndex])
+            visitedIndex++
+        }
+
+        view.animateVisitedItems(*cells.toTypedArray())
         view.setAnimationSeekBarValue(visitedIndex)
     }
 
+
+    /**
+     * Move a single step backward on the algorithm execution by animating the removing the last
+     * animated visited cell
+     *
+     */
     private fun moveBackward() {
         if (visitedIndex < 0 || visitedIndex >= visitedOrdered.size) return
+        visitedIndex--
         view.animateRemoveVisitedItems(
             visitedOrdered[visitedIndex].first,
             visitedOrdered[visitedIndex].second
         )
         view.setAnimationSeekBarValue(visitedIndex)
-        visitedIndex--
     }
 
     override fun onPauseClicked() {
         pause()
     }
 
+    /**
+     * Pause the execution of animating visited cells
+     *
+     */
     private fun pause() {
         view.showHidePauseButton(false)
         view.showHidePlayButton(true)
@@ -185,46 +223,62 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         handler.removeCallbacks(moveForwardRunnable)
     }
 
+    /**
+     * On fragment pause
+     *
+     */
     override fun onViewPause() {
         pause()
         handler.removeCallbacks(solutionAnimationRunnable)
     }
 
+    /**
+     * On algorithm animation speed changed
+     *
+     * @param speed the speed factor
+     */
     override fun onSpeedChanged(speed: Float) {
-        algorithmRunningSpeed = (1.0f / speed * ALGORITHM_ANIMATION_BASE_SPEED).toLong()
+        algorithmStepTime = (1.0f / speed * ALGORITHM_ANIMATION_BASE_TIME).toLong()
     }
 
 
+    /**
+     * On seek bar changed by the user, move the animation execution forward/backward to sync with
+     * the value of the seek bar
+     *
+     * @param value value of the seek bar from 0 to number of visited cells
+     */
     override fun onAnimationSeekBarChanged(value: Int) {
-        val animateTo: Int = when (value) {
-            0 -> 0
-            visitedOrdered.size -> value - 1
-            else -> value
-        }
-        if (animateTo > visitedIndex)
-            while (visitedIndex < animateTo) moveForward()
+        if (value > visitedIndex)
+            moveForward(value)
         else if (value < visitedIndex)
-            while (visitedIndex > animateTo) moveBackward()
+            while (visitedIndex > value) moveBackward()
     }
 
 
+    /**
+     * On restart button on the result view clicked
+     *
+     */
     override fun onRestartClick() {
         reset()
     }
 
+    /**
+     * Reset all the data to handle a new problem
+     *
+     */
     private fun reset() {
         view.showHideSourceLabel(true)
         view.showHideResultContainer(false)
         sourcePlacement = true
-        algorithmStarted = false
+        algorithmCompleted = false
         grid = initGrid()
         view.clearGrid()
         view.showHidePlayButton(true)
         view.showHidePauseButton(false)
         view.showHideAnimationSeekBar(false)
         view.setAnimationSeekBarValue(0)
-
-        isAlgorithmRunFinished = false
         visitedOrdered = arrayListOf()
         visitedIndex = 0
 

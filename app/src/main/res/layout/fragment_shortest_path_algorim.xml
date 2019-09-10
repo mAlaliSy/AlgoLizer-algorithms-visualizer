@@ -57,6 +57,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/algoGridView" />
 
+        <TextView
+            android:id="@+id/placeBlockLabel"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/block_label_bg"
+            android:padding="16dp"
+            android:text="@string/place_blocks_hint"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/algoGridView" />
+
         <FrameLayout
             android:id="@+id/solutionInfoContainer"
             android:layout_width="match_parent"

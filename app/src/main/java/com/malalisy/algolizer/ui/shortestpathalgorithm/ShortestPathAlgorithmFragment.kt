@@ -200,6 +200,6 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
     }
 
     override fun animateRemoveVisitedItems(i: Int, j: Int) {
-        algoGridView.animateRemoveVisitedItems(i, j)
+        algoGridView.animateRemoveVisitedItem(i, j)
     }
 }

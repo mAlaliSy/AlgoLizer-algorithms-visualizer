@@ -5,4 +5,5 @@
     <string name="choose_destination">Choose the destination point</string>
     <string name="no_path_found">No path from source to destination found</string>
     <string name="solution_found">Solution found with cost: %1$d</string>
+    <string name="place_blocks_hint">Place blocks on the grid</string>
 </resources>
