@@ -1,7 +1,6 @@
 package com.malalisy.algolizer.ui.shortestpathalgorithm
 
 import android.os.Handler
-import android.util.Log
 import com.malalisy.algolizer.domain.shortestpath.BfsAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.TileType
@@ -10,8 +9,7 @@ import java.util.ArrayList
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
 
-        const val SOLUTION_ANIMATION_DURATION = 100L
-
+        const val SOLUTION_ANIMATION_DURATION = 150L
 
         const val ALGORITHM_ANIMATION_BASE_SPEED = 200L
     }
@@ -38,13 +36,13 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     private var algorithmRunningSpeed = ALGORITHM_ANIMATION_BASE_SPEED
     var handler = Handler()
 
-    private var visitedIndex = 1
+    private var visitedIndex = 0
     private var moveForwardRunnable: Runnable = object : Runnable {
         override fun run() {
             moveForward()
             if (visitedIndex == visitedOrdered.size) {
                 isPlaying = false
-                handleAlgorithmEnd()
+                handleAlgorithmAnimationEnd()
                 return
             }
             if (isPlaying)
@@ -61,7 +59,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 solution[solutionCellIndex].second
             )
             solutionCellIndex++
-            if (solutionCellIndex < solution.size - 1)
+            if (solutionCellIndex < solution.size - 2)
                 handler.postDelayed(this, SOLUTION_ANIMATION_DURATION)
         }
     }
@@ -81,9 +79,10 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         /**
          * Enable moving event only when placing a block
          */
-        if(!blocksPlacementStarted ) return
+        if (!blocksPlacementStarted) return
         handleGridSelection(i, j)
     }
+
     private fun handleGridSelection(i: Int, j: Int) {
         if (algorithmStarted) return
         if (i >= grid.size || i < 0 || j >= grid[0].size || j < 0) return
@@ -132,14 +131,12 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     private fun runAlgorithm() {
         shortestPatRunner.run()
         isAlgorithmRunFinished = true
-        if (shortestPatRunner.destinationReached)
-            this.solution = shortestPatRunner.solution
         visitedOrdered = shortestPatRunner.orderedVisitedCells
         view.setAnimationSeekBarMaxValue(visitedOrdered.size)
         view.showHideAnimationSeekBar(true)
     }
 
-    private fun handleAlgorithmEnd() {
+    private fun handleAlgorithmAnimationEnd() {
         if (shortestPatRunner.destinationReached) {
             this.solution = shortestPatRunner.solution
             solutionCellIndex = 1
@@ -157,11 +154,13 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     private fun moveForward() {
-        if (visitedIndex == visitedOrdered.size) handleAlgorithmEnd()
-        if (visitedIndex >= visitedOrdered.size) return
+        visitedIndex++
+        if (visitedIndex >= visitedOrdered.size) {
+            handleAlgorithmAnimationEnd()
+            return
+        }
         view.animateVisitedItems(visitedOrdered[visitedIndex])
         view.setAnimationSeekBarValue(visitedIndex)
-        visitedIndex++
     }
 
     private fun moveBackward() {
@@ -195,6 +194,20 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         algorithmRunningSpeed = (1.0f / speed * ALGORITHM_ANIMATION_BASE_SPEED).toLong()
     }
 
+
+    override fun onAnimationSeekBarChanged(value: Int) {
+        val animateTo: Int = when (value) {
+            0 -> 0
+            visitedOrdered.size -> value - 1
+            else -> value
+        }
+        if (animateTo > visitedIndex)
+            while (visitedIndex < animateTo) moveForward()
+        else if (value < visitedIndex)
+            while (visitedIndex > animateTo) moveBackward()
+    }
+
+
     override fun onRestartClick() {
         reset()
     }
@@ -213,25 +226,15 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
         isAlgorithmRunFinished = false
         visitedOrdered = arrayListOf()
-        visitedIndex = 1
+        visitedIndex = 0
 
         blocksPlacementStarted = false
     }
 
     private fun initGrid(): Array<Array<TileType>> =
-        Array(18) {
-            Array(10) {
+        Array(24) {
+            Array(15) {
                 TileType.Empty
             }
         }
-
-    override fun onAnimationSeekBarChanged(value: Int) {
-        val animateTo: Int = if (value == 0) value + 1
-        else if (value == visitedOrdered.size) value - 1
-        else value
-        if (animateTo > visitedIndex)
-            while (visitedIndex < animateTo) moveForward()
-        else if (value < visitedIndex)
-            while (visitedIndex > animateTo) moveBackward()
-    }
 }
