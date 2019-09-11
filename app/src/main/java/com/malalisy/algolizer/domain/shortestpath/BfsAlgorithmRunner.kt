@@ -13,52 +13,48 @@ import java.util.*
  * @param grid
  * @param source
  */
-class BfsAlgorithmRunner(grid: Array<Array<TileType>>, source: Pair<Int, Int>) :
-    SingleSourceShortestPathAlgorithmRunner(grid, source) {
+class BfsAlgorithmRunner(grid: Array<Array<TileType>>) :
+    ShortestPathAlgorithmRunner(grid) {
 
     lateinit var queue: Queue<ShortestPathNode>
 
     init {
-        setup(grid, source)
+        setup(grid)
     }
 
-    override fun setup(grid: Array<Array<TileType>>, source: Pair<Int, Int>) {
-        super.setup(grid)
-
+    override fun run(source: Pair<Int, Int>, destination: Pair<Int, Int>) {
         queue = LinkedList()
+        orderedVisitedCells = mutableListOf()
+        destinationReached=false
         queue.add(ShortestPathNode(source.copy(), 0, null))
         visitedCells[source.first][source.second] = true
-    }
 
+        var node: ShortestPathNode?
+        do {
+            node = queue.poll()
+            if (node == null) break
+            for (h in horizontalDir.indices) {
+                val i = node.position.first + verticalDir[h]
+                val j = node.position.second + horizontalDir[h]
+                if (i >= grid.size || i < 0 || j >= grid[i].size || j < 0) continue
 
-    override fun moveForward(): Pair<Int, Int>? {
-        val node = queue.poll()
-        if (node == null){
-            isDone = true
-            return null
-        }
-        for (h in horizontalDir.indices) {
-            val i = node.position.first + verticalDir[h]
-            val j = node.position.second + horizontalDir[h]
-            if (i >= grid.size || i < 0 || j >= grid[i].size || j < 0) continue
+                val tile = grid[i][j]
 
-            val tile = grid[i][j]
-
-            if (tile != TileType.Block && !visitedCells[i][j]) {
-                visitedCells[i][j] = true
-                val newNode = ShortestPathNode(i to j, node.distance + 1, node)
-                if (tile == TileType.Destination) {
-                    isDone = true
-                    destinationReached = true
-
-                    findSolution(newNode)
-                } else {
-                    queue.add(newNode)
+                if (tile != TileType.Block && !visitedCells[i][j]) {
+                    visitedCells[i][j] = true
+                    val newNode = ShortestPathNode(i to j, node.distance + 1, node)
+                    if (newNode.position == destination) {
+                        destinationReached = true
+                        findSolution(node)
+                    } else {
+                        queue.add(newNode)
+                    }
                 }
             }
-        }
 
-        return node.position
+            if (node.position != source)
+                orderedVisitedCells.add(node.position)
+        } while (true)
     }
 
 }

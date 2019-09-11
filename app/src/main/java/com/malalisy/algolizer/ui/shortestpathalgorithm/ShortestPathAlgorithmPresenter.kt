@@ -20,6 +20,9 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     private var grid = initGrid()
     // The source node
     private lateinit var source: Pair<Int, Int>
+    // The destination node
+    private lateinit var destination:Pair<Int, Int>
+
     // Shortest path algorithm runner
     private lateinit var shortestPathRunner: ShortestPathAlgorithmRunner
 
@@ -31,6 +34,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     private var blockPlacement = false
 
     private var isPlaying = false
+
+    private var interactiveMode = false
 
     // Algorithm step latency
     private var algorithmStepTime = ALGORITHM_ANIMATION_BASE_TIME
@@ -70,6 +75,12 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         handleGridSelection(i, j)
     }
 
+    /**
+     * Handle touching a cell on vertical i and horizontal j
+     *
+     * @param i
+     * @param j
+     */
     override fun onCellTouchMove(i: Int, j: Int) {
         /**
          * Enable moving event only when placing a block
@@ -78,12 +89,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         handleGridSelection(i, j)
     }
 
-    /**
-     * Handle touching a cell on vertical i and horizontal j
-     *
-     * @param i
-     * @param j
-     */
     private fun handleGridSelection(i: Int, j: Int) {
         if (algorithmCompleted) return
         if (i >= grid.size || i < 0 || j >= grid[0].size || j < 0) return
@@ -99,10 +104,11 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 view.showHideDestinationLabel(true)
 
                 view.animateSourceItem(i, j)
-                shortestPathRunner = BfsAlgorithmRunner(grid, source)
+                shortestPathRunner = BfsAlgorithmRunner(grid)
             }
             destinationPlacement -> {
                 grid[i][j] = TileType.Destination
+                destination = i to j
                 destinationPlacement = false
                 blockPlacement = true
                 view.showHideDestinationLabel(false)
@@ -138,7 +144,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
      *
      */
     private fun runAlgorithm() {
-        shortestPathRunner.run()
+        shortestPathRunner.run(source, destination)
         algorithmCompleted = true
         visitedOrdered = shortestPathRunner.orderedVisitedCells
         view.setAnimationSeekBarMaxValue(visitedOrdered.size)
@@ -285,6 +291,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         view.setAnimationSeekBarValue(0)
         visitedOrdered = arrayListOf()
         visitedIndex = 0
+        interactiveMode = false
 
         blocksPlacementStarted = false
     }

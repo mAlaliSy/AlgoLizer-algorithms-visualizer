@@ -26,13 +26,13 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
     lateinit var presenter: ShortestPathAlgorithmContract.Presenter
 
     var bottomSheetDraggingOrExpanded = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_shortest_path_algorim, container, false)
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter = ShortestPathAlgorithmPresenter()
@@ -201,5 +201,9 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
 
     override fun animateRemoveVisitedItems(vararg cells: Pair<Int, Int>) {
         algoGridView.animateRemoveVisitedItems(*cells)
+    }
+
+    override fun showHideInteractiveModeButton(show: Boolean) {
+
     }
 }
