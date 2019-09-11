@@ -175,12 +175,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
      *
      */
     private fun moveForward(newIndex: Int) {
-        // Check if we reached to the end of visited cells, if so, display the result
-        if (visitedIndex >= visitedOrdered.size) {
-            isPlaying = false
-            handleAlgorithmAnimationEnd()
-            return
-        }
         val cells = mutableListOf<Pair<Int, Int>>()
         while (visitedIndex < newIndex && visitedIndex < visitedOrdered.size) {
             cells.add(visitedOrdered[visitedIndex])
@@ -189,6 +183,13 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
         view.animateVisitedItems(*cells.toTypedArray())
         view.setAnimationSeekBarValue(visitedIndex)
+
+        // Check if we reached to the end of visited cells, if so, display the result
+        if (visitedIndex >= visitedOrdered.size) {
+            isPlaying = false
+            handleAlgorithmAnimationEnd()
+            return
+        }
     }
 
 
@@ -197,13 +198,16 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
      * animated visited cell
      *
      */
-    private fun moveBackward() {
+    private fun moveBackward(newIndex: Int) {
         if (visitedIndex < 0 || visitedIndex >= visitedOrdered.size) return
-        visitedIndex--
-        view.animateRemoveVisitedItems(
-            visitedOrdered[visitedIndex].first,
-            visitedOrdered[visitedIndex].second
-        )
+        val cells = mutableListOf<Pair<Int, Int>>()
+        while (visitedIndex >= newIndex && visitedIndex < visitedOrdered.size) {
+            cells.add(visitedOrdered[visitedIndex])
+            visitedIndex--
+        }
+        if(visitedIndex == -1) visitedIndex = 0
+
+        view.animateRemoveVisitedItems(*cells.toTypedArray())
         view.setAnimationSeekBarValue(visitedIndex)
     }
 
@@ -252,7 +256,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         if (value > visitedIndex)
             moveForward(value)
         else if (value < visitedIndex)
-            while (visitedIndex > value) moveBackward()
+            moveBackward(value)
     }
 
 

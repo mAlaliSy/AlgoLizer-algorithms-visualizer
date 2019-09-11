@@ -199,7 +199,7 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         animationSeekBar.progress = value
     }
 
-    override fun animateRemoveVisitedItems(i: Int, j: Int) {
-        algoGridView.animateRemoveVisitedItem(i, j)
+    override fun animateRemoveVisitedItems(vararg cells: Pair<Int, Int>) {
+        algoGridView.animateRemoveVisitedItems(*cells)
     }
 }

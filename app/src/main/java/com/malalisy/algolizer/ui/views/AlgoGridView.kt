@@ -219,40 +219,45 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
 
-    fun animateRemoveVisitedItem(i: Int, j: Int) {
-        if (colorsItems.removeAll { i == it.i && j == it.j }) {
-            val item = GridColorItem(i, j, visitedColor, CELL_CORNER_RADIUS)
-            colorsItems.add(item)
-
-
-            val colorProperty = PropertyValuesHolder.ofObject(
-                "color",
-                ArgbEvaluator(),
-                visitedColor,
-                transitionColor,
-                emptyCellColor
-            )
-            val radiusProperty =
-                PropertyValuesHolder.ofFloat("radius", CELL_CORNER_RADIUS, MAX_CELL_CORNER_RADIUS)
-
-            ValueAnimator().apply {
-                setValues(radiusProperty, colorProperty)
-                duration = animDuration
-                addUpdateListener {
-                    val colorValue = it.getAnimatedValue("color") as Int
-                    val radius = it.getAnimatedValue("radius") as Float
-                    item.rectRadius = radius
-                    item.color = colorValue
-                    invalidate()
-                }
-                addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
-                        colorsItems.remove(item)
-                    }
-                })
-                interpolator = AccelerateInterpolator()
-            }.start()
+    fun animateRemoveVisitedItems(vararg cells: Pair<Int, Int>) {
+        colorsItems.removeAll { eCell ->
+            cells.firstOrNull { eCell.i == it.first && eCell.j == it.second } != null
         }
+        val items =
+            cells.map { GridColorItem(it.first, it.second, visitedColor, CELL_CORNER_RADIUS) }
+        colorsItems.addAll(items)
+
+
+        val colorProperty = PropertyValuesHolder.ofObject(
+            "color",
+            ArgbEvaluator(),
+            visitedColor,
+            transitionColor,
+            emptyCellColor
+        )
+        val radiusProperty =
+            PropertyValuesHolder.ofFloat("radius", CELL_CORNER_RADIUS, MAX_CELL_CORNER_RADIUS)
+
+        ValueAnimator().apply {
+            setValues(radiusProperty, colorProperty)
+            duration = animDuration
+            addUpdateListener {
+                val colorValue = it.getAnimatedValue("color") as Int
+                val radius = it.getAnimatedValue("radius") as Float
+                items.forEach {
+                    it.rectRadius = radius
+                    it.color = colorValue
+                }
+                invalidate()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    colorsItems.removeAll(items)
+                }
+            })
+            interpolator = AccelerateInterpolator()
+        }.start()
+
     }
 
     /**

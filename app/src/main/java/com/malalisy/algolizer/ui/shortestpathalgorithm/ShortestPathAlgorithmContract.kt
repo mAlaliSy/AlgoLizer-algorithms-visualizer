@@ -23,7 +23,7 @@ interface ShortestPathAlgorithmContract {
         fun setAnimationSeekBarValue(value:Int)
 
         fun clearGrid()
-        fun animateRemoveVisitedItems(i:Int, j:Int)
+        fun animateRemoveVisitedItems(vararg cells: Pair<Int, Int>)
     }
 
     interface Presenter {
