@@ -45,7 +45,9 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>) :
                     val newNode = ShortestPathNode(i to j, node.distance + 1, node)
                     if (newNode.position == destination) {
                         destinationReached = true
-                        findSolution(node)
+                        findSolution(newNode)
+                        orderedVisitedCells.add(node.position)
+                        return
                     } else {
                         queue.add(newNode)
                     }
