@@ -215,4 +215,8 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
     override fun animateRemoveDestinationCell(destination: Pair<Int, Int>) {
         algoGridView.animateRemoveDestinationCell(destination)
     }
+
+    override fun setInteractiveMode(interactive: Boolean) {
+        interactiveSwitch.isChecked = interactive
+    }
 }

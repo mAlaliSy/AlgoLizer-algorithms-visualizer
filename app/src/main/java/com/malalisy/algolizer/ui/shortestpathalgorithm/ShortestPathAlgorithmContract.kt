@@ -25,6 +25,7 @@ interface ShortestPathAlgorithmContract {
         fun animateRemoveVisitedItems(vararg cells: Pair<Int, Int>)
         fun showHideInteractiveModeButton(show: Boolean)
         fun animateRemoveDestinationCell(destination: Pair<Int, Int>)
+        fun setInteractiveMode(interactive: Boolean)
     }
 
     interface Presenter {

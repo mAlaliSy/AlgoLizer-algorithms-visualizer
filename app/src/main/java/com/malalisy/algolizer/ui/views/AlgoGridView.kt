@@ -31,7 +31,7 @@ class AlgoGridView @JvmOverloads constructor(
         val CELL_CORNER_RADIUS = 15f
         val MAX_CELL_CORNER_RADIUS = 100f
 
-        val DEFAULT_ANIM_DURATION = 500
+        val DEFAULT_ANIM_DURATION = 250
         val CLEAR_DURATION = 30L
     }
 
@@ -39,6 +39,10 @@ class AlgoGridView @JvmOverloads constructor(
      * A list that stores the data for colored cells
      */
     private var colorsItems = mutableListOf<GridColorItem>()
+    /**
+     * A list that stores the data for colored cells
+     */
+    private var colorsToBeRemovedItems = mutableListOf<GridColorItem>()
 
     /**
      * Used to animate the clearance of grid
@@ -225,7 +229,7 @@ class AlgoGridView @JvmOverloads constructor(
         }
         val items =
             cells.map { GridColorItem(it.first, it.second, visitedColor, CELL_CORNER_RADIUS) }
-        colorsItems.addAll(items)
+        colorsToBeRemovedItems.addAll(items)
 
 
         val colorProperty = PropertyValuesHolder.ofObject(
@@ -252,7 +256,7 @@ class AlgoGridView @JvmOverloads constructor(
             }
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator?) {
-                    colorsItems.removeAll(items)
+                    colorsToBeRemovedItems.removeAll(items)
                 }
             })
             interpolator = AccelerateInterpolator()
@@ -343,9 +347,7 @@ class AlgoGridView @JvmOverloads constructor(
         val nColorItems = Array(
             cells.size
         ) { GridColorItem(cells[it].first, cells[it].second, color, MAX_CELL_CORNER_RADIUS) }
-        colorsItems.addAll(
-            nColorItems
-        )
+        colorsItems.addAll(nColorItems)
 
         val colorProperty = PropertyValuesHolder.ofObject(
             "color",
@@ -435,11 +437,18 @@ class AlgoGridView @JvmOverloads constructor(
             drawBackgroundCells(canvas)
 
             /**
-             * Last, draw the cells (source, visited, block and destination)
+             * Draw the cells (source, visited, block and destination)
              */
-            drawCells(canvas)
+            drawCellColors(colorsItems, canvas)
 
-            drawClearCells(canvas)
+            drawCellColors(colorsToBeRemovedItems, canvas)
+
+
+            /**
+             * Draw the effect of clearing the grid
+             *
+             */
+            drawCellColors(clearGridItems, canvas)
 
         }
     }
@@ -468,24 +477,6 @@ class AlgoGridView @JvmOverloads constructor(
                 )
             }
         }
-    }
-
-    /**
-     * Draw the cells in the colorsItems, that is: block, visited, source and destination cells
-     *
-     * @param canvas
-     */
-    private fun drawCells(canvas: Canvas) {
-        drawCellColors(colorsItems, canvas)
-    }
-
-    /**
-     * Draw the effect of clearing the grid
-     *
-     * @param canvas
-     */
-    private fun drawClearCells(canvas: Canvas) {
-        drawCellColors(clearGridItems, canvas)
     }
 
     /**

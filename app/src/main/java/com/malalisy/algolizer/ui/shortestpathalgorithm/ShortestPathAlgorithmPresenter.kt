@@ -11,6 +11,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         const val SOLUTION_BASE_ANIMATION_DURATION = 150L
         const val SOLUTION_INTERACTIVE_ANIMATION_DURATION = 30L
         const val ALGORITHM_ANIMATION_BASE_TIME = 200L
+        const val CHANGE_DESTINATION_LATENCY = 30L
     }
 
     // Store weather the algorithm has run for the current problem
@@ -24,6 +25,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     private lateinit var source: Pair<Int, Int>
     // The destination node
     private lateinit var destination: Pair<Int, Int>
+
+    private lateinit var newInteractiveDestination: Pair<Int, Int>
     // Shortest path algorithm runner
     private lateinit var shortestPathRunner: ShortestPathAlgorithmRunner
 
@@ -71,13 +74,18 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         }
     }
 
+    val changeDestinationRunnable: Runnable = Runnable {
+        changeDestinationInteractively()
+    }
+
     override fun setupView(view: ShortestPathAlgorithmContract.View) {
         this.view = view
     }
 
     override fun onCellStartTouch(i: Int, j: Int) {
+        if (i >= grid.size || j >= grid[0].size) return
         if (interactiveMode) {
-            changeDestinationInteractively(i, j)
+            callChangeDestinationInteractively(i, j)
         } else {
             handleGridSelection(i, j)
         }
@@ -90,29 +98,40 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
      * @param j
      */
     override fun onCellTouchMove(i: Int, j: Int) {
+        if (i >= grid.size || j >= grid[0].size) return
         /**
          * Enable moving event only when placing a block
          */
         if (!touchMovesEnabled) return
         if (interactiveMode) {
-            changeDestinationInteractively(i, j)
+            callChangeDestinationInteractively(i, j)
         } else {
             handleGridSelection(i, j)
         }
     }
 
-    private fun changeDestinationInteractively(i: Int, j: Int) {
-        if(grid[i][j] == TileType.Source || grid[i][j] == TileType.Block) return
-        solutionStepTime = SOLUTION_INTERACTIVE_ANIMATION_DURATION
+    private fun callChangeDestinationInteractively(i: Int, j: Int) {
+        if ((grid[i][j] == TileType.Source || grid[i][j] == TileType.Block)) return
+        newInteractiveDestination = i to j
+        handler.removeCallbacks(changeDestinationRunnable)
+        handler.postDelayed(changeDestinationRunnable, CHANGE_DESTINATION_LATENCY.toLong())
+    }
+
+    private fun changeDestinationInteractively() {
+        val i = newInteractiveDestination.first
+        val j = newInteractiveDestination.second
+
+//        solutionStepTime = SOLUTION_INTERACTIVE_ANIMATION_DURATION
+//        solution = shortestPathRunner.solution
         view.animateRemoveDestinationCell(destination)
+        destination = newInteractiveDestination
         view.animateDestinationItem(i, j)
-        destination = i to j
+
         val animatedOldSolutionCells = solution?.subList(0, solutionCellIndex)
         val animatedOldVisitedCells = visitedOrdered?.subList(0, visitedIndex)
 
         shortestPathRunner.run(source, destination)
         visitedOrdered = shortestPathRunner.orderedVisitedCells
-//        solution = shortestPathRunner.solution
         view.showHideResultContainer(
             true,
             shortestPathRunner.destinationReached,
@@ -168,6 +187,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 destination = i to j
                 destinationPlacement = false
                 blockPlacement = true
+                view.showHideInteractiveModeButton(true)
                 view.showHideDestinationLabel(false)
                 view.showHideControls(true)
                 view.animateDestinationItem(i, j)
@@ -346,6 +366,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         view.showHidePauseButton(false)
         view.showHideAnimationSeekBar(false)
         view.setAnimationSeekBarValue(0)
+        view.showHideInteractiveModeButton(false)
+        view.setInteractiveMode(false)
         visitedOrdered = arrayListOf()
         visitedIndex = 0
         interactiveMode = false

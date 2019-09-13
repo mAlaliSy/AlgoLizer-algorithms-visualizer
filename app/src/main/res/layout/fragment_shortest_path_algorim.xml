@@ -111,7 +111,7 @@
         android:id="@+id/controls"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:behavior_peekHeight="96dp"
         app:cardBackgroundColor="@color/emptyCellColor"
         app:cardCornerRadius="10dp"
