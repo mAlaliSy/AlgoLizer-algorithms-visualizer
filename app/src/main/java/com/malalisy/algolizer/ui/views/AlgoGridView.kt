@@ -40,10 +40,13 @@ class AlgoGridView @JvmOverloads constructor(
      */
     private var colorsItems = mutableListOf<GridColorItem>()
     /**
-     * A list that stores the data for colored cells
+     * A list that stores the data for colored cells to be removed
      */
     private var colorsToBeRemovedItems = mutableListOf<GridColorItem>()
-
+    /**
+     * A list that stores the data for solution cells
+     */
+    private var solutionCells = mutableListOf<GridColorItem>()
     /**
      * Used to animate the clearance of grid
      */
@@ -204,7 +207,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
     fun animateBlockCell(i: Int, j: Int) {
-        animateCellColors(emptyCellColor, blockColor, i to j)
+        animateCellColors(colorsItems, emptyCellColor, blockColor, i to j)
     }
 
     /**
@@ -213,7 +216,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param cells
      */
     fun animateVisitedCells(vararg cells: Pair<Int, Int>) {
-        animateCellColors(emptyCellColor, visitedColor, *cells)
+        animateCellColors(colorsItems, emptyCellColor, visitedColor, *cells)
     }
 
     /**
@@ -236,8 +239,54 @@ class AlgoGridView @JvmOverloads constructor(
             "color",
             ArgbEvaluator(),
             visitedColor,
-            transitionColor,
             emptyCellColor
+        )
+        val radiusProperty =
+            PropertyValuesHolder.ofFloat("radius", CELL_CORNER_RADIUS, MAX_CELL_CORNER_RADIUS)
+
+        ValueAnimator().apply {
+            setValues(radiusProperty, colorProperty)
+            duration = animDuration
+            addUpdateListener {
+                val colorValue = it.getAnimatedValue("color") as Int
+                val radius = it.getAnimatedValue("radius") as Float
+                items.forEach {
+                    it.rectRadius = radius
+                    it.color = colorValue
+                }
+                invalidate()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    colorsToBeRemovedItems.removeAll(items)
+                }
+            })
+            interpolator = AccelerateInterpolator()
+        }.start()
+
+    }
+
+    /**
+     * Animate the color of the cell at position (i, j) to be go back to an empty cell
+     *
+     * @param i the horizontal position of cell
+     * @param j the vertical position of cell
+     */
+
+    fun animateRemoveSolutionCells(vararg cells: Pair<Int, Int>) {
+        solutionCells.removeAll { eCell ->
+            cells.firstOrNull { eCell.i == it.first && eCell.j == it.second } != null
+        }
+        val items =
+            cells.map { GridColorItem(it.first, it.second, visitedColor, CELL_CORNER_RADIUS) }
+        colorsToBeRemovedItems.addAll(items)
+
+
+        val colorProperty = PropertyValuesHolder.ofObject(
+            "color",
+            ArgbEvaluator(),
+            visitedColor,
+            Color.TRANSPARENT
         )
         val radiusProperty =
             PropertyValuesHolder.ofFloat("radius", CELL_CORNER_RADIUS, MAX_CELL_CORNER_RADIUS)
@@ -281,7 +330,6 @@ class AlgoGridView @JvmOverloads constructor(
             "color",
             ArgbEvaluator(),
             visitedColor,
-            transitionColor,
             emptyCellColor
         )
         val radiusProperty =
@@ -315,7 +363,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
     fun animateSourceCell(i: Int, j: Int) {
-        animateCellColors(emptyCellColor, sourceColor, i to j)
+        animateCellColors(colorsItems, emptyCellColor, sourceColor, i to j)
     }
 
     /**
@@ -325,7 +373,7 @@ class AlgoGridView @JvmOverloads constructor(
      * @param j the vertical position of cell
      */
     fun animateDestinationCell(i: Int, j: Int) {
-        animateCellColors(emptyCellColor, destinationColor, i to j)
+        animateCellColors(colorsItems, emptyCellColor, destinationColor, i to j)
     }
 
 
@@ -335,11 +383,12 @@ class AlgoGridView @JvmOverloads constructor(
      * @param i the horizontal position of cell
      * @param j the vertical position of cell
      */
-    fun animateSolutionCell(i: Int, j: Int) {
-        animateCellColors(visitedColor, solutionColor, i to j)
+    fun animateSolutionCells(vararg cells: Pair<Int, Int>) {
+        animateCellColors(solutionCells, visitedColor, solutionColor, *cells)
     }
 
     private fun animateCellColors(
+        cellColorItems: MutableList<GridColorItem>,
         startColor: Int,
         color: Int,
         vararg cells: Pair<Int, Int>
@@ -347,7 +396,7 @@ class AlgoGridView @JvmOverloads constructor(
         val nColorItems = Array(
             cells.size
         ) { GridColorItem(cells[it].first, cells[it].second, color, MAX_CELL_CORNER_RADIUS) }
-        colorsItems.addAll(nColorItems)
+        cellColorItems.addAll(nColorItems)
 
         val colorProperty = PropertyValuesHolder.ofObject(
             "color",
@@ -384,6 +433,7 @@ class AlgoGridView @JvmOverloads constructor(
         override fun run() {
             if (clearRowIndex >= gridRows) {
                 colorsItems.clear()
+                solutionCells.clear()
                 clearGridItems.clear()
                 return
             }
@@ -441,7 +491,12 @@ class AlgoGridView @JvmOverloads constructor(
              */
             drawCellColors(colorsItems, canvas)
 
+            drawCellColors(solutionCells, canvas)
+
+
             drawCellColors(colorsToBeRemovedItems, canvas)
+
+
 
 
             /**

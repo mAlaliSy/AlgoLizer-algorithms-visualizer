@@ -101,8 +101,8 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         algoGridView.animateSourceCell(i, j)
     }
 
-    override fun animateSolutionCell(i: Int, j: Int) {
-        algoGridView.animateSolutionCell(i, j)
+    override fun animateSolutionCells(vararg cells: Pair<Int, Int>) {
+        algoGridView.animateSolutionCells(*cells)
     }
 
     override fun animateDestinationItem(i: Int, j: Int) {
@@ -214,6 +214,10 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
 
     override fun animateRemoveDestinationCell(destination: Pair<Int, Int>) {
         algoGridView.animateRemoveDestinationCell(destination)
+    }
+
+    override fun animateRemoveSolutionCells(vararg cells: Pair<Int, Int>) {
+        algoGridView.animateRemoveSolutionCells(*cells)
     }
 
     override fun setInteractiveMode(interactive: Boolean) {

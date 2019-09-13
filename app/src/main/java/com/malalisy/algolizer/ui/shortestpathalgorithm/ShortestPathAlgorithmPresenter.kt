@@ -9,7 +9,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
 
         const val SOLUTION_BASE_ANIMATION_DURATION = 150L
-        const val SOLUTION_INTERACTIVE_ANIMATION_DURATION = 30L
         const val ALGORITHM_ANIMATION_BASE_TIME = 200L
         const val CHANGE_DESTINATION_LATENCY = 30L
     }
@@ -63,9 +62,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     private var solutionAnimationRunnable: Runnable = object : Runnable {
         override fun run() {
             solution?.let {
-                view.animateSolutionCell(
-                    it[solutionCellIndex].first,
-                    it[solutionCellIndex].second
+                view.animateSolutionCells(
+                    it[solutionCellIndex]
                 )
             }
             solutionCellIndex++
@@ -121,8 +119,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         val i = newInteractiveDestination.first
         val j = newInteractiveDestination.second
 
-//        solutionStepTime = SOLUTION_INTERACTIVE_ANIMATION_DURATION
-//        solution = shortestPathRunner.solution
         view.animateRemoveDestinationCell(destination)
         destination = newInteractiveDestination
         view.animateDestinationItem(i, j)
@@ -132,13 +128,13 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
         shortestPathRunner.run(source, destination)
         visitedOrdered = shortestPathRunner.orderedVisitedCells
+        solution = shortestPathRunner.solution
         view.showHideResultContainer(
             true,
             shortestPathRunner.destinationReached,
             shortestPathRunner.solutionCost
         )
         view.showHideControls(false)
-        //view.animateSolutionCells(solution)
 
         val visitedToBeAnimated = mutableSetOf<Pair<Int, Int>>()
         val visitedToBeRemoved = mutableListOf<Pair<Int, Int>>()
@@ -163,6 +159,37 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
         view.animateVisitedItems(*visitedToBeAnimated.toTypedArray())
         view.animateRemoveVisitedItems(*visitedToBeRemoved.toTypedArray())
+
+        if (solution == null) {
+            if (animatedOldSolutionCells != null)
+                view.animateRemoveSolutionCells(*animatedOldSolutionCells.toTypedArray())
+            return
+        }
+        val solToBeAnimated = mutableSetOf<Pair<Int, Int>>()
+        val solToBeRemoved = mutableListOf<Pair<Int, Int>>()
+        // If the animation of the previous problem is not started
+        if (animatedOldSolutionCells == null) {
+            solToBeAnimated += solution!!
+        } else {
+            // Remove all visited elements in previous problem that is not in the current problem
+            animatedOldSolutionCells.forEach {
+                if (!solution!!.contains(it)) solToBeRemoved += it
+            }
+            // Add visited cells that are in the current problem but they aren't in the previous problem
+            solution?.forEach {
+                if (it !in animatedOldSolutionCells) {
+                    solToBeAnimated.add(it)
+                }
+            }
+
+
+        }
+        solToBeAnimated.remove(solution!![0])
+        solToBeAnimated.remove(solution!![solution!!.size-1])
+        solutionCellIndex = solution!!.size
+
+        view.animateSolutionCells(*solToBeAnimated.toTypedArray())
+        view.animateRemoveSolutionCells(*solToBeRemoved.toTypedArray())
     }
 
     private fun handleGridSelection(i: Int, j: Int) {
