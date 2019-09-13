@@ -26,7 +26,7 @@ abstract class ShortestPathAlgorithmRunner(grid:Array<Array<TileType>>) {
     /**
      * A list that contains the path from source to destination
      */
-    lateinit var solution: List<Pair<Int, Int>>
+    var solution: List<Pair<Int, Int>>? = null
 
     /**
      * The total cost from source to destination

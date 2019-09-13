@@ -21,11 +21,10 @@ interface ShortestPathAlgorithmContract {
         fun showHideAnimationSeekBar(show: Boolean)
         fun setAnimationSeekBarMaxValue(maxValue: Int)
         fun setAnimationSeekBarValue(value: Int)
-
         fun clearGrid()
         fun animateRemoveVisitedItems(vararg cells: Pair<Int, Int>)
-
         fun showHideInteractiveModeButton(show: Boolean)
+        fun animateRemoveDestinationCell(destination: Pair<Int, Int>)
     }
 
     interface Presenter {
@@ -39,5 +38,6 @@ interface ShortestPathAlgorithmContract {
         fun onAnimationSeekBarChanged(value: Int)
         fun onCellStartTouch(i: Int, j: Int)
         fun onCellTouchMove(i: Int, j: Int)
+        fun onInteractiveCheckChange(enabled: Boolean)
     }
 }

@@ -4,25 +4,26 @@ import android.os.Handler
 import com.malalisy.algolizer.domain.shortestpath.BfsAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.TileType
-import java.util.ArrayList
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
-        const val SOLUTION_ANIMATION_DURATION = 150L
+
+        const val SOLUTION_BASE_ANIMATION_DURATION = 150L
+        const val SOLUTION_INTERACTIVE_ANIMATION_DURATION = 30L
         const val ALGORITHM_ANIMATION_BASE_TIME = 200L
     }
 
     // Store weather the algorithm has run for the current problem
     private var algorithmCompleted = false
+
     // Visited cells in order of the time they were visited
-    private lateinit var visitedOrdered: List<Pair<Int, Int>>
+    private var visitedOrdered: List<Pair<Int, Int>>? = null
     // The grid of the problem
     private var grid = initGrid()
     // The source node
     private lateinit var source: Pair<Int, Int>
     // The destination node
-    private lateinit var destination:Pair<Int, Int>
-
+    private lateinit var destination: Pair<Int, Int>
     // Shortest path algorithm runner
     private lateinit var shortestPathRunner: ShortestPathAlgorithmRunner
 
@@ -30,18 +31,22 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     // Determine the current state, weather the start/destination and others has been placed
     private var sourcePlacement = true
+
     private var destinationPlacement = false
     private var blockPlacement = false
-
     private var isPlaying = false
-
+    private var touchMovesEnabled = false
     private var interactiveMode = false
+
 
     // Algorithm step latency
     private var algorithmStepTime = ALGORITHM_ANIMATION_BASE_TIME
-    var handler = Handler()
+    // Solution animation step latency
+    private var solutionStepTime = SOLUTION_BASE_ANIMATION_DURATION
 
+    var handler = Handler()
     private var visitedIndex = 0
+
     private var moveForwardRunnable: Runnable = object : Runnable {
         override fun run() {
             moveForward(visitedIndex + 1)
@@ -49,18 +54,20 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 handler.postDelayed(this, algorithmStepTime)
         }
     }
-
     var solutionCellIndex = 0
-    lateinit var solution: List<Pair<Int, Int>>
+
+    var solution: List<Pair<Int, Int>>? = null
     private var solutionAnimationRunnable: Runnable = object : Runnable {
         override fun run() {
-            view.animateSolutionCell(
-                solution[solutionCellIndex].first,
-                solution[solutionCellIndex].second
-            )
+            solution?.let {
+                view.animateSolutionCell(
+                    it[solutionCellIndex].first,
+                    it[solutionCellIndex].second
+                )
+            }
             solutionCellIndex++
-            if (solutionCellIndex < solution.size - 1)
-                handler.postDelayed(this, SOLUTION_ANIMATION_DURATION)
+            if (solutionCellIndex < solution!!.size - 1)
+                handler.postDelayed(this, solutionStepTime)
         }
     }
 
@@ -68,11 +75,12 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         this.view = view
     }
 
-    // To avoid placing blocks when touching a destination cell and moving
-    private var blocksPlacementStarted = false
-
     override fun onCellStartTouch(i: Int, j: Int) {
-        handleGridSelection(i, j)
+        if (interactiveMode) {
+            changeDestinationInteractively(i, j)
+        } else {
+            handleGridSelection(i, j)
+        }
     }
 
     /**
@@ -85,8 +93,57 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         /**
          * Enable moving event only when placing a block
          */
-        if (!blocksPlacementStarted) return
-        handleGridSelection(i, j)
+        if (!touchMovesEnabled) return
+        if (interactiveMode) {
+            changeDestinationInteractively(i, j)
+        } else {
+            handleGridSelection(i, j)
+        }
+    }
+
+    private fun changeDestinationInteractively(i: Int, j: Int) {
+        if(grid[i][j] == TileType.Source || grid[i][j] == TileType.Block) return
+        solutionStepTime = SOLUTION_INTERACTIVE_ANIMATION_DURATION
+        view.animateRemoveDestinationCell(destination)
+        view.animateDestinationItem(i, j)
+        destination = i to j
+        val animatedOldSolutionCells = solution?.subList(0, solutionCellIndex)
+        val animatedOldVisitedCells = visitedOrdered?.subList(0, visitedIndex)
+
+        shortestPathRunner.run(source, destination)
+        visitedOrdered = shortestPathRunner.orderedVisitedCells
+//        solution = shortestPathRunner.solution
+        view.showHideResultContainer(
+            true,
+            shortestPathRunner.destinationReached,
+            shortestPathRunner.solutionCost
+        )
+        view.showHideControls(false)
+        //view.animateSolutionCells(solution)
+
+        val visitedToBeAnimated = mutableSetOf<Pair<Int, Int>>()
+        val visitedToBeRemoved = mutableListOf<Pair<Int, Int>>()
+        // If the animation of the previous problem is not started
+        if (animatedOldVisitedCells == null) {
+            visitedToBeAnimated += visitedOrdered!!
+        } else {
+            // Remove all visited elements in previous problem that is not in the current problem
+            animatedOldVisitedCells.forEach {
+                if (!visitedOrdered!!.contains(it)) visitedToBeRemoved += it
+            }
+            // Add visited cells that are in the current problem but they aren't in the previous problem
+            visitedOrdered?.forEach {
+                if (it !in animatedOldVisitedCells) {
+                    visitedToBeAnimated.add(it)
+                }
+            }
+
+
+        }
+        visitedIndex = visitedOrdered!!.size
+
+        view.animateVisitedItems(*visitedToBeAnimated.toTypedArray())
+        view.animateRemoveVisitedItems(*visitedToBeRemoved.toTypedArray())
     }
 
     private fun handleGridSelection(i: Int, j: Int) {
@@ -116,7 +173,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 view.animateDestinationItem(i, j)
             }
             else -> {
-                blocksPlacementStarted = true
+                touchMovesEnabled = true
                 grid[i][j] = TileType.Block
                 view.animateBlockItem(i, j)
             }
@@ -147,7 +204,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         shortestPathRunner.run(source, destination)
         algorithmCompleted = true
         visitedOrdered = shortestPathRunner.orderedVisitedCells
-        view.setAnimationSeekBarMaxValue(visitedOrdered.size)
+        view.setAnimationSeekBarMaxValue(visitedOrdered!!.size)
         view.showHideAnimationSeekBar(true)
     }
 
@@ -163,7 +220,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
             solutionCellIndex = 1
             view.showHideControls(false)
             view.showHideResultContainer(true, true, shortestPathRunner.solutionCost)
-            handler.postDelayed(solutionAnimationRunnable, SOLUTION_ANIMATION_DURATION)
+            handler.postDelayed(solutionAnimationRunnable, SOLUTION_BASE_ANIMATION_DURATION)
         } else {
             view.showHideControls(false)
             view.showHideResultContainer(true, false)
@@ -182,8 +239,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
      */
     private fun moveForward(newIndex: Int) {
         val cells = mutableListOf<Pair<Int, Int>>()
-        while (visitedIndex < newIndex && visitedIndex < visitedOrdered.size) {
-            cells.add(visitedOrdered[visitedIndex])
+        while (visitedIndex < newIndex && visitedIndex < visitedOrdered!!.size) {
+            cells.add(visitedOrdered!![visitedIndex])
             visitedIndex++
         }
 
@@ -191,13 +248,12 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         view.setAnimationSeekBarValue(visitedIndex)
 
         // Check if we reached to the end of visited cells, if so, display the result
-        if (visitedIndex >= visitedOrdered.size) {
+        if (visitedIndex >= visitedOrdered!!.size) {
             isPlaying = false
             handleAlgorithmAnimationEnd()
             return
         }
     }
-
 
     /**
      * Move a single step backward on the algorithm execution by animating the removing the last
@@ -205,17 +261,18 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
      *
      */
     private fun moveBackward(newIndex: Int) {
-        if (visitedIndex < 0 || visitedIndex >= visitedOrdered.size) return
+        if (visitedIndex < 0 || visitedIndex >= visitedOrdered!!.size) return
         val cells = mutableListOf<Pair<Int, Int>>()
-        while (visitedIndex >= newIndex && visitedIndex < visitedOrdered.size) {
-            cells.add(visitedOrdered[visitedIndex])
+        while (visitedIndex >= newIndex && visitedIndex < visitedOrdered!!.size) {
+            cells.add(visitedOrdered!![visitedIndex])
             visitedIndex--
         }
-        if(visitedIndex == -1) visitedIndex = 0
+        if (visitedIndex == -1) visitedIndex = 0
 
         view.animateRemoveVisitedItems(*cells.toTypedArray())
         view.setAnimationSeekBarValue(visitedIndex)
     }
+
 
     override fun onPauseClicked() {
         pause()
@@ -251,7 +308,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         algorithmStepTime = (1.0f / speed * ALGORITHM_ANIMATION_BASE_TIME).toLong()
     }
 
-
     /**
      * On seek bar changed by the user, move the animation execution forward/backward to sync with
      * the value of the seek bar
@@ -274,6 +330,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         reset()
     }
 
+
     /**
      * Reset all the data to handle a new problem
      *
@@ -293,7 +350,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         visitedIndex = 0
         interactiveMode = false
 
-        blocksPlacementStarted = false
+        touchMovesEnabled = false
     }
 
     private fun initGrid(): Array<Array<TileType>> =
@@ -302,4 +359,9 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 TileType.Empty
             }
         }
+
+    override fun onInteractiveCheckChange(enabled: Boolean) {
+        interactiveMode = enabled
+        touchMovesEnabled = true
+    }
 }

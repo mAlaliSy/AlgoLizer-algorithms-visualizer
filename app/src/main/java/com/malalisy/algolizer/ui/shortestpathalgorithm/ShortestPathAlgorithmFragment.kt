@@ -33,6 +33,7 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
     ): View? {
         return inflater.inflate(R.layout.fragment_shortest_path_algorim, container, false)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter = ShortestPathAlgorithmPresenter()
@@ -49,7 +50,8 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         }
 
         val bottomSheetBehavior = BottomSheetBehavior.from(controls)
-        bottomSheetBehavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback(){
+        bottomSheetBehavior.setBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
                 bottomSheetDraggingOrExpanded = true
             }
@@ -82,6 +84,9 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
             }
 
         })
+        interactiveSwitch.setOnCheckedChangeListener { _, checked ->
+            presenter.onInteractiveCheckChange(checked)
+        }
     }
 
     override fun animateVisitedItems(vararg cells: Pair<Int, Int>) {
@@ -204,6 +209,10 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
     }
 
     override fun showHideInteractiveModeButton(show: Boolean) {
+        showHideView(interactiveSwitch, show)
+    }
 
+    override fun animateRemoveDestinationCell(destination: Pair<Int, Int>) {
+        algoGridView.animateRemoveDestinationCell(destination)
     }
 }

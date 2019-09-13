@@ -261,6 +261,50 @@ class AlgoGridView @JvmOverloads constructor(
     }
 
     /**
+     * Animate the color of the cell at position (i, j) to be go back to an empty cell
+     *
+     * @param i the horizontal position of cell
+     * @param j the vertical position of cell
+     */
+
+    fun animateRemoveDestinationCell(cell: Pair<Int, Int>) {
+        colorsItems.removeAll { cell.first == it.i && cell.second == it.j }
+        val item = GridColorItem(cell.first, cell.second, visitedColor, CELL_CORNER_RADIUS)
+        colorsItems.add(item)
+
+
+        val colorProperty = PropertyValuesHolder.ofObject(
+            "color",
+            ArgbEvaluator(),
+            visitedColor,
+            transitionColor,
+            emptyCellColor
+        )
+        val radiusProperty =
+            PropertyValuesHolder.ofFloat("radius", CELL_CORNER_RADIUS, MAX_CELL_CORNER_RADIUS)
+
+        ValueAnimator().apply {
+            setValues(radiusProperty, colorProperty)
+            duration = animDuration
+            addUpdateListener {
+                val colorValue = it.getAnimatedValue("color") as Int
+                val radius = it.getAnimatedValue("radius") as Float
+                item.rectRadius = radius
+                item.color = colorValue
+
+                invalidate()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    colorsItems.remove(item)
+                }
+            })
+            interpolator = AccelerateInterpolator()
+        }.start()
+
+    }
+
+    /**
      * Animate the color of the cell at position (i, j) to be a source color
      *
      * @param i the horizontal position of cell

@@ -6,4 +6,5 @@
     <string name="no_path_found">No path from source to destination found</string>
     <string name="solution_found">Solution found with cost: %1$d</string>
     <string name="place_blocks_hint">Place blocks on the grid</string>
+    <string name="interactive_mode">Interactive Mode</string>
 </resources>
