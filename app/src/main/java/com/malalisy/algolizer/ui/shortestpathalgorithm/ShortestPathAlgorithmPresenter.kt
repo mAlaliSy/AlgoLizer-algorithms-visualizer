@@ -1,7 +1,7 @@
 package com.malalisy.algolizer.ui.shortestpathalgorithm
 
 import android.os.Handler
-import com.malalisy.algolizer.domain.shortestpath.BfsAlgorithmRunner
+import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.BfsAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.TileType
 
@@ -207,7 +207,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 view.showHideDestinationLabel(true)
 
                 view.animateSourceItem(i, j)
-                shortestPathRunner = BfsAlgorithmRunner(grid)
+                shortestPathRunner =
+                    BfsAlgorithmRunner(grid)
             }
             destinationPlacement -> {
                 grid[i][j] = TileType.Destination

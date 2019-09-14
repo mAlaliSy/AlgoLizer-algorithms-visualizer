@@ -1,5 +1,8 @@
-package com.malalisy.algolizer.domain.shortestpath
+package com.malalisy.algolizer.domain.shortestpath.algorithmsimp
 
+import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
+import com.malalisy.algolizer.domain.shortestpath.ShortestPathNode
+import com.malalisy.algolizer.domain.shortestpath.TileType
 import com.malalisy.algolizer.utils.horizontalDir
 import com.malalisy.algolizer.utils.verticalDir
 import java.util.*
@@ -29,7 +32,13 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>) :
                 visitedCells[i][j] = false
         orderedVisitedCells = mutableListOf()
         destinationReached=false
-        queue.add(ShortestPathNode(source.copy(), 0, null))
+        queue.add(
+            ShortestPathNode(
+                source.copy(),
+                0,
+                null
+            )
+        )
         visitedCells[source.first][source.second] = true
 
         var node: ShortestPathNode?
@@ -45,7 +54,11 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>) :
 
                 if (tile != TileType.Block && !visitedCells[i][j]) {
                     visitedCells[i][j] = true
-                    val newNode = ShortestPathNode(i to j, node.distance + 1, node)
+                    val newNode = ShortestPathNode(
+                        i to j,
+                        node.distance + 1,
+                        node
+                    )
                     if (newNode.position == destination) {
                         destinationReached = true
                         findSolution(newNode)
