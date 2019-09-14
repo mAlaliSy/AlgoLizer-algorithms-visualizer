@@ -86,4 +86,9 @@ abstract class ShortestPathAlgorithmRunner(grid:Array<Array<TileType>>) {
         this.solutionCost = node.distance
     }
 
+    fun clearVisited(){
+        for (i in visitedCells.indices)
+            for (j in visitedCells[i].indices)
+                visitedCells[i][j] = false
+    }
 }

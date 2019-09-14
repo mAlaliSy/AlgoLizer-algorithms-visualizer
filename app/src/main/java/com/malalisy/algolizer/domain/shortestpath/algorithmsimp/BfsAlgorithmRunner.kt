@@ -23,9 +23,7 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>) :
 
     override fun run(source: Pair<Int, Int>, destination: Pair<Int, Int>) {
         queue = LinkedList()
-        for (i in visitedCells.indices)
-            for (j in visitedCells[i].indices)
-                visitedCells[i][j] = false
+        clearVisited()
         orderedVisitedCells = mutableListOf()
         destinationReached=false
         queue.add(
