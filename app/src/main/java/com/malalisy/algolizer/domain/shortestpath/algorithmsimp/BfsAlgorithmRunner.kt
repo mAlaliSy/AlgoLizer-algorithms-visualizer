@@ -21,10 +21,6 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>) :
 
     lateinit var queue: Queue<ShortestPathNode>
 
-    init {
-        setup(grid)
-    }
-
     override fun run(source: Pair<Int, Int>, destination: Pair<Int, Int>) {
         queue = LinkedList()
         for (i in visitedCells.indices)

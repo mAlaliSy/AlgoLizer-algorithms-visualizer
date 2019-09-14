@@ -38,6 +38,12 @@ abstract class ShortestPathAlgorithmRunner(grid:Array<Array<TileType>>) {
      */
     var orderedVisitedCells:MutableList<Pair<Int, Int>> = ArrayList()
 
+
+    init {
+        this.setup(grid)
+    }
+
+
     /**
      * Setup the algorithm with a problem (a grid that contains the source and the destination and
      * may be some obstacles)
