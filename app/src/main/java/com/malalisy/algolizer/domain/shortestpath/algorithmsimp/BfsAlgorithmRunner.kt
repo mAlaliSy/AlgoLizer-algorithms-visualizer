@@ -39,18 +39,14 @@ class BfsAlgorithmRunner(grid: Array<Array<TileType>>) :
         do {
             node = queue.poll()
             if (node == null) break
-            for (h in horizontalDir.indices) {
-                val i = node.position.first + verticalDir[h]
-                val j = node.position.second + horizontalDir[h]
-                if (i >= grid.size || i < 0 || j >= grid[i].size || j < 0) continue
+            for (neighbor in findNeighbors(node.position)){
+                val tile = grid[neighbor.first][neighbor.second]
 
-                val tile = grid[i][j]
-
-                if (tile != TileType.Block && !visitedCells[i][j]) {
-                    visitedCells[i][j] = true
+                if (tile != TileType.Block && !visitedCells[neighbor.first][neighbor.second]) {
+                    visitedCells[neighbor.first][neighbor.second] = true
                     val newNode = ShortestPathNode(
-                        i to j,
-                        node.distance + 1,
+                        neighbor,
+                        node.cost + 1,
                         node
                     )
                     if (newNode.position == destination) {

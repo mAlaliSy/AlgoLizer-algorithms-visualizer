@@ -1,5 +1,7 @@
 package com.malalisy.algolizer.domain.shortestpath
 
+import com.malalisy.algolizer.utils.horizontalDir
+import com.malalisy.algolizer.utils.verticalDir
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -36,7 +38,7 @@ abstract class ShortestPathAlgorithmRunner(grid:Array<Array<TileType>>) {
     /**
      * The visited cells in order by time they have been visited
      */
-    var orderedVisitedCells:MutableList<Pair<Int, Int>> = ArrayList()
+    var orderedVisitedCells: MutableList<Pair<Int, Int>> = ArrayList()
 
 
     init {
@@ -60,7 +62,7 @@ abstract class ShortestPathAlgorithmRunner(grid:Array<Array<TileType>>) {
         }
     }
 
-    abstract fun run(source:Pair<Int, Int>, destination:Pair<Int, Int>)
+    abstract fun run(source: Pair<Int, Int>, destination: Pair<Int, Int>)
 
     /**
      * Find the solution path by going backward using the parent
@@ -83,12 +85,26 @@ abstract class ShortestPathAlgorithmRunner(grid:Array<Array<TileType>>) {
         }
 
         this.solution = sol
-        this.solutionCost = node.distance
+        this.solutionCost = node.cost
     }
 
-    fun clearVisited(){
+    fun clearVisited() {
         for (i in visitedCells.indices)
             for (j in visitedCells[i].indices)
                 visitedCells[i][j] = false
+    }
+
+    fun findNeighbors(pos: Pair<Int, Int>): List<Pair<Int, Int>> {
+        val neighbors = mutableListOf<Pair<Int, Int>>()
+
+        for (h in horizontalDir.indices) {
+            val i = pos.first + verticalDir[h]
+            val j = pos.second + horizontalDir[h]
+            if (i >= grid.size || i < 0 || j >= grid[i].size || j < 0) continue
+            neighbors.add(i to j)
+
+        }
+
+        return neighbors
     }
 }
