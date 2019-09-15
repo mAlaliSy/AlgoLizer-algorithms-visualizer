@@ -3,25 +3,23 @@ package com.malalisy.algolizer.domain.shortestpath.algorithmsimp
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathNode
 import com.malalisy.algolizer.domain.shortestpath.TileType
-import com.malalisy.algolizer.utils.horizontalDir
-import com.malalisy.algolizer.utils.verticalDir
 import java.util.*
 
 /**
- * A class that implement the BFS algorithm for finding the shortest path in an unweighted graph
+ * A class that implement the Dijkstra algorithm for finding the shortest path in an unweighted graph
  *
  * @constructor
  *
  *
  * @param grid
  */
-class BfsAlgorithmRunner(grid: Array<Array<TileType>>) :
+class DijkstraAlgorithmRunner(grid: Array<Array<TileType>>) :
     ShortestPathAlgorithmRunner(grid) {
 
-    lateinit var queue: Queue<ShortestPathNode>
+    lateinit var queue: PriorityQueue<ShortestPathNode>
 
     override fun run(source: Pair<Int, Int>, destination: Pair<Int, Int>) {
-        queue = LinkedList()
+        queue = PriorityQueue(20, Comparator { f, s -> f.cost - s.cost })
         clearVisited()
         orderedVisitedCells = mutableListOf()
         destinationReached=false
