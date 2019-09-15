@@ -41,5 +41,6 @@ interface ShortestPathAlgorithmContract {
         fun onCellStartTouch(i: Int, j: Int)
         fun onCellTouchMove(i: Int, j: Int)
         fun onInteractiveCheckChange(enabled: Boolean)
+        fun onAlgorithmSelected(position: Int)
     }
 }

@@ -3,7 +3,12 @@ package com.malalisy.algolizer.ui.shortestpathalgorithm
 import android.os.Handler
 import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.BfsAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
+import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmsFactory
 import com.malalisy.algolizer.domain.shortestpath.TileType
+import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.AStarAlgorithmRunner
+import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.DijkstraAlgorithmRunner
+import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.GreedyBestFirstAlgorithmRunner
+import java.lang.IllegalArgumentException
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
@@ -13,6 +18,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         const val CHANGE_DESTINATION_LATENCY = 30L
     }
 
+    private var algorithmRunner: Int = ShortestPathAlgorithmsFactory.DIJKSTRA_ALGORITHM
     // Store weather the algorithm has run for the current problem
     private var algorithmCompleted = false
 
@@ -74,6 +80,13 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     val changeDestinationRunnable: Runnable = Runnable {
         changeDestinationInteractively()
+    }
+
+    init {
+        shortestPathRunner = ShortestPathAlgorithmsFactory.getAlgorithmRunner(
+            ShortestPathAlgorithmsFactory.DIJKSTRA_ALGORITHM,
+            grid
+        )
     }
 
     override fun setupView(view: ShortestPathAlgorithmContract.View) {
@@ -185,7 +198,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
         }
         solToBeAnimated.remove(solution!![0])
-        solToBeAnimated.remove(solution!![solution!!.size-1])
+        solToBeAnimated.remove(solution!![solution!!.size - 1])
         solutionCellIndex = solution!!.size
 
         view.animateSolutionCells(*solToBeAnimated.toTypedArray())
@@ -207,8 +220,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 view.showHideDestinationLabel(true)
 
                 view.animateSourceItem(i, j)
-                shortestPathRunner =
-                    BfsAlgorithmRunner(grid)
             }
             destinationPlacement -> {
                 grid[i][j] = TileType.Destination
@@ -401,6 +412,8 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         interactiveMode = false
 
         touchMovesEnabled = false
+
+        refreshAlgorithmRunner()
     }
 
     private fun initGrid(): Array<Array<TileType>> =
@@ -413,5 +426,23 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     override fun onInteractiveCheckChange(enabled: Boolean) {
         interactiveMode = enabled
         touchMovesEnabled = true
+    }
+
+    override fun onAlgorithmSelected(position: Int) {
+        algorithmRunner = when (position) {
+            0 -> ShortestPathAlgorithmsFactory.DIJKSTRA_ALGORITHM
+            1 -> ShortestPathAlgorithmsFactory.AStar_ALGORITHM
+            2 -> ShortestPathAlgorithmsFactory.GREEDY_BEST_FIRST_ALGORITHM
+            3 -> ShortestPathAlgorithmsFactory.BFS_ALGORITHM
+            else -> throw IllegalArgumentException("Unsupported Algorithm")
+        }
+        refreshAlgorithmRunner()
+    }
+
+    private fun refreshAlgorithmRunner() {
+        shortestPathRunner = ShortestPathAlgorithmsFactory.getAlgorithmRunner(
+            algorithmRunner,
+            grid
+        )
     }
 }

@@ -12,7 +12,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnticipateOvershootInterpolator
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.SeekBar
+import android.widget.Spinner
 import com.github.florent37.viewanimator.ViewAnimator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
@@ -86,6 +89,23 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         })
         interactiveSwitch.setOnCheckedChangeListener { _, checked ->
             presenter.onInteractiveCheckChange(checked)
+        }
+
+        context?.let {
+            val adapter = ArrayAdapter.createFromResource(
+                it, R.array.shortest_path_algorithms,
+                android.R.layout.simple_spinner_dropdown_item
+            )
+            algorithmSpinner.adapter = adapter
+            algorithmSpinner.setSelection(0)
+            algorithmSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+
+                }
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, p3: Long) {
+                    presenter.onAlgorithmSelected(position)
+                }
+            }
         }
     }
 
