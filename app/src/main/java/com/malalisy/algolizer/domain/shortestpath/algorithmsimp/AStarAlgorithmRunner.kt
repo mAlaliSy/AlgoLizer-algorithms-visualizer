@@ -17,6 +17,10 @@ class AStarAlgorithmRunner(grid: Array<Array<TileType>>) : ShortestPathAlgorithm
             a.cost - b.cost
         }
         queue.add(ShortestPathNode(source, 0, null))
+
+        orderedVisitedCells = mutableListOf()
+        destinationReached=false
+
         while (queue.isNotEmpty()) {
             val node = queue.poll()
             if (node.position == destination) {
@@ -39,7 +43,8 @@ class AStarAlgorithmRunner(grid: Array<Array<TileType>>) : ShortestPathAlgorithm
                         )
                     )
 
-                    orderedVisitedCells.add(neighbor)
+                    if (neighbor != destination)
+                        orderedVisitedCells.add(neighbor)
                 }
             }
 
