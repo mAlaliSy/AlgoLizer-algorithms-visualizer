@@ -195,6 +195,19 @@
                 android:layout_marginEnd="16dp"
                 android:text="@string/interactive_mode"
                 app:layout_constraintTop_toBottomOf="@id/btnPlay" />
+            <Spinner
+                android:id="@+id/algorithmSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                app:layout_constraintTop_toBottomOf="@id/interactiveSwitch"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:background="?selectableItemBackground"
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
