@@ -71,7 +71,10 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         /**
          * Hook up event listeners with the presenter
          */
-        btnPlay.setOnClickListener { presenter.onPlayClicked() }
+        btnPlay.setOnClickListener {
+            presenter.onPlayClicked()
+            bottomSheetBehavior.state=BottomSheetBehavior.STATE_COLLAPSED
+        }
         btnPause.setOnClickListener { presenter.onPauseClicked() }
         btnForward.setOnClickListener { presenter.onForwardClicked() }
         speedContorller.onSpeedChangeListener = { presenter.onSpeedChanged(it) }
@@ -108,7 +111,6 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
                 android.R.layout.simple_spinner_dropdown_item
             )
             algorithmSpinner.adapter = adapter
-            algorithmSpinner.setSelection(0)
             algorithmSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
 

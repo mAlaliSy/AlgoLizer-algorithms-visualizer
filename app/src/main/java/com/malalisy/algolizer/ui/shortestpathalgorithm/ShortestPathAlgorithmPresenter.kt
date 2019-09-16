@@ -257,6 +257,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
      */
     private fun runAlgorithm() {
         shortestPathRunner.run(source, destination)
+        this.solution = shortestPathRunner.solution
         algorithmCompleted = true
         visitedOrdered = shortestPathRunner.orderedVisitedCells
         view.setAnimationSeekBarMaxValue(visitedOrdered!!.size)
@@ -270,8 +271,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
      *
      */
     private fun handleAlgorithmAnimationEnd() {
-        if (shortestPathRunner.destinationReached) {
-            this.solution = shortestPathRunner.solution
+        if (solution != null) {
             solutionCellIndex = 1
             view.showHideControls(false)
             view.showHideResultContainer(true, true, shortestPathRunner.solutionCost)
@@ -409,8 +409,10 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         visitedIndex = 0
         interactiveMode = false
         touchMovesEnabled = false
-        refreshAlgorithmRunner()
-    }
+        shortestPathRunner = ShortestPathAlgorithmsFactory.getAlgorithmRunner(
+            algorithmRunner,
+            grid
+        )    }
 
     private fun initGrid(): Array<Array<TileType>> =
         Array(24) {
@@ -425,14 +427,18 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     override fun onAlgorithmSelected(position: Int) {
-        algorithmRunner = when (position) {
+
+        val nalgorithmRunner = when (position) {
             0 -> ShortestPathAlgorithmsFactory.DIJKSTRA_ALGORITHM
             1 -> ShortestPathAlgorithmsFactory.AStar_ALGORITHM
             2 -> ShortestPathAlgorithmsFactory.GREEDY_BEST_FIRST_ALGORITHM
             3 -> ShortestPathAlgorithmsFactory.BFS_ALGORITHM
             else -> throw IllegalArgumentException("Unsupported Algorithm")
         }
-        refreshAlgorithmRunner()
+        if (nalgorithmRunner != algorithmRunner) {
+            algorithmRunner = nalgorithmRunner
+            refreshAlgorithmRunner()
+        }
     }
 
     private fun refreshAlgorithmRunner() {
@@ -440,18 +446,38 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
             algorithmRunner,
             grid
         )
+        shortestPathRunner.run(source, destination)
+
+        solution?.let {
+            val cells = it.subList(0, solutionCellIndex).toTypedArray()
+            view.animateRemoveSolutionCells(*cells)
+        }
+        visitedOrdered?.let {
+            val cells = it.subList(0, visitedIndex).toTypedArray()
+            view.animateRemoveVisitedItems(*cells)
+        }
+        view.setAnimationSeekBarValue(0)
+
+        visitedOrdered = shortestPathRunner.orderedVisitedCells
+        solution = shortestPathRunner.solution
+        visitedIndex = 0
+        solutionCellIndex = 0
+        algorithmCompleted = true
+        view.setAnimationSeekBarMaxValue(visitedOrdered!!.size)
     }
 
     override fun onCloseResultClick() {
-        visitedIndex = 0
-        solutionCellIndex = 0
         view.setAnimationSeekBarValue(0)
         solution?.let {
-            view.animateRemoveSolutionCells(*it.toTypedArray())
+            val cells = it.subList(0, solutionCellIndex).toTypedArray()
+            view.animateRemoveSolutionCells(*cells)
         }
         visitedOrdered?.let {
-            view.animateRemoveVisitedItems(*it.toTypedArray())
+            val cells = it.subList(0, visitedIndex).toTypedArray()
+            view.animateRemoveVisitedItems(*cells)
         }
+        visitedIndex = 0
+        solutionCellIndex = 0
     }
 
 }
