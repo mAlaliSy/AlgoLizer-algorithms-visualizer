@@ -1,13 +1,9 @@
 package com.malalisy.algolizer.ui.shortestpathalgorithm
 
 import android.os.Handler
-import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.BfsAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmsFactory
 import com.malalisy.algolizer.domain.shortestpath.TileType
-import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.AStarAlgorithmRunner
-import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.DijkstraAlgorithmRunner
-import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.GreedyBestFirstAlgorithmRunner
 import java.lang.IllegalArgumentException
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
@@ -406,13 +402,13 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         view.showHideAnimationSeekBar(false)
         view.setAnimationSeekBarValue(0)
         view.showHideInteractiveModeButton(false)
+        view.showHideControls(false, false)
+        view.showHideSourceLabel(true)
         view.setInteractiveMode(false)
         visitedOrdered = arrayListOf()
         visitedIndex = 0
         interactiveMode = false
-
         touchMovesEnabled = false
-
         refreshAlgorithmRunner()
     }
 
@@ -445,4 +441,5 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
             grid
         )
     }
+
 }

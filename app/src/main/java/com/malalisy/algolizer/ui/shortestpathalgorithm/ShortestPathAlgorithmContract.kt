@@ -10,7 +10,7 @@ interface ShortestPathAlgorithmContract {
         fun animateRemoveSolutionCells(vararg cells: Pair<Int, Int>)
         fun showHideDestinationLabel(show: Boolean)
         fun showHideSourceLabel(show: Boolean)
-        fun showHideControls(show: Boolean)
+        fun showHideControls(show: Boolean, anticipateOvershoot: Boolean = true)
         fun showHidePlayButton(show: Boolean)
         fun showHidePauseButton(show: Boolean)
         fun showHideResultContainer(

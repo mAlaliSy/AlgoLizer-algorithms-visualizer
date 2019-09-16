@@ -30,6 +30,8 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
 
     var bottomSheetDraggingOrExpanded = false
 
+    lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -52,7 +54,7 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
                 presenter.onCellTouchMove(i, j)
         }
 
-        val bottomSheetBehavior = BottomSheetBehavior.from(controls)
+        bottomSheetBehavior = BottomSheetBehavior.from(controls)
         bottomSheetBehavior.setBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
@@ -73,7 +75,8 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         btnPause.setOnClickListener { presenter.onPauseClicked() }
         btnForward.setOnClickListener { presenter.onForwardClicked() }
         speedContorller.onSpeedChangeListener = { presenter.onSpeedChanged(it) }
-        btnReplay.setOnClickListener { presenter.onRestartClick() }
+        btnReset.setOnClickListener { presenter.onRestartClick() }
+
         animationSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
                 if (p2)
@@ -91,6 +94,13 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
             presenter.onInteractiveCheckChange(checked)
         }
 
+        btnCloseResult.setOnClickListener {
+            showHideResultContainer(false)
+            showHideControls(true)
+            showHidePlayButton(true)
+            showHidePauseButton(false)
+        }
+
         context?.let {
             val adapter = ArrayAdapter.createFromResource(
                 it, R.array.shortest_path_algorithms,
@@ -98,11 +108,17 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
             )
             algorithmSpinner.adapter = adapter
             algorithmSpinner.setSelection(0)
-            algorithmSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            algorithmSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
 
                 }
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, p3: Long) {
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    p3: Long
+                ) {
                     presenter.onAlgorithmSelected(position)
                 }
             }
@@ -129,25 +145,30 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
         algoGridView.animateDestinationCell(i, j)
     }
 
-    override fun showHideControls(show: Boolean) {
+    override fun showHideControls(show: Boolean, anticipateOvershoot: Boolean) {
         if (show) {
             ViewAnimator.animate(controls)
                 .slideBottomIn()
                 .fadeIn()
                 .duration(1000)
-                .interpolator(AnticipateOvershootInterpolator(2.0f))
+                .interpolator(AnticipateOvershootInterpolator(1.5f))
                 .start()
             controls.visibility = View.VISIBLE
         } else {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             ViewAnimator.animate(controls)
                 .translationY(controls.height.toFloat())
                 .fadeOut()
                 .duration(1000)
-                .interpolator(AnticipateOvershootInterpolator(2.0f))
+                .also {
+                    if (anticipateOvershoot)
+                        it.interpolator(AnticipateOvershootInterpolator(1.5f))
+                }
                 .onStop {
                     controls.translationY = 0.0f
                     controls.visibility = View.INVISIBLE
                 }.start()
+            bottomSheetDraggingOrExpanded = false
         }
     }
 

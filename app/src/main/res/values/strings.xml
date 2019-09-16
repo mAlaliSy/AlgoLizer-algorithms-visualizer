@@ -7,6 +7,8 @@
     <string name="solution_found">Solution found with cost: %1$d</string>
     <string name="place_blocks_hint">Place blocks on the grid</string>
     <string name="interactive_mode">Interactive Mode</string>
+    <string name="algorithm">Algorithm</string>
+    <string name="reset">Reset</string>
 
     <array name="shortest_path_algorithms">
         <item>Dijkstra</item>
