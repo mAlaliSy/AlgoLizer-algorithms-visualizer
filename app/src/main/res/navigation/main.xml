@@ -3,9 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    app:startDestination="@id/shortestPathAlgorimFragment">
+    app:startDestination="@id/mainFragment">
     <fragment
         android:id="@+id/shortestPathAlgorimFragment"
         android:name="com.malalisy.algolizer.ui.shortestpathalgorithm.ShortestPathAlgorithmFragment"
         tools:layout="@layout/fragment_shortest_path_algorim"/>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.malalisy.algolizer.ui.main.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_shortestPathAlgorimFragment"
+            app:destination="@id/shortestPathAlgorimFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit"
+            />
+    </fragment>
 </navigation>

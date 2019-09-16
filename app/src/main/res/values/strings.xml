@@ -16,4 +16,10 @@
         <item>Greedy best-first search</item>
         <item>BFS</item>
     </array>
+
+
+    <string name="shortest_path_algorithms">Shortest path algorithms</string>
+    <string name="other_graph_algorithms">Other graph algorithms (Coming)</string>
+    <string name="sorting_algorithms">Sorting algorithms (Coming)</string>
+    <string name="info">Info</string>
 </resources>

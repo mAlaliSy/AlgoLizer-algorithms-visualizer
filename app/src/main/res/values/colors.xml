@@ -13,5 +13,6 @@
     <color name="blockColor">#3F3A3A</color>
 
     <color name="background_color">#f7f7f7</color>
+    <color name="disabled_color">#777</color>
 
 </resources>
