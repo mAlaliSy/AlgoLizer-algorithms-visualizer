@@ -99,6 +99,7 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
             showHideControls(true)
             showHidePlayButton(true)
             showHidePauseButton(false)
+            presenter.onCloseResultClick()
         }
 
         context?.let {

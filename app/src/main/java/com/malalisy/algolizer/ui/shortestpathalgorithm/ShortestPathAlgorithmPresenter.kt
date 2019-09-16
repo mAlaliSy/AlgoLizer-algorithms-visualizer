@@ -442,4 +442,16 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         )
     }
 
+    override fun onCloseResultClick() {
+        visitedIndex = 0
+        solutionCellIndex = 0
+        view.setAnimationSeekBarValue(0)
+        solution?.let {
+            view.animateRemoveSolutionCells(*it.toTypedArray())
+        }
+        visitedOrdered?.let {
+            view.animateRemoveVisitedItems(*it.toTypedArray())
+        }
+    }
+
 }
