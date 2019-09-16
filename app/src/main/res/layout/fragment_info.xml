@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.MainFragment">
+    tools:context=".ui.InfoFragment">
+
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/logoCard"
@@ -37,31 +38,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/logoCard" />
 
+    <TextView
+        android:id="@+id/githubLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:gravity="center"
+        android:text="@string/the_source_code_of_the_app_is_available_on_github"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logoText" />
+
+
     <LinearLayout
-        android:id="@+id/btnShortestPathAlgorithms"
+        android:id="@+id/btnGithubRepo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:background="?selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
         android:paddingLeft="8dp"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         android:paddingRight="8dp"
-        android:paddingBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnOtherGraphAlgorithms"
+        android:paddingBottom="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logoCard"
+        app:layout_constraintTop_toBottomOf="@+id/githubLabel"
         app:layout_constraintVertical_chainStyle="packed">
 
-<!--        <ImageView-->
-<!--            android:layout_width="32dp"-->
-<!--            android:layout_height="32dp"-->
-<!--            android:padding="4dp"-->
-<!--            android:rotation="30"-->
-<!--            android:src="@drawable/logo" />-->
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_github" />
 
 
         <TextView
@@ -69,39 +82,51 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="8dp"
-            android:text="@string/shortest_path_algorithms"
+            android:text="@string/github_repository"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/colorAccent"
+            android:textColor="@android:color/black"
             android:textStyle="bold" />
     </LinearLayout>
 
+
+    <TextView
+        android:id="@+id/developedByLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:text="@string/developed_by_label"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnGithubRepo" />
+
+
     <LinearLayout
-        android:id="@+id/btnOtherGraphAlgorithms"
+        android:id="@+id/btnTwitter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:background="?selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center"
         android:paddingLeft="8dp"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         android:paddingRight="8dp"
-        android:paddingBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnSortingAlgorithms"
+        android:paddingBottom="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnShortestPathAlgorithms"
+        app:layout_constraintTop_toBottomOf="@+id/developedByLabel"
         app:layout_constraintVertical_chainStyle="packed">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:padding="4dp"
-            android:rotation="30"
-            android:src="@drawable/logo"
-            android:visibility="gone" />
+            android:src="@drawable/ic_twitter" />
 
 
         <TextView
@@ -109,65 +134,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="8dp"
-            android:text="@string/other_graph_algorithms"
+            android:text="@string/follow_me"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/disabled_color"
-            android:textStyle="normal" />
+            android:textColor="@color/twitter_color"
+            android:textStyle="bold" />
     </LinearLayout>
-
-
-    <LinearLayout
-        android:id="@+id/btnSortingAlgorithms"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:paddingLeft="8dp"
-        android:paddingTop="16dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnOtherGraphAlgorithms"
-        app:layout_constraintVertical_chainStyle="packed">
-
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:padding="4dp"
-            android:rotation="30"
-            android:src="@drawable/logo"
-            android:visibility="gone" />
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="8dp"
-            android:text="@string/sorting_algorithms"
-            android:textAllCaps="false"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/disabled_color"
-            android:textStyle="normal" />
-    </LinearLayout>
-
-
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/btnInfo"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_margin="8dp"
-        android:src="@drawable/ic_info"
-        android:background="?selectableItemBackgroundBorderless"
-        android:tint="@color/colorAccent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

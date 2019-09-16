@@ -5,7 +5,7 @@
     android:id="@+id/shortestPathAlgorithmContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_color">
+    android:background="@android:color/white">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -112,7 +112,6 @@
         android:layout_height="wrap_content"
         android:visibility="invisible"
         app:behavior_peekHeight="96dp"
-        app:cardBackgroundColor="@color/emptyCellColor"
         app:cardCornerRadius="10dp"
         app:cardElevation="8dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"

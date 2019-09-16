@@ -22,4 +22,12 @@
     <string name="other_graph_algorithms">Other graph algorithms (Coming)</string>
     <string name="sorting_algorithms">Sorting algorithms (Coming)</string>
     <string name="info">Info</string>
+    <string name="algolizer">Algolizer</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="the_source_code_of_the_app_is_available_on_github">The source code of the app is available on Github</string>
+    <string name="github_repository">GitHub Repository</string>
+    <string name="follow_me">Follow me</string>
+    <string name="developed_by_label">Developed by: Mohammed Al-Ali</string>
 </resources>

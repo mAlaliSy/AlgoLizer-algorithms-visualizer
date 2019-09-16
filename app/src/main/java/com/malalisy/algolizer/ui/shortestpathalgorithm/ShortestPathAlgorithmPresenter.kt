@@ -9,7 +9,7 @@ import java.lang.IllegalArgumentException
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
 
-        const val SOLUTION_BASE_ANIMATION_DURATION = 150L
+        const val SOLUTION_BASE_ANIMATION_DURATION = 75L
         const val ALGORITHM_ANIMATION_BASE_TIME = 200L
         const val CHANGE_DESTINATION_LATENCY = 30L
     }
