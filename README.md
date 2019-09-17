@@ -8,8 +8,8 @@ Algolizer is an open source Android app for visualizing algorithms with a nice a
 3. Greedy best-first
 4. Bredth-first search (BFS), on a grid with equal weight edges (BFS is similar to Dijkstra when the weight of edges are equal)
 
-#### Other graph algorithms (coming soone)
-#### Sorting algorithms (coming soone)
+#### Other graph algorithms (coming soon)
+#### Sorting algorithms (coming soon)
 
 ## Demo video:
 Click [here!](https://youtu.be/uBUz_lUy-HM) to watch the video on YouTube.
