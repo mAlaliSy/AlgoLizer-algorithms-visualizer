@@ -12,9 +12,9 @@ Algolizer is an open source Android app for visualizing algorithms with a nice a
 #### Sorting algorithms (coming soone)
 
 ## Demo video:
-Click [here!](http://www.youtube.com/watch?v=kIRhxotVAac) to watch the video on YouTube.
+Click [here!](https://youtu.be/uBUz_lUy-HM) to watch the video on YouTube.
 
-[![](https://j.gifs.com/4QV4Rg.gif)](http://www.youtube.com/watch?v=kIRhxotVAac "")
+[![](https://j.gifs.com/4QV4Rg.gif)](https://youtu.be/uBUz_lUy-HM "")
 
 
 
