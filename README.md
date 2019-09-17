@@ -16,3 +16,7 @@ Click [here!](http://www.youtube.com/watch?v=kIRhxotVAac) to watch the video on 
 
 [![](https://j.gifs.com/4QV4Rg.gif)](http://www.youtube.com/watch?v=kIRhxotVAac "")
 
+
+
+## Download Algolizer app:
+The app will be available soon on Google Play, but currently you can download the APK from the [releases page](https://github.com/mAlaliSy/AlgoLizer-algorithms-visualizer/releases)
