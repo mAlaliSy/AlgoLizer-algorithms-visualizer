@@ -20,3 +20,4 @@ Click [here!](https://youtu.be/uBUz_lUy-HM) to watch the video on YouTube.
 
 ## Download Algolizer app:
 The app will be available soon on Google Play, but currently you can download the APK from the [releases page](https://github.com/mAlaliSy/AlgoLizer-algorithms-visualizer/releases)
+ 
