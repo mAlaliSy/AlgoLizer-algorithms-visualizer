@@ -119,7 +119,10 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     private fun callChangeDestinationInteractively(i: Int, j: Int) {
-        if ((grid[i][j] == TileType.Source || grid[i][j] == TileType.Block)) return
+        if ((grid[i][j] == TileType.Source || grid[i][j] == TileType.Block)
+            || i == destination.first && j == destination.second
+        ) return
+
         newInteractiveDestination = i to j
         handler.removeCallbacks(changeDestinationRunnable)
         handler.postDelayed(changeDestinationRunnable, CHANGE_DESTINATION_LATENCY.toLong())
