@@ -466,6 +466,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         visitedIndex = 0
         solutionCellIndex = 0
         algorithmCompleted = true
+        view.showHideAnimationSeekBar(true)
         view.setAnimationSeekBarMaxValue(visitedOrdered!!.size)
     }
 
