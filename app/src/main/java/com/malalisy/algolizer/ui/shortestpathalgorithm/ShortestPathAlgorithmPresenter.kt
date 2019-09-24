@@ -125,7 +125,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
         newInteractiveDestination = i to j
         handler.removeCallbacks(changeDestinationRunnable)
-        handler.postDelayed(changeDestinationRunnable, CHANGE_DESTINATION_LATENCY.toLong())
+        handler.postDelayed(changeDestinationRunnable, CHANGE_DESTINATION_LATENCY)
     }
 
     private fun changeDestinationInteractively() {
@@ -134,7 +134,6 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
         view.animateRemoveDestinationCell(destination)
         destination = newInteractiveDestination
-        view.animateDestinationItem(i, j)
 
         val animatedOldSolutionCells = solution?.subList(0, solutionCellIndex)
         val animatedOldVisitedCells = visitedOrdered?.subList(0, visitedIndex)
@@ -203,6 +202,12 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
         view.animateSolutionCells(*solToBeAnimated.toTypedArray())
         view.animateRemoveSolutionCells(*solToBeRemoved.toTypedArray())
+
+        // Animate the destination after the animation of visited items removal
+        view.animateDestinationItem(i, j)
+
+        handler.postDelayed({
+        }, 500)
     }
 
     private fun handleGridSelection(i: Int, j: Int) {
