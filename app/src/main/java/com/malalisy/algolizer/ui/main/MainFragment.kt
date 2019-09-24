@@ -10,9 +10,6 @@ import androidx.navigation.Navigation
 import com.malalisy.algolizer.R
 import kotlinx.android.synthetic.main.fragment_main.*
 
-/**
- * A simple [Fragment] subclass.
- */
 class MainFragment : Fragment() {
 
     override fun onCreateView(

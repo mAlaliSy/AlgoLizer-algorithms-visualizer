@@ -4,7 +4,6 @@ import android.os.Handler
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmRunner
 import com.malalisy.algolizer.domain.shortestpath.ShortestPathAlgorithmsFactory
 import com.malalisy.algolizer.domain.shortestpath.TileType
-import java.lang.IllegalArgumentException
 
 class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     companion object {
@@ -29,7 +28,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     private lateinit var newInteractiveDestination: Pair<Int, Int>
     // Shortest path algorithm runner
-    private lateinit var shortestPathRunner: ShortestPathAlgorithmRunner
+    private var shortestPathRunner: ShortestPathAlgorithmRunner
 
     private lateinit var view: ShortestPathAlgorithmContract.View
 
@@ -67,10 +66,12 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
                 view.animateSolutionCells(
                     it[solutionCellIndex]
                 )
+
+
+                solutionCellIndex++
+                if (solutionCellIndex < it.size - 1)
+                    handler.postDelayed(this, solutionStepTime)
             }
-            solutionCellIndex++
-            if (solutionCellIndex < solution!!.size - 1)
-                handler.postDelayed(this, solutionStepTime)
         }
     }
 
@@ -378,7 +379,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
 
     /**
-     * On restart button on the result view clicked
+     * On reset button on bottom sheet view clicked
      *
      */
     override fun onRestartClick() {
@@ -412,7 +413,9 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         shortestPathRunner = ShortestPathAlgorithmsFactory.getAlgorithmRunner(
             algorithmRunner,
             grid
-        )    }
+        )
+
+    }
 
     private fun initGrid(): Array<Array<TileType>> =
         Array(24) {
@@ -467,6 +470,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     }
 
     override fun onCloseResultClick() {
+        handler.removeCallbacks(solutionAnimationRunnable)
         view.setAnimationSeekBarValue(0)
         solution?.let {
             val cells = it.subList(0, solutionCellIndex).toTypedArray()

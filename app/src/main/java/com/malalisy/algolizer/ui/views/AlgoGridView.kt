@@ -31,7 +31,13 @@ class AlgoGridView @JvmOverloads constructor(
         val CELL_CORNER_RADIUS = 15f
         val MAX_CELL_CORNER_RADIUS = 100f
 
+        /**
+         * Duration for animating cells
+         */
         val DEFAULT_ANIM_DURATION = 250
+        /**
+         * Duration of starting the clearance of next row
+         */
         val CLEAR_DURATION = 30L
     }
 

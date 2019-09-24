@@ -8,6 +8,9 @@ import com.malalisy.algolizer.domain.shortestpath.algorithmsimp.GreedyBestFirstA
 import java.lang.annotation.RetentionPolicy
 
 
+/**
+ * Factory pattern implementation for creating shortest path algorithm runner
+ */
 object ShortestPathAlgorithmsFactory {
 
     const val DIJKSTRA_ALGORITHM = 0

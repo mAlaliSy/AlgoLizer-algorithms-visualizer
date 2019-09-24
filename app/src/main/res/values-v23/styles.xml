@@ -8,6 +8,7 @@
         <item name="android:windowLightStatusBar">true</item>
 
         <item name="android:statusBarColor">@color/light_status_gray</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <color name="light_status_gray">#dedede</color>
