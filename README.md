@@ -16,6 +16,7 @@ Click [here!](https://youtu.be/uBUz_lUy-HM) to watch the video on YouTube.
 
 [![](https://j.gifs.com/4QV4Rg.gif)](https://youtu.be/uBUz_lUy-HM "")
 
+Bugs appeared in the video are fixed with a latter commits. 
 
 
 ## Download Algolizer app:
