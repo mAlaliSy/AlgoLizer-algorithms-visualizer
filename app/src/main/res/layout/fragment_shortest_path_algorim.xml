@@ -14,7 +14,7 @@
         tools:context=".ui.shortestpathalgorithm.ShortestPathAlgorithmFragment">
 
 
-        <com.malalisy.algolizer.ui.views.AlgoGridView
+        <com.malalisy.algolizer.ui.views.gridview.AlgoGridView
             android:id="@+id/algoGridView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
