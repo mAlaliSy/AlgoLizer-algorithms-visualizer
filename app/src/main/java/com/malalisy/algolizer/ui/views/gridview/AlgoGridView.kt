@@ -70,22 +70,14 @@ class AlgoGridView @JvmOverloads constructor(
     /**
      * The colors of different type of cells
      */
-    var visitedColor =
-        DEFAULT_VISITED_COLOR
-    var transitionColor =
-        DEFAULT_TRANSITION_COLOR
-    var blockColor =
-        DEFAULT_BLOCK_COLOR
-    var sourceColor =
-        DEFAULT_SOURCE_COLOR
-    var destinationColor =
-        DEFAULT_DESTINATION_COLOR
-    var emptyCellColor =
-        DEFAULT_EMPTY_CELL_COLOR
-    var solutionColor =
-        DEFAULT_SOLUTION_CELL_COLOR
-    var bgColor =
-        DEFAULT_BACKGROUND_COLOR
+    var visitedColor = DEFAULT_VISITED_COLOR
+    var transitionColor = DEFAULT_TRANSITION_COLOR
+    var blockColor = DEFAULT_BLOCK_COLOR
+    var sourceColor = DEFAULT_SOURCE_COLOR
+    var destinationColor = DEFAULT_DESTINATION_COLOR
+    var emptyCellColor = DEFAULT_EMPTY_CELL_COLOR
+    var solutionColor = DEFAULT_SOLUTION_CELL_COLOR
+    var bgColor = DEFAULT_BACKGROUND_COLOR
 
     /**
      * A paint for drawing cells
