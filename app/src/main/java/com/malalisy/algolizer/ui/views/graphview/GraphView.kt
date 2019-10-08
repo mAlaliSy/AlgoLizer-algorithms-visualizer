@@ -99,6 +99,8 @@ class GraphView @JvmOverloads constructor(
         canvas?.let {
             drawDraggingEdge(it)
 
+            drawEdges(it)
+
             drawVertices(it)
         }
     }
@@ -116,6 +118,25 @@ class GraphView @JvmOverloads constructor(
                 draggingEdgeFingerPosition!!.second,
                 draggingEdgesPaint
             )
+        }
+    }
+
+    /**
+     * draw the edges between vertices using the adjacencyList
+     */
+    private fun drawEdges(canvas: Canvas) {
+        for (i in 0 until adjacencyList.size) {
+            for (edge in adjacencyList[i]) {
+                val target = vertices[edge.first]
+                canvas.drawLine(
+                    vertices[i].x,
+                    vertices[i].y,
+                    target.x,
+                    target.y,
+                    edgesPaint
+                )
+
+            }
         }
     }
 
