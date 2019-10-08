@@ -172,6 +172,18 @@ class GraphView @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 if (draggingVertex != null) {
                     draggingEdgeFingerPosition = event.x to event.y
+
+                    /**
+                     * Add snap effect:
+                     * when the user hover nearly to a vertex, the dragging edge will be snapped
+                     * to that vertex
+                     */
+                    for (vertex in vertices)
+                        if (vertex distanceTo draggingEdgeFingerPosition!! < (vertexOuterRadius * 1.4)) {
+                            draggingEdgeFingerPosition = vertex.x to vertex.y
+                            break
+                        }
+
                     invalidate()
                 }
             }
