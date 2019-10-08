@@ -10,6 +10,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateInterpolator
+import com.malalisy.algolizer.utils.distance
 
 class GraphView @JvmOverloads constructor(
     context: Context?,
@@ -66,6 +67,23 @@ class GraphView @JvmOverloads constructor(
 
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
+                for (vertex in vertices) {
+                    val distance = distance(
+                        event.x.toDouble(), event.y.toDouble(),
+                        vertex.x.toDouble(), vertex.y.toDouble()
+                    )
+
+                    // The user touched on an already exists vertex => start dragging an edge
+                    if(distance < vertexOuterRadius){
+                        // TODO: Start dragging edge
+
+                        return true
+                    }
+
+                    // The user touched a point close to another vertex and they will overlap
+                    if(distance < 2 * vertexOuterRadius) return true
+
+                }
                 addVertexItem(event.x, event.y)
             }
 
