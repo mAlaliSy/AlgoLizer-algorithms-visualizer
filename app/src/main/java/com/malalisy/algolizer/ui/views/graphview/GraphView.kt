@@ -255,5 +255,22 @@ class GraphView @JvmOverloads constructor(
         var outerRadius: Float,
         var innerColor: Int,
         var outerColor: Int
-    )
+    ) {
+        infix fun distanceTo(vertexViewItem: VertexViewItem) =
+            distance(
+                x.toDouble(),
+                y.toDouble(),
+                vertexViewItem.x.toDouble(),
+                vertexViewItem.y.toDouble()
+            )
+
+        infix fun distanceTo(pos: Pair<Float, Float>) =
+            distance(
+                x.toDouble(),
+                y.toDouble(),
+                pos.first.toDouble(),
+                pos.second.toDouble()
+            )
+
+    }
 }
