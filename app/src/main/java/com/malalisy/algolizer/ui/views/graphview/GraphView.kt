@@ -19,27 +19,75 @@ class GraphView @JvmOverloads constructor(
 ) : View(context, attrs, defstyle) {
 
     companion object {
+        /**
+         * default radius for the inner & outer circles
+         */
         const val DEFAULT_VERTEX_INNER_RADIUS = 50f
+
         const val DEFAULT_VERTEX_OUTER_RADIUS = 60f
+        /**
+         * default colors for the inner & outer circles
+         */
         val DEFAULT_VERTEX_INNER_COLOR = Color.parseColor("#FF9800")
         val DEFAULT_VERTEX_OUTER_COLOR = Color.parseColor("#FF673AB7")
+        /**
+         * default color for transitioning between the background color and the color for a vertex
+         */
         val DEFAULT_TRANSITION_COLOR = Color.parseColor("#FFF04C7F")
+
+        val DEFAULT_DRAGGING_EDGE_COLOR = Color.parseColor("#cccccc")
+        val DEFAULT_EDGE_COLOR = Color.parseColor("#424242")
 
 
     }
 
     private val vertices: MutableList<VertexViewItem> = mutableListOf()
-    private val verticesPaint: Paint
+
     private var vertexInnerRadius = DEFAULT_VERTEX_INNER_RADIUS
     private var vertexOuterRadius = DEFAULT_VERTEX_OUTER_RADIUS
-
     private var transitionColor = DEFAULT_TRANSITION_COLOR
+
     private var vertexInnerColor = DEFAULT_VERTEX_INNER_COLOR
     private var vertexOuterColor = DEFAULT_VERTEX_OUTER_COLOR
+
+    private var edgeColor = DEFAULT_EDGE_COLOR
+
+    private val verticesPaint: Paint
+    private val edgesPaint: Paint
+
+    /**
+     * The vertex that the user start dragging from it, so he intended to add an edge from it to the
+     * vertex he move his finger up on it
+     */
+    private var draggingVertex: VertexViewItem? = null
+
+    /**
+     * The position of the user finger when he moves it after touching a vertex
+     */
+    private var draggingEdgeFingerPosition: Pair<Float, Float>? = null
+
+    private var draggingEdgeColor = DEFAULT_DRAGGING_EDGE_COLOR
+    private val draggingEdgesPaint: Paint
+
+
+    /**
+     * The adjacency list for a weighted graph
+     */
+    private val adjacencyList = listOf<List<Pair<Int, Int>>>()
 
     init {
         verticesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
+        }
+        draggingEdgesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 10f
+            color = draggingEdgeColor
+        }
+        edgesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 10f
+            color = edgeColor
         }
 
     }
@@ -48,18 +96,35 @@ class GraphView @JvmOverloads constructor(
     override fun draw(canvas: Canvas?) {
         super.draw(canvas)
 
+        canvas?.let {
+            drawDraggingEdge(it)
 
-        drawVertices(canvas)
+            drawVertices(it)
+        }
     }
 
-    private fun drawVertices(canvas: Canvas?) {
-        canvas?.let {
-            for (vertex in vertices) {
-                verticesPaint.color = vertex.outerColor
-                it.drawCircle(vertex.x, vertex.y, vertex.outerRadius, verticesPaint)
-                verticesPaint.color = vertex.innerColor
-                it.drawCircle(vertex.x, vertex.y, vertex.innerRadius, verticesPaint)
-            }
+    /**
+     * draw a dragging edge if the user touched a vertex and start moving his finger,
+     * the line should be drawn from the vertex position to the position of his finger
+     */
+    private fun drawDraggingEdge(canvas: Canvas) {
+        if (draggingVertex != null && draggingEdgeFingerPosition != null) {
+            canvas.drawLine(
+                draggingVertex!!.x,
+                draggingVertex!!.y,
+                draggingEdgeFingerPosition!!.first,
+                draggingEdgeFingerPosition!!.second,
+                draggingEdgesPaint
+            )
+        }
+    }
+
+    private fun drawVertices(canvas: Canvas) {
+        for (vertex in vertices) {
+            verticesPaint.color = vertex.outerColor
+            canvas.drawCircle(vertex.x, vertex.y, vertex.outerRadius, verticesPaint)
+            verticesPaint.color = vertex.innerColor
+            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, verticesPaint)
         }
     }
 
@@ -74,17 +139,48 @@ class GraphView @JvmOverloads constructor(
                     )
 
                     // The user touched on an already exists vertex => start dragging an edge
-                    if(distance < vertexOuterRadius){
-                        // TODO: Start dragging edge
-
+                    if (distance < vertexOuterRadius) {
+                        draggingVertex = vertex
                         return true
                     }
 
                     // The user touched a point close to another vertex and they will overlap
-                    if(distance < 2 * vertexOuterRadius) return true
+                    if (distance < 2 * vertexOuterRadius) return true
 
                 }
                 addVertexItem(event.x, event.y)
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                if (draggingVertex != null) {
+                    draggingEdgeFingerPosition = event.x to event.y
+                    invalidate()
+                }
+            }
+
+            MotionEvent.ACTION_UP -> {
+                // The user was dragging an edge and he left his finger off screen
+                if (draggingVertex != null) {
+                    for (vertex in vertices) {
+                        val distance = distance(
+                            event.x.toDouble(), event.y.toDouble(),
+                            vertex.x.toDouble(), vertex.y.toDouble()
+                        )
+
+                        // The user left his finger off screen and it was over a vertex, create an edge
+                        if (distance < vertexOuterRadius) {
+                            // TODO: Create an edge between vertex and draggingVertex
+
+                            break
+                        }
+
+                    }
+
+
+                    draggingVertex = null
+                    draggingEdgeFingerPosition = null
+                    invalidate()
+                }
             }
 
 
