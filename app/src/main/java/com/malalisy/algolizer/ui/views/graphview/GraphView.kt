@@ -73,7 +73,7 @@ class GraphView @JvmOverloads constructor(
     /**
      * The adjacency list for a weighted graph
      */
-    private val adjacencyList = listOf<List<Pair<Int, Int>>>()
+    private val adjacencyList = mutableListOf<MutableList<Pair<Int, Int>>>()
 
     init {
         verticesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -133,10 +133,7 @@ class GraphView @JvmOverloads constructor(
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 for (vertex in vertices) {
-                    val distance = distance(
-                        event.x.toDouble(), event.y.toDouble(),
-                        vertex.x.toDouble(), vertex.y.toDouble()
-                    )
+                    val distance = vertex distanceTo (event.x to event.y)
 
                     // The user touched on an already exists vertex => start dragging an edge
                     if (distance < vertexOuterRadius) {
@@ -160,20 +157,21 @@ class GraphView @JvmOverloads constructor(
 
             MotionEvent.ACTION_UP -> {
                 // The user was dragging an edge and he left his finger off screen
-                if (draggingVertex != null) {
+                if (draggingVertex != null && draggingEdgeFingerPosition != null) {
                     for (vertex in vertices) {
-                        val distance = distance(
-                            event.x.toDouble(), event.y.toDouble(),
-                            vertex.x.toDouble(), vertex.y.toDouble()
-                        )
+                        val distance = vertex distanceTo draggingEdgeFingerPosition!!
+
 
                         // The user left his finger off screen and it was over a vertex, create an edge
                         if (distance < vertexOuterRadius) {
-                            // TODO: Create an edge between vertex and draggingVertex
-
+                            // Make sure the two vertices are not connected
+                            for (edge in adjacencyList[draggingVertex!!.number]) {
+                                if (edge.first == vertex.number) break
+                            }
+                            adjacencyList[draggingVertex!!.number].add(vertex.number to 0)
+                            adjacencyList[vertex.number].add(draggingVertex!!.number to 0)
                             break
                         }
-
                     }
 
 
@@ -198,6 +196,7 @@ class GraphView @JvmOverloads constructor(
             0f, 0f, 0, 0
         )
         vertices.add(vertexViewItem)
+        adjacencyList.add(mutableListOf())
 
         val innerRadiusProperty =
             PropertyValuesHolder.ofFloat("innerRadius", 25f, vertexInnerRadius)
@@ -245,7 +244,6 @@ class GraphView @JvmOverloads constructor(
 
 
     }
-
 
     private data class VertexViewItem(
         val number: Int,
