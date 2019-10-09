@@ -3,14 +3,20 @@ package com.malalisy.algolizer.ui.views.graphview
 import android.animation.*
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.ColorDrawable
-import android.text.Layout
-import android.text.StaticLayout
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import com.malalisy.algolizer.utils.distance
+import android.view.KeyEvent
+import android.view.inputmethod.InputMethodManager
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.InputConnection
+import android.text.*
+import android.util.Log
+import com.malalisy.algolizer.utils.midPoint
+
 
 class GraphView @JvmOverloads constructor(
     context: Context?,
@@ -28,8 +34,9 @@ class GraphView @JvmOverloads constructor(
         /**
          * default colors for the inner & outer circles
          */
-        val DEFAULT_VERTEX_INNER_COLOR = Color.parseColor("#FF9800")
+        val DEFAULT_VERTEX_INNER_COLOR = Color.parseColor("#FF673AB7")
         val DEFAULT_VERTEX_OUTER_COLOR = Color.parseColor("#FF673AB7")
+        val DEFAULT_EDGE_LABEL_BG = Color.parseColor("#FF9800")
         /**
          * default color for transitioning between the background color and the color for a vertex
          */
@@ -55,13 +62,22 @@ class GraphView @JvmOverloads constructor(
     private val verticesPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
+    private val edgeWeightBgPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = DEFAULT_EDGE_LABEL_BG
+    }
     private val vertixLabelPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         textSize = 16 * resources.displayMetrics.density
         color = Color.WHITE
         textAlign = Paint.Align.CENTER
     }
-    private val textBoundRect = Rect()
+    private val edgeWeightPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        textSize = 12 * resources.displayMetrics.density
+        color = Color.WHITE
+        textAlign = Paint.Align.CENTER
+    }
     private val edgesPaint: Paint
 
     /**
@@ -74,6 +90,9 @@ class GraphView @JvmOverloads constructor(
      * The position of the user finger when he moves it after touching a vertex
      */
     private var draggingEdgeFingerPosition: Pair<Float, Float>? = null
+
+    private var lastEdge: Pair<Int, Int>? = null
+    private var lastEdgeWeight = 0
 
     private var draggingEdgeColor = DEFAULT_DRAGGING_EDGE_COLOR
     private val draggingEdgesPaint: Paint
@@ -96,76 +115,59 @@ class GraphView @JvmOverloads constructor(
             color = edgeColor
         }
 
-    }
 
+        isFocusable = true
+        setFocusableInTouchMode(true)
+        setOnKeyListener { v, keyCode, event ->
+            if (event.action != KeyEvent.ACTION_UP) return@setOnKeyListener false
 
-    override fun draw(canvas: Canvas?) {
-        super.draw(canvas)
+            if (lastEdge == null) return@setOnKeyListener false
+            when {
+                keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9 -> {
+                    if (lastEdgeWeight >= 10) return@setOnKeyListener false
 
-        canvas?.let {
-            drawDraggingEdge(it)
+                    lastEdgeWeight = lastEdgeWeight * 10 + (keyCode - KeyEvent.KEYCODE_0)
+                }
+                keyCode == KeyEvent.KEYCODE_DEL -> {
+                    lastEdgeWeight /= 10
+                }
+                keyCode == KeyEvent.KEYCODE_ENTER -> {
+                    if (lastEdgeWeight == 0) return@setOnKeyListener false
+                    adjacencyList[lastEdge!!.first].add(lastEdge!!.second to lastEdgeWeight)
+                    adjacencyList[lastEdge!!.second].add(lastEdge!!.first to lastEdgeWeight)
+                    toggleKeyboard()
+                    lastEdge = null
+                    lastEdgeWeight = 0
 
-            drawEdges(it)
-
-            drawVertices(it)
-        }
-    }
-
-    /**
-     * draw a dragging edge if the user touched a vertex and start moving his finger,
-     * the line should be drawn from the vertex position to the position of his finger
-     */
-    private fun drawDraggingEdge(canvas: Canvas) {
-        if (draggingVertex != null && draggingEdgeFingerPosition != null) {
-            canvas.drawLine(
-                draggingVertex!!.x,
-                draggingVertex!!.y,
-                draggingEdgeFingerPosition!!.first,
-                draggingEdgeFingerPosition!!.second,
-                draggingEdgesPaint
-            )
-        }
-    }
-
-    /**
-     * draw the edges between vertices using the adjacencyList
-     */
-    private fun drawEdges(canvas: Canvas) {
-        for (i in 0 until adjacencyList.size) {
-            for (edge in adjacencyList[i]) {
-                val target = vertices[edge.first]
-                canvas.drawLine(
-                    vertices[i].x,
-                    vertices[i].y,
-                    target.x,
-                    target.y,
-                    edgesPaint
-                )
-
+                }
             }
+            invalidate()
+
+            false
         }
     }
 
-    private fun drawVertices(canvas: Canvas) {
-        var label: String
-        for (vertex in vertices) {
-            verticesPaint.color = vertex.outerColor
-            canvas.drawCircle(vertex.x, vertex.y, vertex.outerRadius, verticesPaint)
-            verticesPaint.color = vertex.innerColor
-            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, verticesPaint)
-            label = (vertex.number + 1).toString()
 
-            canvas.drawText(
-                label,
-                vertex.x,
-                vertex.y - (vertixLabelPaint.ascent() + vertixLabelPaint.descent()) / 2,
-                vertixLabelPaint
-            )
+    override fun onCheckIsTextEditor(): Boolean {
+        return true
+    }
 
-        }
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        isFocusableInTouchMode = true
+    }
+
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
+        val fic = BaseInputConnection(this, false)
+        outAttrs.inputType = InputType.TYPE_CLASS_NUMBER
+        outAttrs.imeOptions = EditorInfo.IME_ACTION_DONE
+
+
+        return fic
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (lastEdge != null) return true
 
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -208,6 +210,7 @@ class GraphView @JvmOverloads constructor(
                 // The user was dragging an edge and he left his finger off screen
                 if (draggingVertex != null && draggingEdgeFingerPosition != null) {
                     for (vertex in vertices) {
+                        if (draggingVertex!!.number == vertex.number) continue
                         val distance = vertex distanceTo draggingEdgeFingerPosition!!
 
 
@@ -217,8 +220,8 @@ class GraphView @JvmOverloads constructor(
                             for (edge in adjacencyList[draggingVertex!!.number]) {
                                 if (edge.first == vertex.number) break
                             }
-                            adjacencyList[draggingVertex!!.number].add(vertex.number to 0)
-                            adjacencyList[vertex.number].add(draggingVertex!!.number to 0)
+                            toggleKeyboard()
+                            lastEdge = vertex.number to draggingVertex!!.number
                             break
                         }
                     }
@@ -235,8 +238,13 @@ class GraphView @JvmOverloads constructor(
 
 
 
-
         return true
+    }
+
+    fun toggleKeyboard() {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY)
+
     }
 
     private fun addVertexItem(x: Float, y: Float) {
@@ -294,6 +302,112 @@ class GraphView @JvmOverloads constructor(
 
     }
 
+
+    override fun draw(canvas: Canvas?) {
+        super.draw(canvas)
+
+        canvas?.let {
+            drawDraggingEdge(it)
+
+            drawEdges(it)
+
+            drawVertices(it)
+        }
+    }
+
+    /**
+     * draw a dragging edge if the user touched a vertex and start moving his finger,
+     * the line should be drawn from the vertex position to the position of his finger
+     */
+    private fun drawDraggingEdge(canvas: Canvas) {
+        if (draggingVertex != null && draggingEdgeFingerPosition != null) {
+            canvas.drawLine(
+                draggingVertex!!.x,
+                draggingVertex!!.y,
+                draggingEdgeFingerPosition!!.first,
+                draggingEdgeFingerPosition!!.second,
+                draggingEdgesPaint
+            )
+        }
+    }
+
+    /**
+     * draw the edges between vertices using the adjacencyList
+     */
+    private fun drawEdges(canvas: Canvas) {
+        var label: String
+        for (i in 0 until adjacencyList.size) {
+            for (edge in adjacencyList[i]) {
+                val target = vertices[edge.first]
+                canvas.drawLine(
+                    vertices[i].x,
+                    vertices[i].y,
+                    target.x,
+                    target.y,
+                    edgesPaint
+                )
+
+                label = (edge.second).toString()
+                val pos = midPoint(vertices[i].x, vertices[i].y, target.x, target.y)
+
+                canvas.drawCircle(pos.first, pos.second, vertexOuterRadius / 2, edgeWeightBgPaint)
+
+                drawTextCenter(canvas, pos.first, pos.second, label, edgeWeightPaint)
+
+            }
+        }
+
+
+        lastEdge?.let {
+            canvas.drawLine(
+                vertices[lastEdge!!.first].x,
+                vertices[lastEdge!!.first].y,
+                vertices[lastEdge!!.second].x,
+                vertices[lastEdge!!.second].y,
+                edgesPaint
+            )
+
+            label = lastEdgeWeight.toString()
+            val pos = midPoint(
+                vertices[lastEdge!!.first].x,
+                vertices[lastEdge!!.first].y,
+                vertices[lastEdge!!.second].x,
+                vertices[lastEdge!!.second].y
+            )
+
+            canvas.drawCircle(pos.first, pos.second, vertexOuterRadius / 2, edgeWeightBgPaint)
+
+            drawTextCenter(canvas, pos.first, pos.second, label, edgeWeightPaint)
+        }
+
+
+    }
+
+    private fun drawVertices(canvas: Canvas) {
+        var label: String
+        for (vertex in vertices) {
+            verticesPaint.color = vertex.outerColor
+            canvas.drawCircle(vertex.x, vertex.y, vertex.outerRadius, verticesPaint)
+            verticesPaint.color = vertex.innerColor
+            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, verticesPaint)
+            label = (vertex.number + 1).toString()
+
+            drawTextCenter(canvas, vertex.x, vertex.y, label, vertixLabelPaint)
+
+        }
+    }
+
+
+    private fun drawTextCenter(canvas: Canvas, x: Float, y: Float, text: String, paint: Paint) {
+        canvas.drawText(
+            text,
+            x,
+            y - (paint.ascent() + paint.descent()) / 2,
+            paint
+        )
+    }
+
+
     private data class VertexViewItem(
         val number: Int,
         val x: Float,
@@ -321,3 +435,4 @@ class GraphView @JvmOverloads constructor(
 
     }
 }
+
