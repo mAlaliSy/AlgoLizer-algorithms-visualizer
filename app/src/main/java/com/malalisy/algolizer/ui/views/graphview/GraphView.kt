@@ -2,10 +2,10 @@ package com.malalisy.algolizer.ui.views.graphview
 
 import android.animation.*
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.graphics.drawable.ColorDrawable
+import android.text.Layout
+import android.text.StaticLayout
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -52,7 +52,16 @@ class GraphView @JvmOverloads constructor(
 
     private var edgeColor = DEFAULT_EDGE_COLOR
 
-    private val verticesPaint: Paint
+    private val verticesPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+    private val vertixLabelPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        textSize = 16 * resources.displayMetrics.density
+        color = Color.WHITE
+        textAlign = Paint.Align.CENTER
+    }
+    private val textBoundRect = Rect()
     private val edgesPaint: Paint
 
     /**
@@ -76,9 +85,6 @@ class GraphView @JvmOverloads constructor(
     private val adjacencyList = mutableListOf<MutableList<Pair<Int, Int>>>()
 
     init {
-        verticesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.FILL
-        }
         draggingEdgesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
             strokeWidth = 10f
@@ -141,11 +147,21 @@ class GraphView @JvmOverloads constructor(
     }
 
     private fun drawVertices(canvas: Canvas) {
+        var label: String
         for (vertex in vertices) {
             verticesPaint.color = vertex.outerColor
             canvas.drawCircle(vertex.x, vertex.y, vertex.outerRadius, verticesPaint)
             verticesPaint.color = vertex.innerColor
             canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, verticesPaint)
+            label = (vertex.number + 1).toString()
+
+            canvas.drawText(
+                label,
+                vertex.x,
+                vertex.y - (vertixLabelPaint.ascent() + vertixLabelPaint.descent()) / 2,
+                vertixLabelPaint
+            )
+
         }
     }
 
@@ -174,8 +190,8 @@ class GraphView @JvmOverloads constructor(
                     draggingEdgeFingerPosition = event.x to event.y
 
                     /**
-                     * Add snap effect:
-                     * when the user hover nearly to a vertex, the dragging edge will be snapped
+                     * Add snapping effect:
+                     * when the user hover nearby a vertex, the dragging edge will be snapped
                      * to that vertex
                      */
                     for (vertex in vertices)
@@ -232,9 +248,9 @@ class GraphView @JvmOverloads constructor(
         adjacencyList.add(mutableListOf())
 
         val innerRadiusProperty =
-            PropertyValuesHolder.ofFloat("innerRadius", 25f, vertexInnerRadius)
+            PropertyValuesHolder.ofFloat("innerRadius", vertexOuterRadius / 2, vertexInnerRadius)
         val outerRadiusProperty =
-            PropertyValuesHolder.ofFloat("outerRadius", 0f, vertexOuterRadius)
+            PropertyValuesHolder.ofFloat("outerRadius", vertexInnerRadius / 2, vertexOuterRadius)
         val innerColorProperty =
             PropertyValuesHolder.ofObject(
                 "innerColor",
