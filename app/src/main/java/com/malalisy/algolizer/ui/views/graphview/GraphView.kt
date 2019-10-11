@@ -51,7 +51,7 @@ class GraphView @JvmOverloads constructor(
         const val VERTEX_DELETE_RADIUS = DEFAULT_VERTEX_OUTER_RADIUS * 1.5f
     }
 
-    private val vertices: MutableList<VertexViewItem> = mutableListOf()
+    private val vertices: MutableList<VertexViewItem?> = mutableListOf()
 
     /*
     * editing vertex mode is the mode where the user can drag a vertex (change its location) or
@@ -237,6 +237,8 @@ class GraphView @JvmOverloads constructor(
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 for (vertex in vertices) {
+                    if (vertex == null) continue
+
                     val distance = vertex distanceTo (event.x to event.y)
 
                     // The user touched on an already exists vertex => start dragging an edge
@@ -248,15 +250,19 @@ class GraphView @JvmOverloads constructor(
 
                     // The user touched a point close to another vertex and they will overlap
                     if (distance < 2 * vertexOuterRadius) return true
-
                 }
                 addVertexItem(event.x, event.y)
             }
 
             MotionEvent.ACTION_MOVE -> {
+                /*
+                 * a vertex already picked(clicked), either to create an edge
+                 * or to move/delete the vertex
+                 */
                 if (draggingVertex != null) {
-
+                    // the vertex was long-pressed, the editing (moving/deletion) mode is enabled
                     if (vertexEditingMode) {
+                        // check if the dragging vertex is close enough to the deletion circle
                         vertexDraggedToDelete = isVertexDraggedToDelete(event.x, event.y)
                         if (!vertexDraggedToDelete) {
                             draggingVertex!!.x = event.x
@@ -264,8 +270,6 @@ class GraphView @JvmOverloads constructor(
 
                             updateDeleteVertexLocation()
                         }
-
-
                         invalidate()
                         return true
                     }
@@ -276,24 +280,30 @@ class GraphView @JvmOverloads constructor(
                     }
 
                     draggingEdgeFingerPosition = event.x to event.y
-
                     /*
                      * Add snapping effect:
                      * when the user hover nearby a vertex, the dragging edge will be snapped
                      * to that vertex
                      */
-                    for (vertex in vertices)
+                    for (vertex in vertices) {
+                        if (vertex == null) continue
                         if (vertex distanceTo draggingEdgeFingerPosition!! < (vertexOuterRadius * 1.4)) {
                             draggingEdgeFingerPosition = vertex.x to vertex.y
                             break
                         }
-
+                    }
                     invalidate()
                 }
             }
 
             MotionEvent.ACTION_UP -> {
                 if (vertexEditingMode) {
+                    if (vertexDraggedToDelete) {
+                        deleteDraggingVertex()
+                        vertexDraggedToDelete = false
+                    }
+
+
                     vertexEditingMode = false
                     draggingVertex = null
                     deleteVertexCircleLocation = deleteVertexCircleBaseLocation
@@ -306,9 +316,9 @@ class GraphView @JvmOverloads constructor(
                 // The user was dragging an edge and he left his finger off screen
                 if (draggingVertex != null && draggingEdgeFingerPosition != null) {
                     for (vertex in vertices) {
+                        if (vertex == null) continue
                         if (draggingVertex!!.number == vertex.number) continue
                         val distance = vertex distanceTo draggingEdgeFingerPosition!!
-
 
                         // The user left his finger off screen and it was over a vertex, create an edge
                         if (distance < vertexOuterRadius) {
@@ -322,19 +332,17 @@ class GraphView @JvmOverloads constructor(
                         }
                     }
 
-
                     draggingVertex = null
                     draggingEdgeFingerPosition = null
                     invalidate()
                 }
             }
-
-
         }
-
-
-
         return true
+    }
+
+    private fun deleteDraggingVertex() {
+        vertices[draggingVertex!!.number] = null
     }
 
     private fun updateDeleteVertexLocation() {
@@ -471,6 +479,7 @@ class GraphView @JvmOverloads constructor(
     private fun drawEdges(canvas: Canvas) {
         var label: String
         for (i in 0 until adjacencyList.size) {
+            if (vertices[i] == null) continue
             val x: Float
             val y: Float
 
@@ -478,12 +487,12 @@ class GraphView @JvmOverloads constructor(
                 x = deleteVertexCircleLocation.first
                 y = deleteVertexCircleLocation.second
             } else {
-                x = vertices[i].x
-                y = vertices[i].y
+                x = vertices[i]!!.x
+                y = vertices[i]!!.y
             }
 
             for (edge in adjacencyList[i]) {
-                val target = vertices[edge.first]
+                val target = vertices[edge.first] ?: continue
                 val x2: Float
                 val y2: Float
                 if (vertexEditingMode && target == draggingVertex && vertexDraggedToDelete) {
@@ -512,20 +521,21 @@ class GraphView @JvmOverloads constructor(
             }
         }
         lastEdge?.let {
+            if (vertices[lastEdge!!.first] == null || vertices[lastEdge!!.second] == null) return
             canvas.drawLine(
-                vertices[lastEdge!!.first].x,
-                vertices[lastEdge!!.first].y,
-                vertices[lastEdge!!.second].x,
-                vertices[lastEdge!!.second].y,
+                vertices[lastEdge!!.first]!!.x,
+                vertices[lastEdge!!.first]!!.y,
+                vertices[lastEdge!!.second]!!.x,
+                vertices[lastEdge!!.second]!!.y,
                 edgesPaint
             )
 
             label = lastEdgeWeight.toString()
             val pos = midPoint(
-                vertices[lastEdge!!.first].x,
-                vertices[lastEdge!!.first].y,
-                vertices[lastEdge!!.second].x,
-                vertices[lastEdge!!.second].y
+                vertices[lastEdge!!.first]!!.x,
+                vertices[lastEdge!!.first]!!.y,
+                vertices[lastEdge!!.second]!!.x,
+                vertices[lastEdge!!.second]!!.y
             )
 
             canvas.drawCircle(pos.first, pos.second, vertexOuterRadius / 2, edgeWeightBgPaint)
@@ -538,7 +548,7 @@ class GraphView @JvmOverloads constructor(
 
     private fun drawVertices(canvas: Canvas) {
         for (vertex in vertices) {
-            if (vertexEditingMode && vertex == draggingVertex) continue
+            if (vertexEditingMode && vertex == draggingVertex || vertex == null) continue
             drawVertex(canvas, vertex)
         }
     }
