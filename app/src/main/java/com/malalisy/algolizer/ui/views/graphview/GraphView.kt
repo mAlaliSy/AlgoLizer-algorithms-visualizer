@@ -14,7 +14,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputConnection
 import android.text.*
-import android.util.Log
 import com.malalisy.algolizer.utils.midPoint
 
 
@@ -46,6 +45,9 @@ class GraphView @JvmOverloads constructor(
         val DEFAULT_DRAGGING_EDGE_COLOR = Color.parseColor("#cccccc")
         val DEFAULT_EDGE_COLOR = Color.parseColor("#424242")
 
+        val VERTEX_DELETE_CIRCLE_BG = Color.parseColor("#88000000")
+        val VERTEX_DELETE_CIRCLE_BG_DRAGGED = Color.parseColor("#88FF0000")
+        val VERTEX_DELETE_RADUIS = DEFAULT_VERTEX_OUTER_RADIUS * 1.5f
 
     }
 
@@ -86,7 +88,7 @@ class GraphView @JvmOverloads constructor(
     private var vertexOuterColor = DEFAULT_VERTEX_OUTER_COLOR
     private var edgeColor = DEFAULT_EDGE_COLOR
 
-    private val verticesPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val solidPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
@@ -345,6 +347,8 @@ class GraphView @JvmOverloads constructor(
             drawEdges(it)
 
             drawVertices(it)
+
+            drawVertexDeleteCircle(canvas)
         }
     }
 
@@ -418,16 +422,36 @@ class GraphView @JvmOverloads constructor(
     private fun drawVertices(canvas: Canvas) {
         var label: String
         for (vertex in vertices) {
-            verticesPaint.color = vertex.outerColor
+            solidPaint.color = vertex.outerColor
             val raduis =
                 if (vertexEditingMode && vertex == draggingVertex) vertexOuterRadius * 1.2f else vertex.outerRadius
-            canvas.drawCircle(vertex.x, vertex.y, raduis, verticesPaint)
-//            verticesPaint.color = vertex.innerColor
-//            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, verticesPaint)
+            canvas.drawCircle(vertex.x, vertex.y, raduis, solidPaint)
+//            solidPaint.color = vertex.innerColor
+//            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, solidPaint)
             label = (vertex.number + 1).toString()
 
             drawTextCenter(canvas, vertex.x, vertex.y, label, vertixLabelPaint)
 
+        }
+    }
+
+    private fun drawVertexDeleteCircle(canvas: Canvas) {
+        if (vertexEditingMode) {
+            val x = width / 2f
+            val y = height - 3 * VERTEX_DELETE_RADUIS
+            var raduis: Float
+
+
+            if (draggingVertex!!.distanceTo(x to y) < VERTEX_DELETE_RADUIS + vertexOuterRadius) {
+                solidPaint.color = VERTEX_DELETE_CIRCLE_BG_DRAGGED
+                raduis = VERTEX_DELETE_RADUIS * 1.3f
+            } else {
+                solidPaint.color = VERTEX_DELETE_CIRCLE_BG
+                raduis = VERTEX_DELETE_RADUIS
+            }
+
+            canvas.drawCircle(x, y, raduis, solidPaint)
+            drawTextCenter(canvas, x, y, "x", vertixLabelPaint)
         }
     }
 
