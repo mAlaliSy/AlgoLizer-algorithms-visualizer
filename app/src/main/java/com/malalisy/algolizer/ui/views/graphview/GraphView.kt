@@ -434,19 +434,39 @@ class GraphView @JvmOverloads constructor(
     private fun drawEdges(canvas: Canvas) {
         var label: String
         for (i in 0 until adjacencyList.size) {
+            val x: Float
+            val y: Float
+
+            if (vertexEditingMode && vertices[i] == draggingVertex && vertexDraggedToDelete) {
+                x = deleteVertexCircleLocation.first
+                y = deleteVertexCircleLocation.second
+            } else {
+                x = vertices[i].x
+                y = vertices[i].y
+            }
+
             for (edge in adjacencyList[i]) {
                 val target = vertices[edge.first]
+                val x2: Float
+                val y2: Float
+                if (vertexEditingMode && target == draggingVertex && vertexDraggedToDelete) {
+                    x2 = deleteVertexCircleLocation.first
+                    y2 = deleteVertexCircleLocation.second
+                } else {
+                    x2 = target.x
+                    y2 = target.y
+                }
 
                 canvas.drawLine(
-                    vertices[i].x,
-                    vertices[i].y,
-                    target.x,
-                    target.y,
+                    x,
+                    y,
+                    x2,
+                    y2,
                     edgesPaint
                 )
 
                 label = (edge.second).toString()
-                val pos = midPoint(vertices[i].x, vertices[i].y, target.x, target.y)
+                val pos = midPoint(x, y, x2, y2)
 
                 canvas.drawCircle(pos.first, pos.second, vertexOuterRadius / 2, edgeWeightBgPaint)
 
