@@ -25,21 +25,22 @@ class GraphView @JvmOverloads constructor(
 ) : View(context, attrs, defstyle) {
 
     companion object {
-        /**
-         * default radius for the inner & outer circles
-         */
+
+        // default radius for the inner & outer circles
         const val DEFAULT_VERTEX_INNER_RADIUS = 50f
 
         const val DEFAULT_VERTEX_OUTER_RADIUS = 60f
-        /**
-         * default colors for the inner & outer circles
-         */
+
+        // Long press time in millis
+        const val LONG_PRESS_TIME = 500L
+
+
+        // default colors for the inner & outer circles
         val DEFAULT_VERTEX_INNER_COLOR = Color.parseColor("#FF673AB7")
         val DEFAULT_VERTEX_OUTER_COLOR = Color.parseColor("#FF673AB7")
         val DEFAULT_EDGE_LABEL_BG = Color.parseColor("#FF9800")
-        /**
-         * default color for transitioning between the background color and the color for a vertex
-         */
+
+        // default color for transitioning between the background color and the color for a vertex
         val DEFAULT_TRANSITION_COLOR = Color.parseColor("#FFF04C7F")
 
         val DEFAULT_DRAGGING_EDGE_COLOR = Color.parseColor("#cccccc")
@@ -50,18 +51,44 @@ class GraphView @JvmOverloads constructor(
 
     private val vertices: MutableList<VertexViewItem> = mutableListOf()
 
+    private var vertexEditingMode: Boolean = false
+    private val startVertexEditingModeRunnable: Runnable = Runnable {
+        vertexEditingMode = true
+    }
+
+    /**
+     * The vertex that the user start dragging from it, so he intended to add an edge from it to the
+     * vertex he move his finger up on it
+     */
+    private var draggingVertex: VertexViewItem? = null
+
+    /**
+     * The position of the user finger when he moves it after touching a vertex
+     */
+    private var draggingEdgeFingerPosition: Pair<Float, Float>? = null
+
+    private var lastEdge: Pair<Int, Int>? = null
+
+    private var lastEdgeWeight = 0
+    /**
+     * The adjacency list for a weighted graph
+     */
+    private val adjacencyList = mutableListOf<MutableList<Pair<Int, Int>>>()
+
+
     private var vertexInnerRadius = DEFAULT_VERTEX_INNER_RADIUS
+
     private var vertexOuterRadius = DEFAULT_VERTEX_OUTER_RADIUS
     private var transitionColor = DEFAULT_TRANSITION_COLOR
-
     private var vertexInnerColor = DEFAULT_VERTEX_INNER_COLOR
-    private var vertexOuterColor = DEFAULT_VERTEX_OUTER_COLOR
 
+    private var vertexOuterColor = DEFAULT_VERTEX_OUTER_COLOR
     private var edgeColor = DEFAULT_EDGE_COLOR
 
     private val verticesPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
+
     private val edgeWeightBgPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = DEFAULT_EDGE_LABEL_BG
@@ -79,29 +106,9 @@ class GraphView @JvmOverloads constructor(
         textAlign = Paint.Align.CENTER
     }
     private val edgesPaint: Paint
-
-    /**
-     * The vertex that the user start dragging from it, so he intended to add an edge from it to the
-     * vertex he move his finger up on it
-     */
-    private var draggingVertex: VertexViewItem? = null
-
-    /**
-     * The position of the user finger when he moves it after touching a vertex
-     */
-    private var draggingEdgeFingerPosition: Pair<Float, Float>? = null
-
-    private var lastEdge: Pair<Int, Int>? = null
-    private var lastEdgeWeight = 0
-
     private var draggingEdgeColor = DEFAULT_DRAGGING_EDGE_COLOR
     private val draggingEdgesPaint: Paint
 
-
-    /**
-     * The adjacency list for a weighted graph
-     */
-    private val adjacencyList = mutableListOf<MutableList<Pair<Int, Int>>>()
 
     init {
         draggingEdgesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -140,6 +147,8 @@ class GraphView @JvmOverloads constructor(
                     lastEdgeWeight = 0
 
                 }
+
+
             }
             invalidate()
 
@@ -147,10 +156,10 @@ class GraphView @JvmOverloads constructor(
         }
     }
 
-
     override fun onCheckIsTextEditor(): Boolean {
         return true
     }
+
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -177,6 +186,7 @@ class GraphView @JvmOverloads constructor(
                     // The user touched on an already exists vertex => start dragging an edge
                     if (distance < vertexOuterRadius) {
                         draggingVertex = vertex
+                        handler.postDelayed(startVertexEditingModeRunnable, LONG_PRESS_TIME)
                         return true
                     }
 
@@ -189,6 +199,20 @@ class GraphView @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 if (draggingVertex != null) {
+
+                    if (vertexEditingMode) {
+                        draggingVertex!!.x = event.x
+                        draggingVertex!!.y = event.y
+
+                        invalidate()
+                        return true
+                    }
+
+                    // Check if it is long press on vertex, change the vertex position
+                    if (draggingVertex!!.distanceTo(event.x to event.y) > vertexOuterRadius) {
+                        handler.removeCallbacks(startVertexEditingModeRunnable)
+                    }
+
                     draggingEdgeFingerPosition = event.x to event.y
 
                     /**
@@ -207,6 +231,12 @@ class GraphView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP -> {
+                if (vertexEditingMode) {
+                    vertexEditingMode = false
+                    draggingVertex = null
+                    return true
+                }
+
                 // The user was dragging an edge and he left his finger off screen
                 if (draggingVertex != null && draggingEdgeFingerPosition != null) {
                     for (vertex in vertices) {
@@ -240,6 +270,7 @@ class GraphView @JvmOverloads constructor(
 
         return true
     }
+
 
     fun toggleKeyboard() {
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -320,7 +351,8 @@ class GraphView @JvmOverloads constructor(
      * the line should be drawn from the vertex position to the position of his finger
      */
     private fun drawDraggingEdge(canvas: Canvas) {
-        if (draggingVertex != null && draggingEdgeFingerPosition != null) {
+        // Don't draw the dragging edge if the user is trying to edit the vertex location
+        if (!vertexEditingMode && draggingVertex != null && draggingEdgeFingerPosition != null) {
             canvas.drawLine(
                 draggingVertex!!.x,
                 draggingVertex!!.y,
@@ -356,8 +388,6 @@ class GraphView @JvmOverloads constructor(
 
             }
         }
-
-
         lastEdge?.let {
             canvas.drawLine(
                 vertices[lastEdge!!.first].x,
@@ -410,8 +440,8 @@ class GraphView @JvmOverloads constructor(
 
     private data class VertexViewItem(
         val number: Int,
-        val x: Float,
-        val y: Float,
+        var x: Float,
+        var y: Float,
         var innerRadius: Float,
         var outerRadius: Float,
         var innerColor: Int,
