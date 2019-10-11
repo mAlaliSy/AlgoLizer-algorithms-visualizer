@@ -32,7 +32,7 @@ class GraphView @JvmOverloads constructor(
         const val DEFAULT_VERTEX_OUTER_RADIUS = 60f
 
         // Long press time in millis
-        const val LONG_PRESS_TIME = 500L
+        const val LONG_PRESS_TIME = 400L
 
 
         // default colors for the inner & outer circles
@@ -54,6 +54,7 @@ class GraphView @JvmOverloads constructor(
     private var vertexEditingMode: Boolean = false
     private val startVertexEditingModeRunnable: Runnable = Runnable {
         vertexEditingMode = true
+        invalidate()
     }
 
     /**
@@ -234,6 +235,7 @@ class GraphView @JvmOverloads constructor(
                 if (vertexEditingMode) {
                     vertexEditingMode = false
                     draggingVertex = null
+                    invalidate()
                     return true
                 }
 
@@ -417,9 +419,11 @@ class GraphView @JvmOverloads constructor(
         var label: String
         for (vertex in vertices) {
             verticesPaint.color = vertex.outerColor
-            canvas.drawCircle(vertex.x, vertex.y, vertex.outerRadius, verticesPaint)
-            verticesPaint.color = vertex.innerColor
-            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, verticesPaint)
+            val raduis =
+                if (vertexEditingMode && vertex == draggingVertex) vertexOuterRadius * 1.2f else vertex.outerRadius
+            canvas.drawCircle(vertex.x, vertex.y, raduis, verticesPaint)
+//            verticesPaint.color = vertex.innerColor
+//            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, verticesPaint)
             label = (vertex.number + 1).toString()
 
             drawTextCenter(canvas, vertex.x, vertex.y, label, vertixLabelPaint)
