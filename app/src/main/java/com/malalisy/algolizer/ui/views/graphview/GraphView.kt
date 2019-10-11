@@ -57,6 +57,7 @@ class GraphView @JvmOverloads constructor(
     private var deleteVertexCircleBaseLocation: Pair<Float, Float> = 0f to 0f
     private var deleteVertexCircleRadius = VERTEX_DELETE_RADUIS / 2f
     private var deleteVertexCircleBg = 0
+    private var vertexDraggedToDelete = false
 
     private val startVertexEditingModeRunnable: Runnable = Runnable {
         vertexEditingMode = true
@@ -238,8 +239,11 @@ class GraphView @JvmOverloads constructor(
                 if (draggingVertex != null) {
 
                     if (vertexEditingMode) {
-                        draggingVertex!!.x = event.x
-                        draggingVertex!!.y = event.y
+                        vertexDraggedToDelete = isVertexDraggedToDelete(event.x, event.y)
+                        if (!vertexDraggedToDelete) {
+                            draggingVertex!!.x = event.x
+                            draggingVertex!!.y = event.y
+                        }
 
                         invalidate()
                         return true
@@ -393,7 +397,7 @@ class GraphView @JvmOverloads constructor(
     private fun drawDraggingVertex(canvas: Canvas) {
         val x: Float
         val y: Float
-        if (isVertexDraggedToDelete()) {
+        if (vertexDraggedToDelete) {
             x = deleteVertexCircleLocation.first
             y = deleteVertexCircleLocation.second
         } else {
@@ -432,6 +436,7 @@ class GraphView @JvmOverloads constructor(
         for (i in 0 until adjacencyList.size) {
             for (edge in adjacencyList[i]) {
                 val target = vertices[edge.first]
+
                 canvas.drawLine(
                     vertices[i].x,
                     vertices[i].y,
@@ -494,7 +499,7 @@ class GraphView @JvmOverloads constructor(
 
     private fun drawVertexDeleteCircle(canvas: Canvas) {
         var raduis: Float
-        val vertexDragged = isVertexDraggedToDelete()
+        val vertexDragged = vertexDraggedToDelete
         if (vertexDragged) {
             solidPaint.color = VERTEX_DELETE_CIRCLE_BG_DRAGGED
             raduis = VERTEX_DELETE_RADUIS * 1.3f
@@ -533,8 +538,13 @@ class GraphView @JvmOverloads constructor(
         )
     }
 
-    private fun isVertexDraggedToDelete() =
-        draggingVertex!!.distanceTo(deleteVertexCircleLocation) < VERTEX_DELETE_RADUIS + vertexOuterRadius
+    private fun isVertexDraggedToDelete(x: Float, y: Float) =
+        distance(
+            x.toDouble(),
+            y.toDouble(),
+            deleteVertexCircleLocation.first.toDouble(),
+            deleteVertexCircleLocation.second.toDouble()
+        ) < VERTEX_DELETE_RADUIS + vertexOuterRadius
 
 
     private data class VertexViewItem(
