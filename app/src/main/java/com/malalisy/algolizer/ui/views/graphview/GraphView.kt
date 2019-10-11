@@ -52,11 +52,36 @@ class GraphView @JvmOverloads constructor(
     }
 
     private val vertices: MutableList<VertexViewItem> = mutableListOf()
-
     private var vertexEditingMode: Boolean = false
+    private var deleteVertexLocation: Pair<Float, Float> = 0f to 0f
+    private var deleteVertexBaseLocation: Pair<Float, Float> = 0f to 0f
+    private var deleteVertexRadius = VERTEX_DELETE_RADUIS / 2f
+    private var deleteVertexBg = 0
+
     private val startVertexEditingModeRunnable: Runnable = Runnable {
         vertexEditingMode = true
-        invalidate()
+        deleteVertexRadius = VERTEX_DELETE_RADUIS / 2f
+        val radiusHolder =
+            PropertyValuesHolder.ofFloat("radius", deleteVertexRadius, VERTEX_DELETE_RADUIS)
+        val alphaHolder =
+            PropertyValuesHolder.ofObject(
+                "alpha",
+                ArgbEvaluator(),
+                Color.TRANSPARENT,
+                VERTEX_DELETE_CIRCLE_BG
+            )
+        ValueAnimator()
+            .run {
+                setValues(radiusHolder, alphaHolder)
+                duration = 100L
+                addUpdateListener {
+                    deleteVertexRadius = it.getAnimatedValue(radiusHolder.propertyName) as Float
+                    deleteVertexBg = it.getAnimatedValue(alphaHolder.propertyName) as Int
+                    invalidate()
+                }
+                interpolator = AccelerateInterpolator()
+                start()
+            }
     }
 
     /**
@@ -446,8 +471,8 @@ class GraphView @JvmOverloads constructor(
                 solidPaint.color = VERTEX_DELETE_CIRCLE_BG_DRAGGED
                 raduis = VERTEX_DELETE_RADUIS * 1.3f
             } else {
-                solidPaint.color = VERTEX_DELETE_CIRCLE_BG
-                raduis = VERTEX_DELETE_RADUIS
+                solidPaint.color = deleteVertexBg
+                raduis = deleteVertexRadius
             }
 
             canvas.drawCircle(x, y, raduis, solidPaint)
