@@ -27,18 +27,12 @@ class GraphView @JvmOverloads constructor(
 
     companion object {
 
-        // default radius for the inner & outer circles
-        const val DEFAULT_VERTEX_INNER_RADIUS = 50f
-
-        const val DEFAULT_VERTEX_OUTER_RADIUS = 60f
+        const val DEFAULT_VERTEX_RADIUS = 50f
 
         // Long press time in millis
         const val LONG_PRESS_TIME = 400L
 
-
-        // default colors for the inner & outer circles
-        val DEFAULT_VERTEX_INNER_COLOR = Color.parseColor("#FF673AB7")
-        val DEFAULT_VERTEX_OUTER_COLOR = Color.parseColor("#FF673AB7")
+        val DEFAULT_VERTEX_COLOR = Color.parseColor("#FF673AB7")
         val DEFAULT_EDGE_LABEL_BG = Color.parseColor("#FF9800")
 
         // default color for transitioning between the background color and the color for a vertex
@@ -49,7 +43,7 @@ class GraphView @JvmOverloads constructor(
 
         val VERTEX_DELETE_CIRCLE_BG = Color.parseColor("#AA000000")
         val VERTEX_DELETE_CIRCLE_BG_DRAGGED = Color.parseColor("#44FF0000")
-        const val VERTEX_DELETE_RADIUS = DEFAULT_VERTEX_OUTER_RADIUS * 1.5f
+        const val VERTEX_DELETE_RADIUS = DEFAULT_VERTEX_RADIUS * 1.5f
     }
 
     private val vertices: MutableList<VertexViewItem?> = mutableListOf()
@@ -123,13 +117,11 @@ class GraphView @JvmOverloads constructor(
     private val adjacencyList = mutableListOf<MutableList<Pair<Int, Int>>>()
 
 
-    private var vertexInnerRadius = DEFAULT_VERTEX_INNER_RADIUS
+    private var vertexRadius = DEFAULT_VERTEX_RADIUS
+    private var vertexColor = DEFAULT_VERTEX_COLOR
 
-    private var vertexOuterRadius = DEFAULT_VERTEX_OUTER_RADIUS
     private var transitionColor = DEFAULT_TRANSITION_COLOR
-    private var vertexInnerColor = DEFAULT_VERTEX_INNER_COLOR
 
-    private var vertexOuterColor = DEFAULT_VERTEX_OUTER_COLOR
     private var edgeColor = DEFAULT_EDGE_COLOR
 
     private val solidPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -245,14 +237,14 @@ class GraphView @JvmOverloads constructor(
                     val distance = vertex distanceTo (event.x to event.y)
 
                     // The user touched on an already exists vertex => start dragging an edge
-                    if (distance < vertexOuterRadius) {
+                    if (distance < vertexRadius) {
                         draggingVertex = vertex
                         handler.postDelayed(startVertexEditingModeRunnable, LONG_PRESS_TIME)
                         return true
                     }
 
                     // The user touched a point close to another vertex and they will overlap
-                    if (distance < 2 * vertexOuterRadius) return true
+                    if (distance < 2 * vertexRadius) return true
                 }
                 addVertexItem(event.x, event.y)
             }
@@ -278,7 +270,7 @@ class GraphView @JvmOverloads constructor(
                     }
 
                     // Check if it is long press on vertex, change the vertex position
-                    if (draggingVertex!!.distanceTo(event.x to event.y) > vertexOuterRadius) {
+                    if (draggingVertex!!.distanceTo(event.x to event.y) > vertexRadius) {
                         handler.removeCallbacks(startVertexEditingModeRunnable)
                     }
 
@@ -290,7 +282,7 @@ class GraphView @JvmOverloads constructor(
                      */
                     for (vertex in vertices) {
                         if (vertex == null) continue
-                        if (vertex distanceTo draggingEdgeFingerPosition!! < (vertexOuterRadius * 1.4)) {
+                        if (vertex distanceTo draggingEdgeFingerPosition!! < (vertexRadius * 1.4)) {
                             draggingEdgeFingerPosition = vertex.x to vertex.y
                             break
                         }
@@ -325,7 +317,7 @@ class GraphView @JvmOverloads constructor(
                         val distance = vertex distanceTo draggingEdgeFingerPosition!!
 
                         // The user left his finger off screen and it was over a vertex, create an edge
-                        if (distance < vertexOuterRadius) {
+                        if (distance < vertexRadius) {
                             // Make sure the two vertices are not connected
                             for (edge in adjacencyList[draggingVertex!!.number]) {
                                 if (edge.first == vertex.number) break
@@ -370,50 +362,31 @@ class GraphView @JvmOverloads constructor(
     }
 
     private fun addVertexItem(x: Float, y: Float) {
-        val vertexViewItem = VertexViewItem(
-            vertices.size, x, y,
-            0f, 0f, 0, 0
-        )
+        val vertexViewItem = VertexViewItem(vertices.size, x, y, 0f, 0)
         vertices.add(vertexViewItem)
         adjacencyList.add(mutableListOf())
 
-        val innerRadiusProperty =
-            PropertyValuesHolder.ofFloat("innerRadius", vertexOuterRadius / 2, vertexInnerRadius)
-        val outerRadiusProperty =
-            PropertyValuesHolder.ofFloat("outerRadius", vertexInnerRadius / 2, vertexOuterRadius)
-        val innerColorProperty =
+        val radiusProperty =
+            PropertyValuesHolder.ofFloat("radius", vertexRadius / 2, vertexRadius)
+
+        val colorProperty =
             PropertyValuesHolder.ofObject(
-                "innerColor",
+                "color",
                 ArgbEvaluator(),
                 transitionColor,
-                vertexInnerColor
-            )
-        val outerColorProperty =
-            PropertyValuesHolder.ofObject(
-                "outerColor",
-                ArgbEvaluator(),
-                transitionColor,
-                vertexOuterColor
+                vertexColor
             )
 
         ValueAnimator().apply {
             setValues(
-                innerRadiusProperty,
-                outerRadiusProperty,
-                innerColorProperty,
-                outerColorProperty
+                radiusProperty,
+                colorProperty
             )
             duration = 300
             addUpdateListener {
-                val innerRadius = it.getAnimatedValue("innerRadius") as Float
-                val outerRadius = it.getAnimatedValue("outerRadius") as Float
-                val innerColor = it.getAnimatedValue("innerColor") as Int
-                val outerColor = it.getAnimatedValue("outerColor") as Int
                 vertexViewItem.run {
-                    this.innerRadius = innerRadius
-                    this.outerRadius = outerRadius
-                    this.innerColor = innerColor
-                    this.outerColor = outerColor
+                    this.radius = it.getAnimatedValue("radius") as Float
+                    this.color = it.getAnimatedValue("color") as Int
                 }
 
                 invalidate()
@@ -453,10 +426,8 @@ class GraphView @JvmOverloads constructor(
             x = draggingVertex!!.x
             y = draggingVertex!!.y
         }
-        solidPaint.color = draggingVertex!!.outerColor
-        canvas.drawCircle(x, y, draggingVertex!!.outerRadius * 1.2f, solidPaint)
-//            solidPaint.color = vertex.innerColor
-//            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, solidPaint)
+        solidPaint.color = draggingVertex!!.color
+        canvas.drawCircle(x, y, draggingVertex!!.radius * 1.2f, solidPaint)
         drawTextCenter(canvas, x, y, (draggingVertex!!.number + 1).toString(), vertixLabelPaint)
     }
 
@@ -506,19 +477,11 @@ class GraphView @JvmOverloads constructor(
                     x2 = target.x
                     y2 = target.y
                 }
-
-                canvas.drawLine(
-                    x,
-                    y,
-                    x2,
-                    y2,
-                    edgesPaint
-                )
-
+                canvas.drawLine(x, y, x2, y2, edgesPaint)
                 label = (edge.second).toString()
                 val pos = midPoint(x, y, x2, y2)
 
-                canvas.drawCircle(pos.first, pos.second, vertexOuterRadius / 2, edgeWeightBgPaint)
+                canvas.drawCircle(pos.first, pos.second, vertexRadius / 2, edgeWeightBgPaint)
 
                 drawTextCenter(canvas, pos.first, pos.second, label, edgeWeightPaint)
 
@@ -542,7 +505,7 @@ class GraphView @JvmOverloads constructor(
                 vertices[lastEdge!!.second]!!.y
             )
 
-            canvas.drawCircle(pos.first, pos.second, vertexOuterRadius / 2, edgeWeightBgPaint)
+            canvas.drawCircle(pos.first, pos.second, vertexRadius / 2, edgeWeightBgPaint)
 
             drawTextCenter(canvas, pos.first, pos.second, label, edgeWeightPaint)
         }
@@ -558,14 +521,9 @@ class GraphView @JvmOverloads constructor(
     }
 
     private fun drawVertex(canvas: Canvas, vertex: VertexViewItem) {
-        solidPaint.color = vertex.outerColor
-
-        canvas.drawCircle(vertex.x, vertex.y, vertex.outerRadius, solidPaint)
-//            solidPaint.color = vertex.innerColor
-//            canvas.drawCircle(vertex.x, vertex.y, vertex.innerRadius, solidPaint)
-
+        solidPaint.color = vertex.color
+        canvas.drawCircle(vertex.x, vertex.y, vertex.radius, solidPaint)
         drawTextCenter(canvas, vertex.x, vertex.y, (vertex.number + 1).toString(), vertixLabelPaint)
-
     }
 
     private fun drawVertexDeleteCircle(canvas: Canvas) {
@@ -615,17 +573,15 @@ class GraphView @JvmOverloads constructor(
             y.toDouble(),
             deleteVertexCircleLocation.first.toDouble(),
             deleteVertexCircleLocation.second.toDouble()
-        ) < VERTEX_DELETE_RADIUS + vertexOuterRadius
+        ) < VERTEX_DELETE_RADIUS + vertexRadius
 
 
     private data class VertexViewItem(
         val number: Int,
         var x: Float,
         var y: Float,
-        var innerRadius: Float,
-        var outerRadius: Float,
-        var innerColor: Int,
-        var outerColor: Int
+        var radius: Float,
+        var color: Int
     ) {
         infix fun distanceTo(vertexViewItem: VertexViewItem) =
             distance(
