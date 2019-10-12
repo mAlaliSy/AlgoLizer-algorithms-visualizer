@@ -14,6 +14,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputConnection
 import android.text.*
+import android.view.animation.AccelerateDecelerateInterpolator
 import com.malalisy.algolizer.utils.midPoint
 import kotlin.math.min
 
@@ -46,7 +47,7 @@ class GraphView @JvmOverloads constructor(
         val DEFAULT_DRAGGING_EDGE_COLOR = Color.parseColor("#cccccc")
         val DEFAULT_EDGE_COLOR = Color.parseColor("#424242")
 
-        val VERTEX_DELETE_CIRCLE_BG = Color.parseColor("#88000000")
+        val VERTEX_DELETE_CIRCLE_BG = Color.parseColor("#AA000000")
         val VERTEX_DELETE_CIRCLE_BG_DRAGGED = Color.parseColor("#44FF0000")
         const val VERTEX_DELETE_RADIUS = DEFAULT_VERTEX_OUTER_RADIUS * 1.5f
     }
@@ -68,36 +69,38 @@ class GraphView @JvmOverloads constructor(
     private var deleteVertexMaxHorizontalDisplacement: Float = 0f
     private var deleteVertexMaxY: Float = 0f
     private var deleteVertexCircleRadius = VERTEX_DELETE_RADIUS / 2f
-    private var deleteVertexCircleBg = 0
+    private var deleteVertexCircleBg = VERTEX_DELETE_CIRCLE_BG
     private var vertexDraggedToDelete = false
 
     private val startVertexEditingModeRunnable: Runnable = Runnable {
         vertexEditingMode = true
-        deleteVertexCircleRadius = VERTEX_DELETE_RADIUS / 2f
-        val radiusHolder =
-            PropertyValuesHolder.ofFloat("radius", deleteVertexCircleRadius, VERTEX_DELETE_RADIUS)
-        val alphaHolder =
-            PropertyValuesHolder.ofObject(
-                "alpha",
-                ArgbEvaluator(),
-                Color.TRANSPARENT,
-                VERTEX_DELETE_CIRCLE_BG
-            )
-        ValueAnimator()
+        deleteVertexCircleRadius = VERTEX_DELETE_RADIUS
+
+        ValueAnimator.ofArgb(Color.TRANSPARENT, VERTEX_DELETE_CIRCLE_BG).run {
+            duration = 400L
+            addUpdateListener {
+                deleteVertexCircleBg = it.animatedValue as Int
+                invalidate()
+            }
+            interpolator = AccelerateInterpolator()
+            start()
+        }
+
+        ValueAnimator.ofFloat(deleteVertexCircleRadius, VERTEX_DELETE_RADIUS * 1.1f)
             .run {
-                setValues(radiusHolder, alphaHolder)
-                duration = 100L
+                duration = 500L
                 addUpdateListener {
-                    deleteVertexCircleRadius =
-                        it.getAnimatedValue(radiusHolder.propertyName) as Float
-                    deleteVertexCircleBg = it.getAnimatedValue(alphaHolder.propertyName) as Int
+                    if (!vertexEditingMode) cancel()
+                    deleteVertexCircleRadius = it.animatedValue as Float
                     invalidate()
                 }
-                interpolator = AccelerateInterpolator()
+                repeatMode = ValueAnimator.REVERSE
+                repeatCount = ValueAnimator.INFINITE
+                interpolator = AccelerateDecelerateInterpolator()
                 start()
             }
 
-        updateDeleteVertexLocation()
+        updateDeleteVertexCircleLocation()
     }
 
     /*
@@ -268,7 +271,7 @@ class GraphView @JvmOverloads constructor(
                             draggingVertex!!.x = event.x
                             draggingVertex!!.y = event.y
 
-                            updateDeleteVertexLocation()
+                            updateDeleteVertexCircleLocation()
                         }
                         invalidate()
                         return true
@@ -346,7 +349,7 @@ class GraphView @JvmOverloads constructor(
         vertices[draggingVertex!!.number] = null
     }
 
-    private fun updateDeleteVertexLocation() {
+    private fun updateDeleteVertexCircleLocation() {
         val vertexRelativeToCenter = draggingVertex!!.x - width / 2f
         val vertexPercentToCenter = vertexRelativeToCenter / (width / 2)
         val deleteCircleX = deleteVertexCircleBaseLocation.first +
