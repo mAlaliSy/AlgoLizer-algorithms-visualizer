@@ -306,6 +306,7 @@ class GraphView @JvmOverloads constructor(
 
                     vertexEditingMode = false
                     draggingVertex = null
+                    draggingEdgeFingerPosition = null
                     deleteVertexCircleLocation = deleteVertexCircleBaseLocation
                     invalidate()
                     return true
