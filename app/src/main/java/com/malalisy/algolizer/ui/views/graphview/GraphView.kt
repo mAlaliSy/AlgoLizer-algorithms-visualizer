@@ -44,6 +44,7 @@ class GraphView @JvmOverloads constructor(
         val VERTEX_DELETE_CIRCLE_BG = Color.parseColor("#AA000000")
         val VERTEX_DELETE_CIRCLE_BG_DRAGGED = Color.parseColor("#44FF0000")
         const val VERTEX_DELETE_RADIUS = DEFAULT_VERTEX_RADIUS * 1.5f
+        const val VERTEX_DELETE_RADIUS_DRAGGED = VERTEX_DELETE_RADIUS * 1.3f
     }
 
     private val vertices: MutableList<VertexViewItem?> = mutableListOf()
@@ -80,19 +81,7 @@ class GraphView @JvmOverloads constructor(
             start()
         }
 
-        ValueAnimator.ofFloat(deleteVertexCircleRadius, VERTEX_DELETE_RADIUS * 1.1f)
-            .run {
-                duration = 500L
-                addUpdateListener {
-                    if (!vertexEditingMode) cancel()
-                    deleteVertexCircleRadius = it.animatedValue as Float
-                    invalidate()
-                }
-                repeatMode = ValueAnimator.REVERSE
-                repeatCount = ValueAnimator.INFINITE
-                interpolator = AccelerateDecelerateInterpolator()
-                start()
-            }
+        animateDeletionCircleScalingEffect()
 
         updateDeleteVertexCircleLocation()
     }
@@ -111,13 +100,14 @@ class GraphView @JvmOverloads constructor(
     private var lastEdge: Pair<Int, Int>? = null
 
     private var lastEdgeWeight = 0
+
     /*
      * The adjacency list for a weighted graph
      */
     private val adjacencyList = mutableListOf<MutableList<Pair<Int, Int>>>()
-
-
     private var vertexRadius = DEFAULT_VERTEX_RADIUS
+
+
     private var vertexColor = DEFAULT_VERTEX_COLOR
 
     private var transitionColor = DEFAULT_TRANSITION_COLOR
@@ -257,13 +247,21 @@ class GraphView @JvmOverloads constructor(
                 if (draggingVertex != null) {
                     // the vertex was long-pressed, the editing (moving/deletion) mode is enabled
                     if (vertexEditingMode) {
+                        val wasDragged = vertexDraggedToDelete
                         // check if the dragging vertex is close enough to the deletion circle
                         vertexDraggedToDelete = isVertexDraggedToDelete(event.x, event.y)
-                        if (!vertexDraggedToDelete) {
+                        if (vertexDraggedToDelete) {
+                            if (!wasDragged) {
+                                animateDeletionCircleDragging(true)
+                            }
+                        } else {
                             draggingVertex!!.x = event.x
                             draggingVertex!!.y = event.y
 
                             updateDeleteVertexCircleLocation()
+                            if (wasDragged) {
+                                animateDeletionCircleDragging(false)
+                            }
                         }
                         invalidate()
                         return true
@@ -336,6 +334,62 @@ class GraphView @JvmOverloads constructor(
         }
         return true
     }
+
+    private fun animateDeletionCircleDragging(toDragged: Boolean) {
+        val toRadius: Float
+        val toColor: Int
+
+        if (toDragged) {
+            toRadius = VERTEX_DELETE_RADIUS_DRAGGED
+            toColor = VERTEX_DELETE_CIRCLE_BG_DRAGGED
+        } else {
+            toRadius = VERTEX_DELETE_RADIUS
+            toColor = VERTEX_DELETE_CIRCLE_BG
+        }
+
+        val radiusHolder =
+            PropertyValuesHolder.ofFloat("radius", deleteVertexCircleRadius, toRadius)
+        val colorHolder =
+            PropertyValuesHolder.ofObject("color", ArgbEvaluator(), deleteVertexCircleBg, toColor)
+
+        ValueAnimator().apply {
+            setValues(radiusHolder, colorHolder)
+            duration = 200
+            interpolator = AccelerateInterpolator()
+            addUpdateListener {
+                deleteVertexCircleRadius = it.getAnimatedValue(radiusHolder.propertyName) as Float
+                deleteVertexCircleBg = it.getAnimatedValue(colorHolder.propertyName) as Int
+                invalidate()
+            }
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    if (!toDragged) animateDeletionCircleScalingEffect()
+                }
+
+            })
+            start()
+        }
+    }
+
+    private fun animateDeletionCircleScalingEffect() {
+        ValueAnimator.ofFloat(deleteVertexCircleRadius, VERTEX_DELETE_RADIUS * 1.1f)
+            .run {
+                duration = 500L
+                addUpdateListener {
+                    if (!vertexEditingMode || vertexDraggedToDelete) cancel()
+                    deleteVertexCircleRadius = it.animatedValue as Float
+                    invalidate()
+                }
+                repeatMode = ValueAnimator.REVERSE
+                repeatCount = ValueAnimator.INFINITE
+                interpolator = AccelerateDecelerateInterpolator()
+                start()
+            }
+    }
+
 
     private fun deleteDraggingVertex() {
         vertices[draggingVertex!!.number] = null
@@ -527,24 +581,17 @@ class GraphView @JvmOverloads constructor(
     }
 
     private fun drawVertexDeleteCircle(canvas: Canvas) {
-        var raduis: Float
-        val vertexDragged = vertexDraggedToDelete
-        if (vertexDragged) {
-            solidPaint.color = VERTEX_DELETE_CIRCLE_BG_DRAGGED
-            raduis = VERTEX_DELETE_RADIUS * 1.3f
-        } else {
-            solidPaint.color = deleteVertexCircleBg
-            raduis = deleteVertexCircleRadius
-        }
+
+        solidPaint.color = deleteVertexCircleBg
 
         canvas.drawCircle(
             deleteVertexCircleLocation.first,
             deleteVertexCircleLocation.second,
-            raduis,
+            deleteVertexCircleRadius,
             solidPaint
         )
 
-        if (!vertexDragged) {
+        if (!vertexDraggedToDelete) {
             // Only draw the "x" sign when no dragged vertex
             drawTextCenter(
                 canvas,
