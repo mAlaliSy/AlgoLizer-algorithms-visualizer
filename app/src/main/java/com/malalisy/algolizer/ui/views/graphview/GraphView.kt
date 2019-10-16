@@ -48,6 +48,7 @@ class GraphView @JvmOverloads constructor(
     }
 
     private val vertices: MutableList<VertexViewItem> = mutableListOf()
+    private var verticesCounter = 0
 
     /*
     * editing vertex mode is the mode where the user can drag a vertex (change its location) or
@@ -308,7 +309,6 @@ class GraphView @JvmOverloads constructor(
                 // The user was dragging an edge and he left his finger off screen
                 if (draggingVertex != null && draggingEdgeFingerPosition != null) {
                     for (vertex in vertices) {
-                        if (vertex == null) continue
                         if (draggingVertex!!.number == vertex.number) continue
                         val distance = vertex distanceTo draggingEdgeFingerPosition!!
 
@@ -429,7 +429,8 @@ class GraphView @JvmOverloads constructor(
     }
 
     private fun addVertexItem(x: Float, y: Float) {
-        val vertexViewItem = VertexViewItem(vertices.size, x, y, 0f, 0)
+        verticesCounter++
+        val vertexViewItem = VertexViewItem(vertices.size, verticesCounter.toString(), x, y, 0f, 0)
         vertices.add(vertexViewItem)
         adjacencyList.add(mutableListOf())
 
@@ -495,7 +496,7 @@ class GraphView @JvmOverloads constructor(
         }
         solidPaint.color = draggingVertex!!.color
         canvas.drawCircle(x, y, draggingVertex!!.radius * 1.2f, solidPaint)
-        drawTextCenter(canvas, x, y, (draggingVertex!!.number + 1).toString(), vertixLabelPaint)
+        drawTextCenter(canvas, x, y, draggingVertex!!.label, vertixLabelPaint)
     }
 
     /**
@@ -588,7 +589,7 @@ class GraphView @JvmOverloads constructor(
     private fun drawVertex(canvas: Canvas, vertex: VertexViewItem) {
         solidPaint.color = vertex.color
         canvas.drawCircle(vertex.x, vertex.y, vertex.radius, solidPaint)
-        drawTextCenter(canvas, vertex.x, vertex.y, (vertex.number + 1).toString(), vertixLabelPaint)
+        drawTextCenter(canvas, vertex.x, vertex.y, vertex.label, vertixLabelPaint)
     }
 
     private fun drawVertexDeleteCircle(canvas: Canvas) {
@@ -636,6 +637,7 @@ class GraphView @JvmOverloads constructor(
 
     private data class VertexViewItem(
         val number: Int,
+        val label:String,
         var x: Float,
         var y: Float,
         var radius: Float,
