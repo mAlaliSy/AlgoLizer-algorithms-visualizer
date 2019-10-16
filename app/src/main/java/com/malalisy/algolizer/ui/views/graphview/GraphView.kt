@@ -98,6 +98,9 @@ class GraphView @JvmOverloads constructor(
      */
     private var draggingEdgeFingerPosition: Pair<Float, Float>? = null
 
+    private var animatedEdgeFrom: Pair<Float, Float>? = null
+    private var animatedEdgeTo: Pair<Float, Float>? = null
+
     private var lastEdge: Pair<Int, Int>? = null
 
     private var lastEdgeWeight = 0
@@ -195,6 +198,46 @@ class GraphView @JvmOverloads constructor(
         }
 
 
+    }
+
+    public fun resetEdges() {
+        adjacencyList.forEach { it.clear() }
+    }
+
+    public fun animateEdge(from: Int, to: Int, wieght: Int, duration: Long) {
+        val x1 = vertices[from].x
+        val y1 = vertices[from].y
+        val x2 = vertices[to].x
+        val y2 = vertices[to].y
+
+        animatedEdgeFrom = x1 to y1
+
+        val slope = (y2 - y1) / (x2 - x1)
+        val slopeX1 = slope * x1
+
+        ValueAnimator.ofFloat(x1, x2).apply {
+            setDuration(duration)
+            addUpdateListener {
+                val x = it.animatedValue as Float
+                val y = slope * x - slopeX1 + y1
+                animatedEdgeTo = x to y
+                invalidate()
+            }
+            addListener(object : Animator.AnimatorListener{
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    animatedEdgeFrom = null
+                    animatedEdgeTo = null
+                    adjacencyList[from].add(to to wieght)
+                    adjacencyList[to].add(from to wieght)
+                    invalidate()
+                }
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            interpolator = AccelerateInterpolator()
+            start()
+        }
     }
 
     override fun onCheckIsTextEditor(): Boolean {
@@ -394,7 +437,7 @@ class GraphView @JvmOverloads constructor(
         vertices.removeAt(vertexIndex)
         adjacencyList.removeAt(vertexIndex)
 
-        for (i in vertexIndex until vertices.size){
+        for (i in vertexIndex until vertices.size) {
             vertices[i].number--
         }
         for (edges in adjacencyList) {
@@ -473,9 +516,9 @@ class GraphView @JvmOverloads constructor(
         super.draw(canvas)
 
         canvas?.let {
-            drawDraggingEdge(it)
-
             drawEdges(it)
+            drawAnimatedEdge(it)
+            drawDraggingEdge(it)
 
             drawVertices(it)
 
@@ -484,6 +527,18 @@ class GraphView @JvmOverloads constructor(
                 drawVertexDeleteCircle(canvas)
             }
 
+        }
+    }
+
+    private fun drawAnimatedEdge(canvas: Canvas) {
+        if (animatedEdgeFrom != null && animatedEdgeTo != null) {
+            canvas.drawLine(
+                animatedEdgeFrom!!.first,
+                animatedEdgeFrom!!.second,
+                animatedEdgeTo!!.first,
+                animatedEdgeTo!!.second,
+                draggingEdgesPaint
+            )
         }
     }
 
@@ -584,7 +639,7 @@ class GraphView @JvmOverloads constructor(
 
     private fun drawVertices(canvas: Canvas) {
         for (vertex in vertices) {
-            if (vertexEditingMode && vertex == draggingVertex ) continue
+            if (vertexEditingMode && vertex == draggingVertex) continue
             drawVertex(canvas, vertex)
         }
     }
@@ -640,7 +695,7 @@ class GraphView @JvmOverloads constructor(
 
     private data class VertexViewItem(
         var number: Int,
-        val label:String,
+        val label: String,
         var x: Float,
         var y: Float,
         var radius: Float,
