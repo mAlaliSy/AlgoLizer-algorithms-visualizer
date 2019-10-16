@@ -47,7 +47,7 @@ class GraphView @JvmOverloads constructor(
         const val VERTEX_DELETE_RADIUS_DRAGGED = VERTEX_DELETE_RADIUS * 1.3f
     }
 
-    private val vertices: MutableList<VertexViewItem?> = mutableListOf()
+    private val vertices: MutableList<VertexViewItem> = mutableListOf()
 
     /*
     * editing vertex mode is the mode where the user can drag a vertex (change its location) or
@@ -222,8 +222,6 @@ class GraphView @JvmOverloads constructor(
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 for (vertex in vertices) {
-                    if (vertex == null) continue
-
                     val distance = vertex distanceTo (event.x to event.y)
 
                     // The user touched on an already exists vertex => start dragging an edge
@@ -392,7 +390,22 @@ class GraphView @JvmOverloads constructor(
 
 
     private fun deleteDraggingVertex() {
-        vertices[draggingVertex!!.number] = null
+        val vertexIndex = draggingVertex!!.number
+        vertices.removeAt(vertexIndex)
+        adjacencyList.removeAt(vertexIndex)
+
+        for (edges in adjacencyList) {
+            val edgesToAdd = mutableListOf<Pair<Int, Int>>()
+            edges.forEach { edge ->
+                if (edge.first > vertexIndex) {
+                    val newEdge = (edge.first - 1) to edge.second
+                    edgesToAdd.add(newEdge)
+                }
+            }
+            edges.removeAll { it.first >= vertexIndex }
+            edges.addAll(edgesToAdd)
+        }
+
     }
 
     private fun updateDeleteVertexCircleLocation() {
@@ -508,7 +521,6 @@ class GraphView @JvmOverloads constructor(
     private fun drawEdges(canvas: Canvas) {
         var label: String
         for (i in 0 until adjacencyList.size) {
-            if (vertices[i] == null) continue
             val x: Float
             val y: Float
 
@@ -516,12 +528,12 @@ class GraphView @JvmOverloads constructor(
                 x = deleteVertexCircleLocation.first
                 y = deleteVertexCircleLocation.second
             } else {
-                x = vertices[i]!!.x
-                y = vertices[i]!!.y
+                x = vertices[i].x
+                y = vertices[i].y
             }
 
             for (edge in adjacencyList[i]) {
-                val target = vertices[edge.first] ?: continue
+                val target = vertices[edge.first]
                 val x2: Float
                 val y2: Float
                 if (vertexEditingMode && target == draggingVertex && vertexDraggedToDelete) {
@@ -542,21 +554,20 @@ class GraphView @JvmOverloads constructor(
             }
         }
         lastEdge?.let {
-            if (vertices[lastEdge!!.first] == null || vertices[lastEdge!!.second] == null) return
             canvas.drawLine(
-                vertices[lastEdge!!.first]!!.x,
-                vertices[lastEdge!!.first]!!.y,
-                vertices[lastEdge!!.second]!!.x,
-                vertices[lastEdge!!.second]!!.y,
+                vertices[lastEdge!!.first].x,
+                vertices[lastEdge!!.first].y,
+                vertices[lastEdge!!.second].x,
+                vertices[lastEdge!!.second].y,
                 edgesPaint
             )
 
             label = lastEdgeWeight.toString()
             val pos = midPoint(
-                vertices[lastEdge!!.first]!!.x,
-                vertices[lastEdge!!.first]!!.y,
-                vertices[lastEdge!!.second]!!.x,
-                vertices[lastEdge!!.second]!!.y
+                vertices[lastEdge!!.first].x,
+                vertices[lastEdge!!.first].y,
+                vertices[lastEdge!!.second].x,
+                vertices[lastEdge!!.second].y
             )
 
             canvas.drawCircle(pos.first, pos.second, vertexRadius / 2, edgeWeightBgPaint)
