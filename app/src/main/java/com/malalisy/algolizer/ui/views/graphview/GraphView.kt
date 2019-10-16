@@ -308,7 +308,7 @@ class GraphView @JvmOverloads constructor(
 
                 // The user was dragging an edge and he left his finger off screen
                 if (draggingVertex != null && draggingEdgeFingerPosition != null) {
-                    for (vertex in vertices) {
+                    outer@ for (vertex in vertices) {
                         if (draggingVertex!!.number == vertex.number) continue
                         val distance = vertex distanceTo draggingEdgeFingerPosition!!
 
@@ -316,7 +316,7 @@ class GraphView @JvmOverloads constructor(
                         if (distance < vertexRadius) {
                             // Make sure the two vertices are not connected
                             for (edge in adjacencyList[draggingVertex!!.number]) {
-                                if (edge.first == vertex.number) break
+                                if (edge.first == vertex.number) break@outer
                             }
                             toggleKeyboard()
                             lastEdge = vertex.number to draggingVertex!!.number
@@ -394,6 +394,9 @@ class GraphView @JvmOverloads constructor(
         vertices.removeAt(vertexIndex)
         adjacencyList.removeAt(vertexIndex)
 
+        for (i in vertexIndex until vertices.size){
+            vertices[i].number--
+        }
         for (edges in adjacencyList) {
             val edgesToAdd = mutableListOf<Pair<Int, Int>>()
             edges.forEach { edge ->
@@ -581,7 +584,7 @@ class GraphView @JvmOverloads constructor(
 
     private fun drawVertices(canvas: Canvas) {
         for (vertex in vertices) {
-            if (vertexEditingMode && vertex == draggingVertex || vertex == null) continue
+            if (vertexEditingMode && vertex == draggingVertex ) continue
             drawVertex(canvas, vertex)
         }
     }
@@ -636,7 +639,7 @@ class GraphView @JvmOverloads constructor(
 
 
     private data class VertexViewItem(
-        val number: Int,
+        var number: Int,
         val label:String,
         var x: Float,
         var y: Float,
