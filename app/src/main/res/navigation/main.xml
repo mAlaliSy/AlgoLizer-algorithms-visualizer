@@ -28,10 +28,35 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_mainFragment_to_otherGraphAlgorithmsFragment"
+            app:destination="@id/otherGraphAlgorithmsFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
     </fragment>
     <fragment
         android:id="@+id/infoFragment"
         android:name="com.malalisy.algolizer.ui.InfoFragment"
         android:label="fragment_info"
         tools:layout="@layout/fragment_info" />
+    <fragment
+        android:id="@+id/otherGraphAlgorithmsFragment"
+        android:name="com.malalisy.algolizer.ui.OtherGraphAlgorithmsFragment"
+        android:label="fragment_other_graph_algorithms"
+        tools:layout="@layout/fragment_other_graph_algorithms" >
+        <action
+            android:id="@+id/action_otherGraphAlgorithmsFragment_to_MSTAlgorithmsFragment"
+            app:destination="@id/MSTAlgorithmsFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
+    </fragment>
+    <fragment
+        android:id="@+id/MSTAlgorithmsFragment"
+        android:name="com.malalisy.algolizer.ui.mstalgorithms.MSTAlgorithmsFragment"
+        android:label="fragment_mstalgorithms"
+        tools:layout="@layout/fragment_mstalgorithms" />
 </navigation>

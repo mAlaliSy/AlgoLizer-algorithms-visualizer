@@ -28,6 +28,12 @@ class MainFragment : Fragment() {
             )
         )
 
+        btnOtherGraphAlgorithms.setOnClickListener(
+            Navigation.createNavigateOnClickListener(
+                R.id.action_mainFragment_to_otherGraphAlgorithmsFragment
+            )
+        )
+
         btnInfo.setOnClickListener(
             Navigation.createNavigateOnClickListener(R.id.action_mainFragment_to_infoFragment)
         )

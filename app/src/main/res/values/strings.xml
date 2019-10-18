@@ -30,4 +30,6 @@
     <string name="github_repository">GitHub Repository</string>
     <string name="follow_me">Follow me</string>
     <string name="developed_by_label">Developed by: Mohammed Al-Ali</string>
+    <string name="minimum_cost_spanning_tree">Minimum Cost Spanning Tree</string>
+    <string name="graph_traversal_algorithms">Graph Traversal Algorithms</string>
 </resources>
