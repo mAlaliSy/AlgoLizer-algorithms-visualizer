@@ -3,10 +3,10 @@ package com.malalisy.algolizer.domain.mst
 /**
  * an abstract class for Minimum Cost Spanning Tree (MST) algorithms
  */
-abstract class MSTAlgorithmRunner(adjacencyList: List<List<Pair<Int, Int>>>) {
+abstract class MSTAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) {
 
     init {
-        setup(adjacencyList)
+        setup(adjacencyMatrix)
     }
 
     // A list that contains the edges of MST
@@ -16,11 +16,10 @@ abstract class MSTAlgorithmRunner(adjacencyList: List<List<Pair<Int, Int>>>) {
     var mstCost: Int = -1
 
     // The graph represented in an adjacency list
-    private lateinit var adjacencyList: List<List<Pair<Int, Int>>>
+    private lateinit var adjacencyMatrix: Array<Array<Int>>
 
-
-    public open fun setup(adjacencyList: List<List<Pair<Int, Int>>>) {
-        this.adjacencyList = adjacencyList
+    public open fun setup(adjacencyMatrix: Array<Array<Int>>) {
+        this.adjacencyMatrix = adjacencyMatrix
         mst = mutableListOf()
         mstCost = -1
     }
