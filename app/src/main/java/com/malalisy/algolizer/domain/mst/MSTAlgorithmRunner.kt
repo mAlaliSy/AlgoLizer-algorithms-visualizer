@@ -10,13 +10,13 @@ abstract class MSTAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) {
     }
 
     // A list that contains the edges of MST
-    lateinit var mst: List<Pair<Int, Int>>
+    lateinit var mst: MutableList<Pair<Int, Int>>
 
     // The total cost of MST
     var mstCost: Int = -1
 
     // The graph represented in an adjacency list
-    private lateinit var adjacencyMatrix: Array<Array<Int>>
+    protected lateinit var adjacencyMatrix: Array<Array<Int>>
 
     public open fun setup(adjacencyMatrix: Array<Array<Int>>) {
         this.adjacencyMatrix = adjacencyMatrix
