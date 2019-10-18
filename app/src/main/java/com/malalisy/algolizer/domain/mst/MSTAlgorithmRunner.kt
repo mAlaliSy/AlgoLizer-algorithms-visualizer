@@ -25,4 +25,6 @@ abstract class MSTAlgorithmRunner(adjacencyList: List<List<Pair<Int, Int>>>) {
         mstCost = -1
     }
 
+    abstract fun run()
+
 }
