@@ -2,7 +2,9 @@ package com.malalisy.algolizer.domain.mst
 
 import com.malalisy.algolizer.domain.Edge
 
-
+/**
+ * a class that implements the Kruskal's MST algorithm using disjoint-set (aka union-find) data structure
+ */
 class KruskalAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) :
     MSTAlgorithmRunner(adjacencyMatrix) {
 
@@ -13,11 +15,17 @@ class KruskalAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) :
     }
 
 
+    /**
+     * Setup a new problem
+     */
     override fun setup(adjacencyMatrix: Array<Array<Int>>) {
         super.setup(adjacencyMatrix)
         p = Array(adjacencyMatrix.size) { it }
     }
 
+    /**
+     * Run the algorithm on the current graph
+     */
     override fun run() {
 
         val edges = mutableListOf<Edge>()
@@ -36,6 +44,7 @@ class KruskalAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) :
             if (pa != pb) {
                 p[pa] = pb
                 mst.add(e.from to e.to)
+                mstCost += adjacencyMatrix[e.from][e.to]
             }
         }
     }
