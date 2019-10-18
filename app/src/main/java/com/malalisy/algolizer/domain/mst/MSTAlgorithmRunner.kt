@@ -21,7 +21,7 @@ abstract class MSTAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) {
     public open fun setup(adjacencyMatrix: Array<Array<Int>>) {
         this.adjacencyMatrix = adjacencyMatrix
         mst = mutableListOf()
-        mstCost = -1
+        mstCost = 0
     }
 
     abstract fun run()
