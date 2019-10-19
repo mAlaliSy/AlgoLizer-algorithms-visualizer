@@ -1,6 +1,7 @@
 package com.malalisy.algolizer.ui.mstalgorithms
 
 import android.os.Handler
+import android.util.Log
 import com.malalisy.algolizer.domain.mst.MSTAlgorithmRunner
 import com.malalisy.algolizer.domain.mst.MSTAlgorithmsFactory
 import com.malalisy.algolizer.domain.mst.MSTAlgorithmsFactory.KRUSKAL_ALGORITHM
@@ -30,7 +31,6 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
             view.animateEdge(
                 edge.first,
                 edge.second,
-                adjacencyMatrix[edge.first][edge.second],
                 EDGE_ANIMATION_DURATION * 3 / 4
             )
             mstAnimationIndex++
@@ -82,7 +82,6 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
             view.showHideControls(false)
         } else {
             this.mst = algorithm!!.mst
-            view.resetEdges()
 
             mstAnimationIndex = 0
             handler.postDelayed(mstAnimationRunnable, EDGE_ANIMATION_DURATION)
@@ -108,6 +107,7 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
     override fun onCloseResultClick() {
         handler.removeCallbacks(mstAnimationRunnable)
 
+        view.resetMSTEdges()
         mstAnimationIndex = 0
         view.showHideSolution(false)
         view.showHideControls(true)

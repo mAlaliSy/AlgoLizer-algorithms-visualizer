@@ -39,7 +39,7 @@ class GraphView @JvmOverloads constructor(
         val DEFAULT_TRANSITION_COLOR = Color.parseColor("#FFF04C7F")
 
         val DEFAULT_DRAGGING_EDGE_COLOR = Color.parseColor("#cccccc")
-        val DEFAULT_EDGE_COLOR = Color.parseColor("#424242")
+        val DEFAULT_EDGE_COLOR = Color.parseColor("#666666")
 
         val VERTEX_DELETE_CIRCLE_BG = Color.parseColor("#AA000000")
         val VERTEX_DELETE_CIRCLE_BG_DRAGGED = Color.parseColor("#44FF0000")
@@ -99,8 +99,6 @@ class GraphView @JvmOverloads constructor(
      */
     private var draggingEdgeFingerPosition: Pair<Float, Float>? = null
 
-    private var animatedEdgeFrom: Pair<Float, Float>? = null
-    private var animatedEdgeTo: Pair<Float, Float>? = null
 
     private var lastEdge: Pair<Int, Int>? = null
 
@@ -110,6 +108,12 @@ class GraphView @JvmOverloads constructor(
      * The adjacency list for a weighted graph
      */
     private val adjacencyList = mutableListOf<MutableList<Pair<Int, Int>>>()
+
+    /*
+     * additional edges that can be animated from outside the graph view
+     */
+    private val additionalEdges = mutableListOf<AdditionalEdge>()
+
     private var vertexRadius = DEFAULT_VERTEX_RADIUS
 
 
@@ -140,6 +144,7 @@ class GraphView @JvmOverloads constructor(
         textAlign = Paint.Align.CENTER
     }
     private val edgesPaint: Paint
+    private val additionalEdgesPaint: Paint
     private var draggingEdgeColor = DEFAULT_DRAGGING_EDGE_COLOR
     private val draggingEdgesPaint: Paint
 
@@ -154,6 +159,11 @@ class GraphView @JvmOverloads constructor(
             style = Paint.Style.STROKE
             strokeWidth = 10f
             color = edgeColor
+        }
+
+        additionalEdgesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 10f
         }
 
 
@@ -203,15 +213,22 @@ class GraphView @JvmOverloads constructor(
 
     public fun resetEdges() {
         adjacencyList.forEach { it.clear() }
+        invalidate()
     }
 
-    public fun animateEdge(from: Int, to: Int, wieght: Int, duration: Long) {
+    public fun resetAdditionalEdges() {
+        additionalEdges.clear()
+        invalidate()
+    }
+
+    public fun animateEdge(from: Int, to: Int, color: Int, duration: Long) {
         val x1 = vertices[from].x
         val y1 = vertices[from].y
         val x2 = vertices[to].x
         val y2 = vertices[to].y
 
-        animatedEdgeFrom = x1 to y1
+        val edge = AdditionalEdge(x1, y1, x1, y1, color)
+        additionalEdges.add(edge)
 
         val slope = (y2 - y1) / (x2 - x1)
         val slopeX1 = slope * x1
@@ -219,24 +236,10 @@ class GraphView @JvmOverloads constructor(
         ValueAnimator.ofFloat(x1, x2).apply {
             setDuration(duration)
             addUpdateListener {
-                val x = it.animatedValue as Float
-                val y = slope * x - slopeX1 + y1
-                animatedEdgeTo = x to y
+                edge.x2 = it.animatedValue as Float
+                edge.y2 = slope * edge.x2 - slopeX1 + y1
                 invalidate()
             }
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationEnd(animation: Animator?) {
-                    animatedEdgeFrom = null
-                    animatedEdgeTo = null
-                    adjacencyList[from].add(to to wieght)
-                    adjacencyList[to].add(from to wieght)
-                    invalidate()
-                }
-
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
-            })
             interpolator = AccelerateInterpolator()
             start()
         }
@@ -519,7 +522,8 @@ class GraphView @JvmOverloads constructor(
 
         canvas?.let {
             drawEdges(it)
-            drawAnimatedEdge(it)
+            drawAdditionalEdges(it)
+            drawEdgesWeights(it)
             drawDraggingEdge(it)
 
             drawVertices(it)
@@ -529,50 +533,6 @@ class GraphView @JvmOverloads constructor(
                 drawVertexDeleteCircle(canvas)
             }
 
-        }
-    }
-
-    private fun drawAnimatedEdge(canvas: Canvas) {
-        if (animatedEdgeFrom != null && animatedEdgeTo != null) {
-            canvas.drawLine(
-                animatedEdgeFrom!!.first,
-                animatedEdgeFrom!!.second,
-                animatedEdgeTo!!.first,
-                animatedEdgeTo!!.second,
-                draggingEdgesPaint
-            )
-        }
-    }
-
-    private fun drawDraggingVertex(canvas: Canvas) {
-        val x: Float
-        val y: Float
-        if (vertexDraggedToDelete) {
-            x = deleteVertexCircleLocation.first
-            y = deleteVertexCircleLocation.second
-        } else {
-            x = draggingVertex!!.x
-            y = draggingVertex!!.y
-        }
-        solidPaint.color = draggingVertex!!.color
-        canvas.drawCircle(x, y, draggingVertex!!.radius * 1.2f, solidPaint)
-        drawTextCenter(canvas, x, y, draggingVertex!!.label, vertixLabelPaint)
-    }
-
-    /**
-     * draw a dragging edge if the user touched a vertex and start moving his finger,
-     * the line should be drawn from the vertex position to the position of his finger
-     */
-    private fun drawDraggingEdge(canvas: Canvas) {
-        // Don't draw the dragging edge if the user is trying to edit the vertex location
-        if (!vertexEditingMode && draggingVertex != null && draggingEdgeFingerPosition != null) {
-            canvas.drawLine(
-                draggingVertex!!.x,
-                draggingVertex!!.y,
-                draggingEdgeFingerPosition!!.first,
-                draggingEdgeFingerPosition!!.second,
-                draggingEdgesPaint
-            )
         }
     }
 
@@ -616,28 +576,110 @@ class GraphView @JvmOverloads constructor(
         }
         lastEdge?.let {
             canvas.drawLine(
-                vertices[lastEdge!!.first].x,
-                vertices[lastEdge!!.first].y,
-                vertices[lastEdge!!.second].x,
-                vertices[lastEdge!!.second].y,
+                vertices[it.first].x,
+                vertices[it.first].y,
+                vertices[it.second].x,
+                vertices[it.second].y,
                 edgesPaint
             )
+        }
 
+
+    }
+
+    private fun drawEdgesWeights(canvas: Canvas) {
+        var label: String
+        for (i in 0 until adjacencyList.size) {
+            val x: Float
+            val y: Float
+
+            if (vertexEditingMode && vertices[i] == draggingVertex && vertexDraggedToDelete) {
+                x = deleteVertexCircleLocation.first
+                y = deleteVertexCircleLocation.second
+            } else {
+                x = vertices[i].x
+                y = vertices[i].y
+            }
+
+            for (edge in adjacencyList[i]) {
+                val target = vertices[edge.first]
+                val x2: Float
+                val y2: Float
+                if (vertexEditingMode && target == draggingVertex && vertexDraggedToDelete) {
+                    x2 = deleteVertexCircleLocation.first
+                    y2 = deleteVertexCircleLocation.second
+                } else {
+                    x2 = target.x
+                    y2 = target.y
+                }
+
+                label = (edge.second).toString()
+                val pos = midPoint(x, y, x2, y2)
+
+                canvas.drawCircle(pos.first, pos.second, vertexRadius / 2, edgeWeightBgPaint)
+
+                drawTextCenter(canvas, pos.first, pos.second, label, edgeWeightPaint)
+
+            }
+        }
+
+
+
+        lastEdge?.let {
             label = lastEdgeWeight.toString()
             val pos = midPoint(
-                vertices[lastEdge!!.first].x,
-                vertices[lastEdge!!.first].y,
-                vertices[lastEdge!!.second].x,
-                vertices[lastEdge!!.second].y
+                vertices[it.first].x,
+                vertices[it.first].y,
+                vertices[it.second].x,
+                vertices[it.second].y
             )
 
             canvas.drawCircle(pos.first, pos.second, vertexRadius / 2, edgeWeightBgPaint)
 
             drawTextCenter(canvas, pos.first, pos.second, label, edgeWeightPaint)
         }
-
-
     }
+
+    private fun drawAdditionalEdges(canvas: Canvas) {
+        additionalEdges.forEach {
+            additionalEdgesPaint.color = it.color
+            canvas.drawLine(it.x1, it.y1, it.x2, it.y2, additionalEdgesPaint)
+        }
+    }
+
+
+    private fun drawDraggingVertex(canvas: Canvas) {
+        val x: Float
+        val y: Float
+        if (vertexDraggedToDelete) {
+            x = deleteVertexCircleLocation.first
+            y = deleteVertexCircleLocation.second
+        } else {
+            x = draggingVertex!!.x
+            y = draggingVertex!!.y
+        }
+        solidPaint.color = draggingVertex!!.color
+        canvas.drawCircle(x, y, draggingVertex!!.radius * 1.2f, solidPaint)
+        drawTextCenter(canvas, x, y, draggingVertex!!.label, vertixLabelPaint)
+    }
+
+    /**
+     * draw a dragging edge if the user touched a vertex and start moving his finger,
+     * the line should be drawn from the vertex position to the position of his finger
+     */
+    private fun drawDraggingEdge(canvas: Canvas) {
+        // Don't draw the dragging edge if the user is trying to edit the vertex location
+        if (!vertexEditingMode && draggingVertex != null && draggingEdgeFingerPosition != null) {
+            canvas.drawLine(
+                draggingVertex!!.x,
+                draggingVertex!!.y,
+                draggingEdgeFingerPosition!!.first,
+                draggingEdgeFingerPosition!!.second,
+                draggingEdgesPaint
+            )
+        }
+    }
+
 
     private fun drawVertices(canvas: Canvas) {
         for (vertex in vertices) {
@@ -702,6 +744,8 @@ class GraphView @JvmOverloads constructor(
     fun resetGraph() {
         adjacencyList.clear()
         vertices.clear()
+        additionalEdges.clear()
+        verticesCounter = 0
         invalidate()
     }
 
@@ -731,5 +775,15 @@ class GraphView @JvmOverloads constructor(
             )
 
     }
+
+
+    private data class AdditionalEdge(
+        var x1: Float,
+        var y1: Float,
+        var x2: Float,
+        var y2: Float,
+        var color: Int
+    )
+
 }
 

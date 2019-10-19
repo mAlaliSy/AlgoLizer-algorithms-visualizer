@@ -1,5 +1,6 @@
 package com.malalisy.algolizer.ui.mstalgorithms
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -68,8 +69,12 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
         graphView.setAcceptInput(accept)
     }
 
-    override fun animateEdge(from: Int, to: Int, weight: Int, duration: Long) {
-        graphView.animateEdge(from, to, weight, duration)
+    override fun animateEdge(from: Int, to: Int, duration: Long) {
+        graphView.animateEdge(from, to, Color.parseColor("#4CAF50"), duration)
+    }
+
+    override fun resetMSTEdges() {
+        graphView.resetAdditionalEdges()
     }
 
     override fun resetEdges() {
@@ -130,7 +135,7 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
         if (show) {
             view.visibility = View.VISIBLE
             animate.fadeIn()
-        }else {
+        } else {
             animate.fadeOut().onStop { view.visibility = View.INVISIBLE }
         }
         animate.duration(duration).start()
