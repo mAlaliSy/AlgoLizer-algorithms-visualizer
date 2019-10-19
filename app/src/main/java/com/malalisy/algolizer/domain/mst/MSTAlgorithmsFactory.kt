@@ -4,8 +4,8 @@ import androidx.annotation.IntDef
 import java.lang.IllegalArgumentException
 
 object MSTAlgorithmsFactory {
-    const val KRUSKAL_ALGORITHM = 0
-    const val PRIMS_ALGORITHM = 1
+    public const val KRUSKAL_ALGORITHM = 0
+    public const val PRIMS_ALGORITHM = 1
 
     @IntDef(KRUSKAL_ALGORITHM, PRIMS_ALGORITHM)
     @Retention(AnnotationRetention.SOURCE)

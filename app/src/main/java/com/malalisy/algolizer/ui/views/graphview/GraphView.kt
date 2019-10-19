@@ -698,6 +698,8 @@ class GraphView @JvmOverloads constructor(
         this.acceptInput = accept
     }
 
+    fun getAdjacencyList() = adjacencyList
+
 
     private data class VertexViewItem(
         var number: Int,

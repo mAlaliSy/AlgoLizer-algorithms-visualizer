@@ -17,6 +17,10 @@
         <item>BFS</item>
     </array>
 
+    <string-array name="mst_algorithms">
+        <item>Kruskal</item>
+        <item>Prim</item>
+    </string-array>
 
     <string name="shortest_path_algorithms">Shortest path algorithms</string>
     <string name="other_graph_algorithms">Other graph algorithms (Coming)</string>
@@ -24,12 +28,15 @@
     <string name="info">Info</string>
     <string name="algolizer">Algolizer</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="the_source_code_of_the_app_is_available_on_github">The source code of the app is available on Github</string>
     <string name="github_repository">GitHub Repository</string>
     <string name="follow_me">Follow me</string>
     <string name="developed_by_label">Developed by: Mohammed Al-Ali</string>
     <string name="minimum_cost_spanning_tree">Minimum Cost Spanning Tree</string>
     <string name="graph_traversal_algorithms">Graph Traversal Algorithms</string>
+
+    <string name="mst_found">Minimum cost spanning tree found with cost: %1$d</string>
+    <string name="no_mst">The graph is not connected and cannot have MST!</string>
+
 </resources>
