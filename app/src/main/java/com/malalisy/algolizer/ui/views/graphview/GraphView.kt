@@ -47,6 +47,7 @@ class GraphView @JvmOverloads constructor(
         const val VERTEX_DELETE_RADIUS_DRAGGED = VERTEX_DELETE_RADIUS * 1.3f
     }
 
+    private var acceptInput: Boolean = true
     private val vertices: MutableList<VertexViewItem> = mutableListOf()
     private var verticesCounter = 0
 
@@ -223,7 +224,7 @@ class GraphView @JvmOverloads constructor(
                 animatedEdgeTo = x to y
                 invalidate()
             }
-            addListener(object : Animator.AnimatorListener{
+            addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
                     animatedEdgeFrom = null
@@ -232,6 +233,7 @@ class GraphView @JvmOverloads constructor(
                     adjacencyList[to].add(from to wieght)
                     invalidate()
                 }
+
                 override fun onAnimationCancel(animation: Animator?) {}
                 override fun onAnimationStart(animation: Animator?) {}
             })
@@ -261,7 +263,7 @@ class GraphView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (lastEdge != null) return true
+        if (lastEdge != null || !acceptInput) return true
 
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -691,6 +693,10 @@ class GraphView @JvmOverloads constructor(
             deleteVertexCircleLocation.first.toDouble(),
             deleteVertexCircleLocation.second.toDouble()
         ) < VERTEX_DELETE_RADIUS + vertexRadius
+
+    fun setAcceptInput(accept: Boolean) {
+        this.acceptInput = accept
+    }
 
 
     private data class VertexViewItem(
