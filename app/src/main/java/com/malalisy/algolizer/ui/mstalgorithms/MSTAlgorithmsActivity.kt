@@ -11,17 +11,18 @@ import com.github.florent37.viewanimator.ViewAnimator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.malalisy.algolizer.R
 import kotlinx.android.synthetic.main.activity_mstalgorithms.*
+import kotlinx.android.synthetic.main.activity_mstalgorithms.algorithmSpinner
+import kotlinx.android.synthetic.main.activity_mstalgorithms.btnCloseResult
 import kotlinx.android.synthetic.main.activity_mstalgorithms.btnPause
 import kotlinx.android.synthetic.main.activity_mstalgorithms.btnPlay
 import kotlinx.android.synthetic.main.activity_mstalgorithms.btnReset
 import kotlinx.android.synthetic.main.activity_mstalgorithms.controls
 import kotlinx.android.synthetic.main.activity_mstalgorithms.solutionCostLabel
 import kotlinx.android.synthetic.main.activity_mstalgorithms.solutionInfoContainer
+import kotlinx.android.synthetic.main.fragment_shortest_path_algorim.*
 
 class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
-
     lateinit var presenter: MSTAlgorithmsContract.Presenter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +39,7 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
         }
         btnPause.setOnClickListener { presenter.onPauseClicked() }
         btnReset.setOnClickListener { presenter.onRestartClick() }
-
+        btnCloseResult.setOnClickListener { presenter.onCloseResultClick() }
 
         val adapter = ArrayAdapter.createFromResource(
             this, R.array.mst_algorithms,
@@ -62,6 +63,7 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
 
     }
 
+
     override fun setAcceptGraphChanges(accept: Boolean) {
         graphView.setAcceptInput(accept)
     }
@@ -74,7 +76,7 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
         graphView.resetEdges()
     }
 
-    override fun showSolution(show: Boolean, found: Boolean, cost: Int) {
+    override fun showHideSolution(show: Boolean, found: Boolean, cost: Int) {
         solutionInfoContainer.visibility = View.VISIBLE
         if (found) {
             solutionInfoContainer.setBackgroundResource(R.drawable.green_rounded_rect)
@@ -90,7 +92,7 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
             .slideBottomIn()
             .scale(1.0f)
             .fadeIn()
-            .duration(1000)
+            .duration(500)
             .start()
     }
 
@@ -114,13 +116,33 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
             .start()
     }
 
+    override fun showHidePlayButton(show: Boolean) {
+        showHideView(btnPlay, show)
+    }
 
-    override fun showHideControls(show: Boolean, anticipateOvershoot: Boolean) {
+
+    override fun showHidePauseButton(show: Boolean) {
+        showHideView(btnPause, show)
+    }
+
+    private fun showHideView(view: View, show: Boolean, duration: Long = 500L) {
+        val animate = ViewAnimator.animate(view)
+        if (show) {
+            view.visibility = View.VISIBLE
+            animate.fadeIn()
+        }else {
+            animate.fadeOut().onStop { view.visibility = View.INVISIBLE }
+        }
+        animate.duration(duration).start()
+    }
+
+
+    override fun showHideControls(show: Boolean) {
         if (show) {
             ViewAnimator.animate(controls)
                 .slideBottomIn()
                 .fadeIn()
-                .duration(1000)
+                .duration(500)
                 .interpolator(AnticipateOvershootInterpolator(1.5f))
                 .start()
             controls.visibility = View.VISIBLE
@@ -128,16 +150,17 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
             ViewAnimator.animate(controls)
                 .translationY(controls.height.toFloat())
                 .fadeOut()
-                .duration(1000)
-                .also {
-                    if (anticipateOvershoot)
-                        it.interpolator(AnticipateOvershootInterpolator(1.5f))
-                }
+                .duration(500)
                 .onStop {
                     controls.translationY = 0.0f
                     controls.visibility = View.INVISIBLE
                 }.start()
         }
+    }
+
+
+    override fun resetGraph() {
+        graphView.resetGraph()
     }
 
 }

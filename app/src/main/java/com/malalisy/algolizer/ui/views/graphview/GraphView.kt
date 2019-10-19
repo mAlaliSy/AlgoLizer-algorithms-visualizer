@@ -699,6 +699,11 @@ class GraphView @JvmOverloads constructor(
     }
 
     fun getAdjacencyList() = adjacencyList
+    fun resetGraph() {
+        adjacencyList.clear()
+        vertices.clear()
+        invalidate()
+    }
 
 
     private data class VertexViewItem(

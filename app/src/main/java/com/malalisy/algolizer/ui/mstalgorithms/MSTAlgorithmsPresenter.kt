@@ -43,8 +43,12 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
     }
 
     private fun handleAnimationEnd() {
-        view.showHideControls(false, false)
-        view.showSolution(show = true, found = true, cost = algorithm!!.mstCost)
+        view.showHideControls(false)
+        view.showHideSolution(show = true, found = true, cost = algorithm!!.mstCost)
+
+        view.showHideResetButton(true)
+        view.showHidePauseButton(false)
+        view.showHidePlayButton(true)
     }
 
 
@@ -61,7 +65,6 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
     }
 
     override fun onRunClicked(adjacencyList: List<List<Pair<Int, Int>>>) {
-        view.showHideResetButton(false)
         adjacencyMatrix =
             Array(adjacencyList.size) { Array(adjacencyList.size) { 0 } }
 
@@ -75,25 +78,38 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
         algorithm!!.run()
 
         if (algorithm!!.mst.size != adjacencyMatrix.size - 1) {
-            view.showSolution(show = true, found = false, cost = 0)
+            view.showHideSolution(show = true, found = false)
+            view.showHideControls(false)
         } else {
             this.mst = algorithm!!.mst
             view.resetEdges()
 
             mstAnimationIndex = 0
             handler.postDelayed(mstAnimationRunnable, EDGE_ANIMATION_DURATION)
-        }
 
+            view.showHidePlayButton(false)
+            view.showHidePauseButton(true)
+            view.showHideResetButton(false)
+        }
     }
 
 
     override fun onPauseClicked() {
-
+        handler.removeCallbacks(mstAnimationRunnable)
+        view.showHidePauseButton(false)
+        view.showHidePauseButton(true)
     }
 
     override fun onRestartClick() {
-
+        view.resetGraph()
     }
 
 
+    override fun onCloseResultClick() {
+        handler.removeCallbacks(mstAnimationRunnable)
+
+        mstAnimationIndex = 0
+        view.showHideSolution(false)
+        view.showHideControls(true)
+    }
 }

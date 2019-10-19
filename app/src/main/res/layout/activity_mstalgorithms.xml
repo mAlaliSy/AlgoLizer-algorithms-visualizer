@@ -9,7 +9,8 @@
     <com.malalisy.algolizer.ui.views.graphview.GraphView
         android:id="@+id/graphView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/controls" />
 
 
     <androidx.cardview.widget.CardView
@@ -17,22 +18,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        app:cardCornerRadius="10dp"
+        app:cardCornerRadius="0dp"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal">
 
 
             <Spinner
                 android:id="@+id/algorithmSpinner"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_weight="1"
+                android:layout_gravity="center_vertical|start"
+                android:layout_marginStart="16dp"
                 android:background="?selectableItemBackground"
                 android:paddingLeft="8dp"
                 android:paddingTop="4dp"
@@ -46,7 +48,7 @@
                 android:id="@+id/btnPlay"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:layout_marginStart="16dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/green_rounded_bg"
@@ -59,7 +61,7 @@
                 android:id="@+id/btnPause"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:layout_marginStart="16dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/red_rouned_bg"
@@ -71,14 +73,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReset"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|end"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
-                android:layout_weight="1"
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp"
                 android:text="@string/reset"
@@ -87,9 +88,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/algorithmLabel" />
 
-        </LinearLayout>
+        </FrameLayout>
     </androidx.cardview.widget.CardView>
-
 
 
     <FrameLayout
@@ -119,7 +119,6 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="24dp"
             android:background="?selectableItemBackgroundBorderless"
             android:src="@drawable/ic_close"
             android:tint="@android:color/white" />

@@ -6,11 +6,14 @@ interface MSTAlgorithmsContract {
         fun setAcceptGraphChanges(accept: Boolean)
         fun animateEdge(from: Int, to: Int, weight: Int, duration: Long)
         fun resetEdges()
-        fun showSolution(show: Boolean, found: Boolean, cost: Int)
+        fun showHideSolution(show: Boolean, found: Boolean = false, cost: Int= 0)
         fun showError(error: String)
 
         fun showHideResetButton(show: Boolean)
-        fun showHideControls(show: Boolean, anticipateOvershoot: Boolean)
+        fun showHideControls(show: Boolean)
+        fun showHidePlayButton(show: Boolean)
+        fun showHidePauseButton(show: Boolean)
+        fun resetGraph()
     }
 
 
@@ -21,5 +24,6 @@ interface MSTAlgorithmsContract {
         fun onPauseClicked()
         fun onRestartClick()
 
+        fun onCloseResultClick()
     }
 }
