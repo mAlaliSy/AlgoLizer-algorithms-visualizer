@@ -1,5 +1,6 @@
 package com.malalisy.algolizer.domain.mst
 
+import android.util.Log
 import java.util.*
 
 class PrimAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) :
@@ -15,7 +16,6 @@ class PrimAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) :
     override fun run() {
         val queue = PriorityQueue<Vertex>()
 
-        visited[0] = true
         queue.add(Vertex(0, 0, -1))
 
         while (queue.isNotEmpty()) {
