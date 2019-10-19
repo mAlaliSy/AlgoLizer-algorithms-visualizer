@@ -3,10 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.mstalgorithms.MSTAlgorithmsFragment">
+    tools:context=".ui.mstalgorithms.MSTAlgorithmsActivity">
 
     <com.malalisy.algolizer.ui.views.graphview.GraphView
-        android:id="@+id/graphView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

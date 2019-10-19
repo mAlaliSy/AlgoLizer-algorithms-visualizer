@@ -11,6 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".ui.mstalgorithms.MSTAlgorithmsActivity"></activity>
         <activity
             android:name=".ui.MainActivity"
             android:windowSoftInputMode="adjustPan">
