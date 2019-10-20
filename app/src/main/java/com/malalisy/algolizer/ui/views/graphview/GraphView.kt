@@ -762,6 +762,24 @@ class GraphView @JvmOverloads constructor(
         invalidate()
     }
 
+    fun resetAnimatedGraph() {
+        resetAdditionalEdges()
+
+        ValueAnimator.ofArgb(vertices[0].color, vertexColor).apply {
+            duration = duration
+            addUpdateListener {
+                val color = it.animatedValue as Int
+                vertices.forEach {v ->
+                    v.color = color
+                }
+                invalidate()
+            }
+            interpolator = AccelerateInterpolator()
+            start()
+        }
+
+    }
+
 
     private data class VertexViewItem(
         var number: Int,
