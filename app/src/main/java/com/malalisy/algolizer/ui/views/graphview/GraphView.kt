@@ -245,6 +245,19 @@ class GraphView @JvmOverloads constructor(
         }
     }
 
+    public fun animateVertex(vertexIndex: Int, color: Int, duration: Long) {
+
+        ValueAnimator.ofArgb(vertices[vertexIndex].color, color).apply {
+            setDuration(duration)
+            addUpdateListener {
+                vertices[vertexIndex].color = it.animatedValue as Int
+                invalidate()
+            }
+            interpolator = AccelerateInterpolator()
+            start()
+        }
+    }
+
     override fun onCheckIsTextEditor(): Boolean {
         return true
     }
