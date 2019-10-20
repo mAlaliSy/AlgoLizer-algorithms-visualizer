@@ -74,6 +74,7 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
             }
         }
 
+
         algorithm = MSTAlgorithmsFactory.getAlgorithm(algorithmType, adjacencyMatrix)
         algorithm!!.run()
 
@@ -81,6 +82,8 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
             view.showHideSolution(show = true, found = false)
             view.showHideControls(false)
         } else {
+            view.setAcceptGraphChanges(false)
+
             this.mst = algorithm!!.mst
 
             mstAnimationIndex = 0
@@ -105,6 +108,8 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
 
 
     override fun onCloseResultClick() {
+        view.setAcceptGraphChanges(true)
+
         handler.removeCallbacks(mstAnimationRunnable)
 
         view.resetMSTEdges()
