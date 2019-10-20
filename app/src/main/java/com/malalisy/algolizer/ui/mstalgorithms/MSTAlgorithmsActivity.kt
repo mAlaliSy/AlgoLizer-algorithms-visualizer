@@ -8,6 +8,7 @@ import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.github.florent37.viewanimator.ViewAnimator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.malalisy.algolizer.R
@@ -24,13 +25,15 @@ import kotlinx.android.synthetic.main.fragment_shortest_path_algorim.*
 
 class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
     lateinit var presenter: MSTAlgorithmsContract.Presenter
-
+    var visitedEdgeColor: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mstalgorithms)
 
         presenter = MSTAlgorithmsPresenter()
         presenter.setupView(this)
+
+        visitedEdgeColor = ContextCompat.getColor(this, R.color.visitedEdgeColor)
 
         /**
          * Hook up event listeners with the presenter
@@ -70,7 +73,12 @@ class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
     }
 
     override fun animateEdge(from: Int, to: Int, duration: Long) {
-        graphView.animateEdge(from, to, Color.parseColor("#4CAF50"), duration)
+        graphView.animateEdge(
+            from,
+            to,
+            visitedEdgeColor,
+            duration
+        )
     }
 
     override fun resetMSTEdges() {

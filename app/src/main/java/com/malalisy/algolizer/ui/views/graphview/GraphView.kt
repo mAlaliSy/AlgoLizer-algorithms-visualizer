@@ -33,13 +33,13 @@ class GraphView @JvmOverloads constructor(
         const val LONG_PRESS_TIME = 400L
 
         val DEFAULT_VERTEX_COLOR = Color.parseColor("#FF673AB7")
-        val DEFAULT_EDGE_LABEL_BG = Color.parseColor("#FF9800")
+        val DEFAULT_EDGE_LABEL_BG = Color.parseColor("#555555")
 
         // default color for transitioning between the background color and the color for a vertex
         val DEFAULT_TRANSITION_COLOR = Color.parseColor("#FFF04C7F")
 
         val DEFAULT_DRAGGING_EDGE_COLOR = Color.parseColor("#cccccc")
-        val DEFAULT_EDGE_COLOR = Color.parseColor("#666666")
+        val DEFAULT_EDGE_COLOR = Color.parseColor("#555555")
 
         val VERTEX_DELETE_CIRCLE_BG = Color.parseColor("#AA000000")
         val VERTEX_DELETE_CIRCLE_BG_DRAGGED = Color.parseColor("#44FF0000")
@@ -163,7 +163,7 @@ class GraphView @JvmOverloads constructor(
 
         additionalEdgesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
-            strokeWidth = 10f
+            strokeWidth = 12f
         }
 
 
