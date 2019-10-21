@@ -43,5 +43,7 @@
 
     <string name="mst_found">Minimum cost spanning tree found with cost: %1$d</string>
     <string name="no_mst">The graph is not connected and cannot have MST!</string>
+    <string name="invalid_graph">The graph is invalid</string>
+    <string name="graph_has_been_traversed">Graph has been traversed!</string>
 
 </resources>

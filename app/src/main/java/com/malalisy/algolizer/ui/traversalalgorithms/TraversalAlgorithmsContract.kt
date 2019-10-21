@@ -15,7 +15,7 @@ interface TraversalAlgorithmsContract {
         fun resetGraph()
         fun resetAnimatedGraph()
         fun animateVertex(index: Int, duration: Long)
-        fun showHideSolution(show: Boolean)
+        fun showHideSolution(show: Boolean, found: Boolean)
     }
 
 

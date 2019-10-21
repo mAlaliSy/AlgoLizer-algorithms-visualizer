@@ -26,7 +26,7 @@ class TraversalAlgorithmsActivity : AppCompatActivity(), TraversalAlgorithmsCont
     var visitedEdgeColor: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_mstalgorithms)
+        setContentView(R.layout.activity_traversalalgorithmsactivity)
 
         presenter = TraversalAlgorithmsPresenter()
         presenter.setupView(this)
@@ -92,9 +92,15 @@ class TraversalAlgorithmsActivity : AppCompatActivity(), TraversalAlgorithmsCont
         graphView.resetEdges()
     }
 
-    override fun showHideSolution(show: Boolean) {
+    override fun showHideSolution(show: Boolean, found: Boolean) {
         solutionInfoContainer.visibility = View.VISIBLE
-        solutionInfoContainer.setBackgroundResource(R.drawable.green_rounded_rect)
+        if (found) {
+            solutionInfoContainer.setBackgroundResource(R.drawable.green_rounded_rect)
+            solutionCostLabel.setText(R.string.graph_has_been_traversed)
+        } else {
+            solutionInfoContainer.setBackgroundResource(R.drawable.red_rounded_rect)
+            solutionCostLabel.setText(R.string.invalid_graph)
+        }
 
         solutionInfoContainer.scaleX = 0.5f
         solutionInfoContainer.scaleY = 0.5f

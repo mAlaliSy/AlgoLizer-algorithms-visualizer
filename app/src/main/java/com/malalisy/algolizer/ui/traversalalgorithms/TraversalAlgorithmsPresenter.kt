@@ -2,7 +2,6 @@ package com.malalisy.algolizer.ui.traversalalgorithms
 
 import android.os.Handler
 import com.malalisy.algolizer.domain.mst.MSTAlgorithmsFactory.KRUSKAL_ALGORITHM
-import com.malalisy.algolizer.domain.mst.MSTAlgorithmsFactory.PRIMS_ALGORITHM
 import com.malalisy.algolizer.domain.traversalalgrotihms.TraversalAlgorithmRunner
 import com.malalisy.algolizer.domain.traversalalgrotihms.TraversalAlgorithmsFactory
 import com.malalisy.algolizer.domain.traversalalgrotihms.TraversalAlgorithmsFactory.Companion.BFS
@@ -56,7 +55,7 @@ class TraversalAlgorithmsPresenter : TraversalAlgorithmsContract.Presenter {
 
     private fun handleAnimationEnd() {
         view.showHideControls(false)
-        view.showHideSolution(show = true)
+        view.showHideSolution(show = true, found = true)
 
         view.showHideResetButton(true)
         view.showHidePauseButton(false)
@@ -86,9 +85,21 @@ class TraversalAlgorithmsPresenter : TraversalAlgorithmsContract.Presenter {
             }
         }
 
+        if (adjacencyList.size == 0) {
+            view.showHideSolution(true, false)
+            view.showHideControls(false)
+
+            return
+        }
 
         algorithm = TraversalAlgorithmsFactory.getAlgorithm(algorithmType, adjacencyMatrix)
         algorithm!!.run()
+
+        if (algorithm!!.orderedVisitedEdges.size == 0) {
+            view.showHideSolution(true, false)
+            view.showHideControls(false)
+            return
+        }
 
         view.setAcceptGraphChanges(false)
 
@@ -124,7 +135,7 @@ class TraversalAlgorithmsPresenter : TraversalAlgorithmsContract.Presenter {
 
         view.resetAnimatedGraph()
         animationIndex = 0
-        view.showHideSolution(false)
+        view.showHideSolution(false, false)
         view.showHideControls(true)
     }
 }
