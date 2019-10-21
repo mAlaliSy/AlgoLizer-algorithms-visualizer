@@ -20,7 +20,8 @@
 
         <ImageView
             android:layout_width="150dp"
-            android:layout_height="150dp" />
+            android:layout_height="150dp"
+            android:src="@drawable/graph_traversal_icon"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -39,11 +40,13 @@
         android:focusable="true"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:layout_marginTop="16dp">
 
         <ImageView
             android:layout_width="150dp"
-            android:layout_height="150dp" />
+            android:layout_height="150dp"
+            android:src="@drawable/mst_icon"/>
 
         <TextView
             android:layout_width="wrap_content"
