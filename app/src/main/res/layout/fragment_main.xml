@@ -7,169 +7,205 @@
     tools:context=".ui.main.MainFragment">
 
 
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/logoCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="130dp"
+        android:rotation="-45"
+        app:cardCornerRadius="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/logoCard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="130dp"
-            android:rotation="-45"
-            app:cardCornerRadius="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_margin="8dp"
+            android:src="@drawable/logo" />
+    </com.google.android.material.card.MaterialCardView>
 
-            <ImageView
-                android:layout_width="128dp"
-                android:layout_height="128dp"
-                android:layout_margin="8dp"
-                android:src="@drawable/logo" />
-        </com.google.android.material.card.MaterialCardView>
+    <TextView
+        android:id="@+id/logoText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:text="@string/algolizer"
+        android:textColor="@color/colorPrimary"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logoCard" />
 
-        <TextView
-            android:id="@+id/logoText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
-            android:text="@string/algolizer"
-            android:textColor="@color/colorPrimary"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/logoCard" />
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/btnShortestPathAlgorithms"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="?selectableItemBackground"-->
+    <!--        android:clickable="true"-->
+    <!--        android:focusable="true"-->
+    <!--        android:gravity="center"-->
+    <!--        android:paddingLeft="8dp"-->
+    <!--        android:paddingTop="16dp"-->
+    <!--        android:paddingRight="8dp"-->
+    <!--        android:paddingBottom="16dp"-->
+    <!--        app:layout_constraintBottom_toTopOf="@+id/btnOtherGraphAlgorithms"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintHorizontal_bias="0.5"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/logoCard"-->
+    <!--        app:layout_constraintVertical_chainStyle="packed">-->
 
-        <LinearLayout
-            android:id="@+id/btnShortestPathAlgorithms"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:paddingLeft="8dp"
-            android:paddingTop="16dp"
-            android:paddingRight="8dp"
-            android:paddingBottom="16dp"
-            app:layout_constraintBottom_toTopOf="@+id/btnOtherGraphAlgorithms"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/logoCard"
-            app:layout_constraintVertical_chainStyle="packed">
+    <!--        &lt;!&ndash;        <ImageView&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_width="32dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_height="32dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:padding="4dp"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:rotation="30"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:src="@drawable/logo" />&ndash;&gt;-->
+
+
+    <!--        <TextView-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:layout_marginStart="8dp"-->
+    <!--            android:text="@string/shortest_path_algorithms"-->
+    <!--            android:textAllCaps="false"-->
+    <!--            android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+    <!--            android:textColor="@color/colorAccent"-->
+    <!--            android:textStyle="bold" />-->
+    <!--    </LinearLayout>-->
+
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/btnOtherGraphAlgorithms"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="?selectableItemBackground"-->
+    <!--        android:clickable="true"-->
+    <!--        android:focusable="true"-->
+    <!--        android:gravity="center"-->
+    <!--        android:paddingLeft="8dp"-->
+    <!--        android:paddingTop="16dp"-->
+    <!--        android:paddingRight="8dp"-->
+    <!--        android:paddingBottom="16dp"-->
+    <!--        app:layout_constraintBottom_toTopOf="@+id/btnSortingAlgorithms"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintHorizontal_bias="0.5"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/btnShortestPathAlgorithms"-->
+    <!--        app:layout_constraintVertical_chainStyle="packed">-->
 
     <!--        <ImageView-->
     <!--            android:layout_width="32dp"-->
     <!--            android:layout_height="32dp"-->
     <!--            android:padding="4dp"-->
     <!--            android:rotation="30"-->
-    <!--            android:src="@drawable/logo" />-->
+    <!--            android:src="@drawable/logo"-->
+    <!--            android:visibility="gone" />-->
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:text="@string/shortest_path_algorithms"
-                android:textAllCaps="false"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/colorAccent"
-                android:textStyle="bold" />
-        </LinearLayout>
+    <!--        <TextView-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:layout_marginStart="8dp"-->
+    <!--            android:text="@string/other_graph_algorithms"-->
+    <!--            android:textAllCaps="false"-->
+    <!--            android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+    <!--            android:textColor="@color/colorAccent"-->
+    <!--            android:textStyle="normal" />-->
+    <!--    </LinearLayout>-->
 
-        <LinearLayout
-            android:id="@+id/btnOtherGraphAlgorithms"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:paddingLeft="8dp"
-            android:paddingTop="16dp"
-            android:paddingRight="8dp"
-            android:paddingBottom="16dp"
-            app:layout_constraintBottom_toTopOf="@+id/btnSortingAlgorithms"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnShortestPathAlgorithms"
-            app:layout_constraintVertical_chainStyle="packed">
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnShortestPathAlgorithms"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/shortest_path_algorithms"
+        app:layout_constraintBottom_toTopOf="@+id/btnOtherGraphAlgorithms"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logoText"
+        app:layout_constraintVertical_chainStyle="packed" />
 
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="4dp"
-                android:rotation="30"
-                android:src="@drawable/logo"
-                android:visibility="gone" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOtherGraphAlgorithms"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/other_graph_algorithms"
+        app:layout_constraintBottom_toTopOf="@id/btnSortingAlgorithms"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnShortestPathAlgorithms"
+        app:layout_constraintVertical_chainStyle="packed" />
 
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:text="@string/other_graph_algorithms"
-                android:textAllCaps="false"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/disabled_color"
-                android:textStyle="normal" />
-        </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSortingAlgorithms"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sorting_algorithms"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnOtherGraphAlgorithms"
+        app:layout_constraintVertical_chainStyle="packed" />
 
 
-        <LinearLayout
-            android:id="@+id/btnSortingAlgorithms"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:paddingLeft="8dp"
-            android:paddingTop="16dp"
-            android:paddingRight="8dp"
-            android:paddingBottom="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnOtherGraphAlgorithms"
-            app:layout_constraintVertical_chainStyle="packed">
+    <LinearLayout
+        android:id="@+id/btnSortingAlgorithmsf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingLeft="8dp"
+        android:paddingTop="16dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnOtherGraphAlgorithms"
+        app:layout_constraintVertical_chainStyle="packed">
 
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:padding="4dp"
-                android:rotation="30"
-                android:src="@drawable/logo"
-                android:visibility="gone" />
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:text="@string/sorting_algorithms"
-                android:textAllCaps="false"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@color/disabled_color"
-                android:textStyle="normal" />
-        </LinearLayout>
-
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btnInfo"
+        <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_margin="8dp"
-            android:src="@drawable/ic_info"
-            android:background="?selectableItemBackgroundBorderless"
-            android:tint="@color/colorAccent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:padding="4dp"
+            android:rotation="30"
+            android:src="@drawable/logo"
+            android:visibility="gone" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:text="@string/sorting_algorithms"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/disabled_color"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnInfo"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_info"
+        android:tint="@color/colorAccent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

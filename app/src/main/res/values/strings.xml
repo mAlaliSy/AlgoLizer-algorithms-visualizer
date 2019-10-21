@@ -28,7 +28,7 @@
     </string-array>
 
     <string name="shortest_path_algorithms">Shortest path algorithms</string>
-    <string name="other_graph_algorithms">Other graph algorithms (Coming)</string>
+    <string name="other_graph_algorithms">Other graph algorithms</string>
     <string name="sorting_algorithms">Sorting algorithms (Coming)</string>
     <string name="info">Info</string>
     <string name="algolizer">Algolizer</string>

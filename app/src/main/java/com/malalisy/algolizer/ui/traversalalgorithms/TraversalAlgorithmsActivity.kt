@@ -32,7 +32,7 @@ class TraversalAlgorithmsActivity : AppCompatActivity(), TraversalAlgorithmsCont
         presenter.setupView(this)
 
         visitedEdgeColor = ContextCompat.getColor(this, R.color.visitedEdgeColor)
-        visitedVertexColor = ContextCompat.getColor(this, R.color.visitedEdgeColor)
+        visitedVertexColor = ContextCompat.getColor(this, R.color.green)
 
         /**
          * Hook up event listeners with the presenter
