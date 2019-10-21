@@ -10,6 +10,7 @@ import android.view.ViewGroup
 
 import com.malalisy.algolizer.R
 import com.malalisy.algolizer.ui.mstalgorithms.MSTAlgorithmsActivity
+import com.malalisy.algolizer.ui.traversalalgorithms.TraversalAlgorithmsActivity
 import kotlinx.android.synthetic.main.fragment_other_graph_algorithms.*
 
 /**
@@ -29,6 +30,9 @@ class OtherGraphAlgorithmsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         btnMST.setOnClickListener {
             startActivity(Intent(context!!, MSTAlgorithmsActivity::class.java))
+        }
+        btnGraphTraversal.setOnClickListener {
+            startActivity(Intent(context!!, TraversalAlgorithmsActivity::class.java))
         }
     }
 

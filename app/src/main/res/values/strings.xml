@@ -22,6 +22,11 @@
         <item>Prim</item>
     </string-array>
 
+    <string-array name="traversal_algorithms">
+        <item>BFS</item>
+        <item>DFS</item>
+    </string-array>
+
     <string name="shortest_path_algorithms">Shortest path algorithms</string>
     <string name="other_graph_algorithms">Other graph algorithms (Coming)</string>
     <string name="sorting_algorithms">Sorting algorithms (Coming)</string>
