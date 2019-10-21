@@ -13,7 +13,7 @@ class TraversalAlgorithmsFactory {
         @Retention(AnnotationRetention.SOURCE)
         annotation class TraversalAlgorithms
 
-        fun getTraversalAlgorithm(
+        fun getAlgorithm(
             @TraversalAlgorithms algorithm: Int,
             adjacencyMatrix: Array<Array<Int>>
         ): TraversalAlgorithmRunner {
