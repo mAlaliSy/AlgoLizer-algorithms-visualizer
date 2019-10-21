@@ -1,7 +1,6 @@
 package com.malalisy.algolizer.ui.mstalgorithms
 
 import android.os.Handler
-import android.util.Log
 import com.malalisy.algolizer.domain.mst.MSTAlgorithmRunner
 import com.malalisy.algolizer.domain.mst.MSTAlgorithmsFactory
 import com.malalisy.algolizer.domain.mst.MSTAlgorithmsFactory.KRUSKAL_ALGORITHM
@@ -11,7 +10,7 @@ import java.lang.IllegalArgumentException
 class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
 
     companion object {
-        private const val EDGE_ANIMATION_DURATION: Long = 300L
+        private const val EDGE_ANIMATION_DURATION: Long = 600L
     }
 
     private lateinit var view: MSTAlgorithmsContract.View
@@ -87,7 +86,7 @@ class MSTAlgorithmsPresenter : MSTAlgorithmsContract.Presenter {
             this.mst = algorithm!!.mst
 
             mstAnimationIndex = 0
-            handler.postDelayed(mstAnimationRunnable, EDGE_ANIMATION_DURATION)
+            handler.post(mstAnimationRunnable)
 
             view.showHidePlayButton(false)
             view.showHidePauseButton(true)

@@ -1,6 +1,5 @@
 package com.malalisy.algolizer.ui.mstalgorithms
 
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -10,7 +9,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.github.florent37.viewanimator.ViewAnimator
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.malalisy.algolizer.R
 import kotlinx.android.synthetic.main.activity_mstalgorithms.*
 import kotlinx.android.synthetic.main.activity_mstalgorithms.algorithmSpinner
@@ -21,7 +19,6 @@ import kotlinx.android.synthetic.main.activity_mstalgorithms.btnReset
 import kotlinx.android.synthetic.main.activity_mstalgorithms.controls
 import kotlinx.android.synthetic.main.activity_mstalgorithms.solutionCostLabel
 import kotlinx.android.synthetic.main.activity_mstalgorithms.solutionInfoContainer
-import kotlinx.android.synthetic.main.fragment_shortest_path_algorim.*
 
 class MSTAlgorithmsActivity : AppCompatActivity(), MSTAlgorithmsContract.View {
     lateinit var presenter: MSTAlgorithmsContract.Presenter
