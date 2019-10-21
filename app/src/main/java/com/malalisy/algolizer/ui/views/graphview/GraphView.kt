@@ -15,6 +15,7 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputConnection
 import android.text.*
 import android.view.animation.AccelerateDecelerateInterpolator
+import com.malalisy.algolizer.R
 import com.malalisy.algolizer.utils.midPoint
 import kotlin.math.min
 
@@ -47,6 +48,7 @@ class GraphView @JvmOverloads constructor(
         const val VERTEX_DELETE_RADIUS_DRAGGED = VERTEX_DELETE_RADIUS * 1.3f
     }
 
+    private var isWeighted: Boolean = false
     private var acceptInput: Boolean = true
     private val vertices: MutableList<VertexViewItem> = mutableListOf()
     private var verticesCounter = 0
@@ -150,6 +152,12 @@ class GraphView @JvmOverloads constructor(
 
 
     init {
+
+        context?.let {
+            val typedArray = it.obtainStyledAttributes(attrs, R.styleable.GraphView)
+            isWeighted = typedArray.getInteger(R.styleable.GraphView_graphType, 0) == 0
+            typedArray.recycle()
+        }
         draggingEdgesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
             strokeWidth = 10f
@@ -379,8 +387,13 @@ class GraphView @JvmOverloads constructor(
                             for (edge in adjacencyList[draggingVertex!!.number]) {
                                 if (edge.first == vertex.number) break@outer
                             }
-                            toggleKeyboard()
-                            lastEdge = vertex.number to draggingVertex!!.number
+                            if (isWeighted) {
+                                toggleKeyboard()
+                                lastEdge = vertex.number to draggingVertex!!.number
+                            } else {
+                                adjacencyList[draggingVertex!!.number].add(vertex.number to 1)
+                                adjacencyList[vertex.number].add(draggingVertex!!.number to 1)
+                            }
                             break
                         }
                     }
@@ -536,7 +549,8 @@ class GraphView @JvmOverloads constructor(
         canvas?.let {
             drawEdges(it)
             drawAdditionalEdges(it)
-            drawEdgesWeights(it)
+            if (isWeighted)
+                drawEdgesWeights(it)
             drawDraggingEdge(it)
 
             drawVertices(it)
@@ -578,12 +592,13 @@ class GraphView @JvmOverloads constructor(
                     y2 = target.y
                 }
                 canvas.drawLine(x, y, x2, y2, edgesPaint)
-                label = (edge.second).toString()
-                val pos = midPoint(x, y, x2, y2)
-
-                canvas.drawCircle(pos.first, pos.second, vertexRadius / 2, edgeWeightBgPaint)
-
-                drawTextCenter(canvas, pos.first, pos.second, label, edgeWeightPaint)
+//                label = (edge.second).toString()
+//                val pos = midPoint(x, y, x2, y2)
+//
+//                canvas.drawCircle(pos.first, pos.second, vertexRadius / 2, edgeWeightBgPaint)
+//
+//                if (isWeighted)
+//                    drawTextCenter(canvas, pos.first, pos.second, label, edgeWeightPaint)
 
             }
         }
@@ -764,12 +779,12 @@ class GraphView @JvmOverloads constructor(
 
     fun resetAnimatedGraph() {
         resetAdditionalEdges()
-
+        if (vertices.size == 0) return
         ValueAnimator.ofArgb(vertices[0].color, vertexColor).apply {
             duration = duration
             addUpdateListener {
                 val color = it.animatedValue as Int
-                vertices.forEach {v ->
+                vertices.forEach { v ->
                     v.color = color
                 }
                 invalidate()

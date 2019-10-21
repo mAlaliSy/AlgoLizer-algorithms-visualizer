@@ -24,4 +24,11 @@
         <attr name="minSpeed" format="float" />
         <attr name="stepSize" format="float" />
     </declare-styleable>
+
+    <declare-styleable name="GraphView">
+        <attr name="graphType" format="enum">
+            <enum name="weighted" value="0" />
+            <enum name="unweighted" value="1" />
+        </attr>
+    </declare-styleable>
 </resources>
