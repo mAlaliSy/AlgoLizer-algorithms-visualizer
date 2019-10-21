@@ -12,9 +12,11 @@ class DFSAlgorithmRunner(adjacencyMatrix: Array<Array<Int>>) :
         visited = Array(adjacencyMatrix.size) { false }
         orderedVisitedEdges = mutableListOf()
 
-        visited[0] = true
-
-        dfs(0)
+        for (i in adjacencyMatrix.indices) {
+            if (visited[i]) continue
+            visited[i] = true
+            dfs(i)
+        }
     }
 
     private fun dfs(index: Int) {
