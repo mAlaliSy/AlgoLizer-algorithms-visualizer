@@ -13,6 +13,9 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         const val CHANGE_DESTINATION_LATENCY = 30L
     }
 
+    private var rows = 0
+    private var columns = 0
+    private var cellSize = 0
     private var algorithmRunner: Int = ShortestPathAlgorithmsFactory.DIJKSTRA_ALGORITHM
     // Store weather the algorithm has run for the current problem
     private var algorithmCompleted = false
@@ -20,7 +23,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
     // Visited cells in order of the time they were visited
     private var visitedOrdered: List<Pair<Int, Int>>? = null
     // The grid of the problem
-    private var grid = initGrid()
+    private lateinit var grid: Array<Array<TileType>>
     // The source node
     private lateinit var source: Pair<Int, Int>
     // The destination node
@@ -28,7 +31,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     private lateinit var newInteractiveDestination: Pair<Int, Int>
     // Shortest path algorithm runner
-    private var shortestPathRunner: ShortestPathAlgorithmRunner
+    private lateinit var shortestPathRunner: ShortestPathAlgorithmRunner
 
     private lateinit var view: ShortestPathAlgorithmContract.View
 
@@ -79,15 +82,25 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         changeDestinationInteractively()
     }
 
-    init {
+    override fun setupView(view: ShortestPathAlgorithmContract.View) {
+        this.view = view
+        setupDimensions()
+        initGrid()
+
         shortestPathRunner = ShortestPathAlgorithmsFactory.getAlgorithmRunner(
             ShortestPathAlgorithmsFactory.DIJKSTRA_ALGORITHM,
             grid
         )
     }
 
-    override fun setupView(view: ShortestPathAlgorithmContract.View) {
-        this.view = view
+    fun setupDimensions() {
+        val gridDimen = view.getGridDimen()
+        cellSize = view.getCellSize()
+
+        rows = gridDimen.y / cellSize
+        columns = gridDimen.x / cellSize
+
+        view.setGrid(rows, columns)
     }
 
     override fun onCellStartTouch(i: Int, j: Int) {
@@ -404,7 +417,7 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
         view.showHideResultContainer(false)
         sourcePlacement = true
         algorithmCompleted = false
-        grid = initGrid()
+        initGrid()
         view.clearGrid()
         view.showHidePlayButton(true)
         view.showHidePauseButton(false)
@@ -425,12 +438,13 @@ class ShortestPathAlgorithmPresenter : ShortestPathAlgorithmContract.Presenter {
 
     }
 
-    private fun initGrid(): Array<Array<TileType>> =
-        Array(24) {
-            Array(15) {
+    private fun initGrid() {
+        grid = Array(rows) {
+            Array(columns) {
                 TileType.Empty
             }
         }
+    }
 
     override fun onInteractiveCheckChange(enabled: Boolean) {
         interactiveMode = enabled

@@ -1,5 +1,7 @@
 package com.malalisy.algolizer.ui.shortestpathalgorithm
 
+import android.graphics.Point
+
 interface ShortestPathAlgorithmContract {
     interface View {
         fun animateVisitedItems(vararg cells: Pair<Int, Int>)
@@ -27,6 +29,11 @@ interface ShortestPathAlgorithmContract {
         fun showHideInteractiveModeButton(show: Boolean)
         fun animateRemoveDestinationCell(destination: Pair<Int, Int>)
         fun setInteractiveMode(interactive: Boolean)
+
+        fun getGridDimen(): Point
+
+        fun setGrid(rows: Int, columns: Int)
+        fun getCellSize(): Int
     }
 
     interface Presenter {

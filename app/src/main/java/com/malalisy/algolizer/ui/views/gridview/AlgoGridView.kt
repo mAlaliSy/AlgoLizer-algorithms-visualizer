@@ -25,7 +25,7 @@ class AlgoGridView @JvmOverloads constructor(
         val DEFAULT_SOLUTION_CELL_COLOR = Color.parseColor("#FF9800")
         val DEFAULT_TRANSITION_COLOR = Color.parseColor("#FFF04C7F")
 
-        val DEFAULT_CELL_PADDING = 10
+        val DEFAULT_CELL_MARGIN = 10
         val CELL_CORNER_RADIUS = 15f
         val MAX_CELL_CORNER_RADIUS = 100f
 
@@ -110,10 +110,10 @@ class AlgoGridView @JvmOverloads constructor(
     var cellSize: Int = 0
 
     /**
-     * The cell inset padding
+     * The cell inset margin
      */
-    var cellPadding =
-        DEFAULT_CELL_PADDING
+    var cellMargin =
+        DEFAULT_CELL_MARGIN
 
     /**
      * Duration for cells color animation
@@ -168,10 +168,10 @@ class AlgoGridView @JvmOverloads constructor(
 
             cellSize = typedArray.getDimensionPixelSize(R.styleable.AlgoGridView_cellSize, 0)
 
-            cellPadding =
+            cellMargin =
                 typedArray.getDimensionPixelSize(
-                    R.styleable.AlgoGridView_cellPadding,
-                    DEFAULT_CELL_PADDING
+                    R.styleable.AlgoGridView_cellMargin,
+                    DEFAULT_CELL_MARGIN
                 )
 
             animDuration =
@@ -202,8 +202,8 @@ class AlgoGridView @JvmOverloads constructor(
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
         setMeasuredDimension(
-            gridColumns * cellSize + (gridColumns + 1) * cellPadding,
-            gridRows * cellSize + (gridRows + 1) * cellPadding
+            gridColumns * cellSize + (gridColumns + 1) * cellMargin,
+            gridRows * cellSize + (gridRows + 1) * cellMargin
         )
     }
 
@@ -574,10 +574,10 @@ class AlgoGridView @JvmOverloads constructor(
             for (j in 0 until gridColumns) {
 
                 cellRect.set(
-                    j * cellSize + (j + 1) * cellPadding.toFloat(),
-                    i * cellSize + (i + 1) * cellPadding.toFloat(),
-                    (j + 1) * cellSize + (j + 1) * cellPadding.toFloat(),
-                    (i + 1) * cellSize + (i + 1) * cellPadding.toFloat()
+                    j * cellSize + (j + 1) * cellMargin.toFloat(),
+                    i * cellSize + (i + 1) * cellMargin.toFloat(),
+                    (j + 1) * cellSize + (j + 1) * cellMargin.toFloat(),
+                    (i + 1) * cellSize + (i + 1) * cellMargin.toFloat()
                 )
 
                 canvas.drawRoundRect(
@@ -599,10 +599,10 @@ class AlgoGridView @JvmOverloads constructor(
     private fun drawCellColors(list: List<GridColorItem>, canvas: Canvas) {
         list.forEach {
             cellRect.set(
-                it.j * cellSize + (it.j + 1) * cellPadding.toFloat(),
-                it.i * cellSize + (it.i + 1) * cellPadding.toFloat(),
-                (it.j + 1) * cellSize + (it.j + 1) * cellPadding.toFloat(),
-                (it.i + 1) * cellSize + (it.i + 1) * cellPadding.toFloat()
+                it.j * cellSize + (it.j + 1) * cellMargin.toFloat(),
+                it.i * cellSize + (it.i + 1) * cellMargin.toFloat(),
+                (it.j + 1) * cellSize + (it.j + 1) * cellMargin.toFloat(),
+                (it.i + 1) * cellSize + (it.i + 1) * cellMargin.toFloat()
             )
             cellPaint.color = it.color
             canvas.drawRoundRect(cellRect, it.rectRadius, it.rectRadius, cellPaint)
@@ -616,8 +616,8 @@ class AlgoGridView @JvmOverloads constructor(
          */
         if (clearGridItems.size > 0) return true
         event?.let {
-            val row = (it.y / (cellSize + cellPadding)).toInt()
-            val col = (it.x / (cellSize + cellPadding)).toInt()
+            val row = (it.y / (cellSize + cellMargin)).toInt()
+            val col = (it.x / (cellSize + cellMargin)).toInt()
             when (it.action) {
                 MotionEvent.ACTION_DOWN -> {
                     onGridCellStartTouch?.invoke(

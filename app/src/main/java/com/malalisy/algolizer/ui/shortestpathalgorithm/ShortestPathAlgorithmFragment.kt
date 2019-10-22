@@ -1,6 +1,7 @@
 package com.malalisy.algolizer.ui.shortestpathalgorithm
 
 
+import android.graphics.Point
 import android.os.Bundle
 import android.os.Handler
 import android.transition.AutoTransition
@@ -41,19 +42,6 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter = ShortestPathAlgorithmPresenter()
-        presenter.setupView(this)
-
-        algoGridView.onGridCellStartTouch = { i, j ->
-            if (!bottomSheetDraggingOrExpanded)
-                presenter.onCellStartTouch(i, j)
-        }
-
-        algoGridView.onGridCellTouchMove = { i, j ->
-            if (!bottomSheetDraggingOrExpanded)
-                presenter.onCellTouchMove(i, j)
-        }
-
         bottomSheetBehavior = BottomSheetBehavior.from(controls)
         bottomSheetBehavior.setBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
@@ -67,13 +55,26 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
 
         })
 
+        presenter = ShortestPathAlgorithmPresenter()
+        presenter.setupView(this)
+
+        algoGridView.onGridCellStartTouch = { i, j ->
+            if (!bottomSheetDraggingOrExpanded)
+                presenter.onCellStartTouch(i, j)
+        }
+
+        algoGridView.onGridCellTouchMove = { i, j ->
+            if (!bottomSheetDraggingOrExpanded)
+                presenter.onCellTouchMove(i, j)
+        }
+
 
         /**
          * Hook up event listeners with the presenter
          */
         btnPlay.setOnClickListener {
             presenter.onPlayClicked()
-            bottomSheetBehavior.state=BottomSheetBehavior.STATE_COLLAPSED
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
         btnPause.setOnClickListener { presenter.onPauseClicked() }
         btnForward.setOnClickListener { presenter.onForwardClicked() }
@@ -266,5 +267,26 @@ class ShortestPathAlgorithmFragment : BaseFragment(), ShortestPathAlgorithmContr
 
     override fun setInteractiveMode(interactive: Boolean) {
         interactiveSwitch.isChecked = interactive
+    }
+
+    override fun getGridDimen(): Point {
+        val point = Point()
+        activity!!.windowManager.defaultDisplay.getSize(point)
+        val gridMargin = 2 * resources.getDimensionPixelSize(R.dimen.grid_view_cell_margin)
+        point.x -= gridMargin
+        point.y -= resources.getDimensionPixelSize(R.dimen.shortest_path_bottom_sheet_peek_hight) + gridMargin
+
+        return point
+    }
+
+    override fun getCellSize(): Int {
+        return resources.getDimensionPixelSize(R.dimen.grid_view_cell_size) + resources.getDimensionPixelSize(
+            R.dimen.grid_view_cell_margin
+        )
+    }
+
+    override fun setGrid(rows: Int, columns: Int) {
+        algoGridView.gridRows = rows
+        algoGridView.gridColumns = columns
     }
 }
