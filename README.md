@@ -27,4 +27,4 @@ Bugs appeared in the video are fixed with latter commits.
 
 
 ## Download Algolizer app:
-The app will be available soon on Google Play, but currently you can download the APK from the [releases page](https://github.com/mAlaliSy/AlgoLizer-algorithms-visualizer/releases)
+The app is avaiable on Google Play, download it from [here](https://play.google.com/store/apps/details?id=com.malalisy.algolizer)
